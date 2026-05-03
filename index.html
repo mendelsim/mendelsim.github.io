@@ -54,7 +54,16 @@
     <h1>MendelSim — Simulador de Genética</h1>
     <p class="hero-subtitle">Aprende y practica genética con simuladores interactivos</p>
   </div>
-  <button id="darkToggle" class="dark-toggle" title="Modo oscuro">🌙</button>
+  <div class="header-controls">
+    <label class="language-control" for="languageSelect">
+      <span id="languageLabel" class="sr-only">Idioma</span>
+      <select id="languageSelect" aria-label="Idioma">
+        <option value="es">ES</option>
+        <option value="ca">CA</option>
+      </select>
+    </label>
+    <button id="darkToggle" class="dark-toggle" title="Modo oscuro">🌙</button>
+  </div>
 </header>
 
 <div class="container">
@@ -145,5 +154,121 @@
   </div>
 </footer>
 
+<script src="js/i18n.js"></script>
+<script>
+const INDEX_CA = {
+  pageTitle: 'MendelSim — Simulador de genètica',
+  heading: 'MendelSim — Simulador de genètica',
+  subtitle: 'Aprèn i practica genètica amb simuladors interactius',
+  features: [
+    '✅ Quadres de Punnett animats',
+    '✅ Herència monohíbrida i dihíbrida',
+    '✅ Herència lligada al sexe',
+    '✅ Pedigrís interactius',
+    '✅ Exercicis amb solucions',
+    '✅ Sense instal·lació — funciona al navegador',
+  ],
+  modulesTitle: 'Mòduls disponibles',
+  modulesIntro: 'Selecciona un mòdul per començar a practicar:',
+  modules: [
+    {
+      title: 'Encreuament monohíbrid',
+      description: 'Estudia la transmissió d’un sol caràcter. Construeix quadres de Punnett i calcula proporcions fenotípiques.',
+    },
+    {
+      title: 'Encreuament dihíbrid',
+      description: 'Analitza l’herència simultània de dos caràcters independents. Quadre de Punnett 4×4 amb 16 combinacions.',
+    },
+    {
+      title: 'Herència lligada al sexe',
+      description: 'Estudia gens en cromosomes sexuals. Herència lligada a l’X, portadores i hemizigots. Hemofília, daltonisme i més.',
+    },
+    {
+      title: 'Pedigrís interactius',
+      description: 'Analitza arbres genealògics, identifica patrons hereditaris i construeix els teus propis pedigrís pas a pas.',
+    },
+  ],
+  start: 'Començar →',
+  howTitle: 'ℹ️ Com s’utilitza MendelSim?',
+  steps: [
+    'Tria el mòdul que correspon al tema d’estudi.',
+    'Configura els genotips dels progenitors i el tipus d’herència.',
+    'Observa el quadre de Punnett animat i llegeix els resultats.',
+    'Practica amb els pedigrís: analitza patrons i dedueix genotips.',
+    'Fes servir el constructor de pedigrís per crear els teus propis arbres genealògics.',
+  ],
+  footerCode: 'Codi',
+  footerContent: 'Continguts',
+  footerIssues: 'Suggeriments i errors',
+};
+
+function initLanguageSelector() {
+  const select = document.getElementById('languageSelect');
+  if (!select || !window.MendelSimI18n) return;
+  const locale = MendelSimI18n.getLocale();
+  select.value = locale === 'ca' ? 'ca' : 'es';
+  select.addEventListener('change', () => {
+    const nextLocale = select.value === 'ca' ? 'ca' : 'es';
+    MendelSimI18n.setLocale(nextLocale);
+    const url = new URL(window.location.href);
+    if (nextLocale === 'ca') {
+      url.searchParams.set('lang', 'ca');
+    } else {
+      url.searchParams.delete('lang');
+    }
+    window.location.href = `${url.pathname}${url.search}${url.hash}`;
+  });
+}
+
+function propagateLocaleLinks() {
+  if (window.MendelSimI18n?.getLocale() !== 'ca') return;
+  document.querySelectorAll('.module-card').forEach(link => {
+    const url = new URL(link.getAttribute('href'), window.location.href);
+    url.searchParams.set('lang', 'ca');
+    link.setAttribute('href', `modulos/${url.pathname.split('/').pop()}${url.search}`);
+  });
+}
+
+function applyCatalan() {
+  if (window.MendelSimI18n?.getLocale() !== 'ca') return;
+  document.documentElement.lang = 'ca';
+  document.title = INDEX_CA.pageTitle;
+  document.querySelector('.header h1').textContent = INDEX_CA.heading;
+  document.querySelector('.hero-subtitle').textContent = INDEX_CA.subtitle;
+  document.getElementById('darkToggle')?.setAttribute('title', 'Mode fosc');
+  document.querySelectorAll('.feature-list li').forEach((li, index) => {
+    li.textContent = INDEX_CA.features[index] || li.textContent;
+  });
+  document.querySelector('.modules-section h2').textContent = INDEX_CA.modulesTitle;
+  document.querySelector('.modules-section > p').textContent = INDEX_CA.modulesIntro;
+  document.querySelectorAll('.module-card').forEach((card, index) => {
+    const data = INDEX_CA.modules[index];
+    if (!data) return;
+    card.querySelector('h3').textContent = data.title;
+    card.querySelector('p').textContent = data.description;
+    card.querySelector('.btn').textContent = INDEX_CA.start;
+  });
+  document.querySelector('.card-title').textContent = INDEX_CA.howTitle;
+  document.querySelectorAll('.card ol li').forEach((li, index) => {
+    li.textContent = INDEX_CA.steps[index] || li.textContent;
+  });
+  const footer = document.querySelector('footer div:last-child');
+  if (footer) {
+    footer.innerHTML = `
+    ${INDEX_CA.footerCode}: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">AGPLv3</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    ${INDEX_CA.footerContent}: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    &copy; 2026
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <a href="https://github.com/mendelsim/mendelsim.github.io/issues" target="_blank" rel="noopener">${INDEX_CA.footerIssues}</a>
+  `;
+  }
+}
+
+initLanguageSelector();
+applyCatalan();
+propagateLocaleLinks();
+</script>
 </body>
 </html>
