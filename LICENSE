@@ -1,0 +1,33 @@
+MendelSim — Simulador interactivo de genética mendeliana
+Copyright (C) 2026 Juan José de Haro <https://bilateria.org>
+
+─────────────────────────────────────────────────────────────────────────────
+SOURCE CODE — GNU Affero General Public License v3.0 (AGPLv3)
+─────────────────────────────────────────────────────────────────────────────
+
+The source code of this project is free software: you can redistribute it
+and/or modify it under the terms of the GNU Affero General Public License
+as published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+─────────────────────────────────────────────────────────────────────────────
+EDUCATIONAL CONTENT — Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0)
+─────────────────────────────────────────────────────────────────────────────
+
+The educational content of this project (exercises, descriptions, explanations,
+and other didactic materials) is licensed under the Creative Commons
+Attribution-ShareAlike 4.0 International License.
+
+You are free to share and adapt the content for any purpose, even commercially,
+as long as you give appropriate credit to Juan José de Haro (bilateria.org)
+and distribute your contributions under the same license.
+
+Full license text: <https://creativecommons.org/licenses/by-sa/4.0/>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MendelSim — Simulador de Genética</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/darkmode.js"></script>
+  <style>
+    .hero-subtitle {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      max-width: 600px;
+    }
+    .module-card .module-icon { line-height: 1; }
+    .modules-section h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.3rem;
+    }
+    .modules-section p {
+      font-size: 0.92rem;
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+    }
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin: 1.5rem 0;
+    }
+    .feature-list li {
+      background: #f0fdf4;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.85rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-content">
+    <span class="logo">🧬</span>
+    <h1>MendelSim — Simulador de Genética</h1>
+    <p class="hero-subtitle">Aprende y practica genética con simuladores interactivos</p>
+  </div>
+  <button id="darkToggle" class="dark-toggle" title="Modo oscuro">🌙</button>
+</header>
+
+<div class="container">
+
+  <ul class="feature-list">
+    <li>✅ Cuadros de Punnett animados</li>
+    <li>✅ Herencia monohíbrida y dihíbrida</li>
+    <li>✅ Herencia ligada al sexo</li>
+    <li>✅ Pedigríes interactivos</li>
+    <li>✅ Ejercicios con soluciones</li>
+    <li>✅ Sin instalación — funciona en el navegador</li>
+  </ul>
+
+  <div class="modules-section">
+    <h2>Módulos disponibles</h2>
+    <p>Selecciona un módulo para comenzar a practicar:</p>
+
+    <div class="module-grid">
+
+      <!-- Monohíbrido -->
+      <a class="module-card" href="modulos/monohibrido.html">
+        <div class="module-icon">🔬</div>
+        <h3>Cruce Monohíbrido</h3>
+        <p>Estudia la transmisión de un solo carácter. Construye cuadros de Punnett y calcula proporciones fenotípicas.</p>
+        <div class="card-footer">
+          <span class="btn btn-primary btn-sm">Empezar →</span>
+        </div>
+      </a>
+
+      <!-- Dihíbrido -->
+      <a class="module-card" href="modulos/dihibrido.html">
+        <div class="module-icon">🧪</div>
+        <h3>Cruce Dihíbrido</h3>
+        <p>Analiza la herencia simultánea de dos caracteres independientes. Cuadro de Punnett 4×4 con 16 combinaciones.</p>
+        <div class="card-footer">
+          <span class="btn btn-primary btn-sm">Empezar →</span>
+        </div>
+      </a>
+
+      <!-- Ligado al sexo -->
+      <a class="module-card" href="modulos/ligado-sexo.html">
+        <div class="module-icon">🧬</div>
+        <h3>Herencia Ligada al Sexo</h3>
+        <p>Estudia genes en cromosomas sexuales. Herencia ligada al X, portadoras y hemicigotos. Hemofilia, daltonismo y más.</p>
+        <div class="card-footer">
+          <span class="btn btn-primary btn-sm">Empezar →</span>
+        </div>
+      </a>
+
+      <!-- Pedigríes -->
+      <a class="module-card" href="modulos/pedigri.html">
+        <div class="module-icon">🌳</div>
+        <h3>Pedigríes Interactivos</h3>
+        <p>Analiza árboles genealógicos, identifica patrones hereditarios y construye tus propios pedigríes paso a paso.</p>
+        <div class="card-footer">
+          <span class="btn btn-primary btn-sm">Empezar →</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">ℹ️ ¿Cómo usar MendelSim?</div>
+    <ol style="padding-left:1.3rem; font-size:0.92rem; line-height:2;">
+      <li>Elige el módulo que corresponde al tema de estudio.</li>
+      <li>Configura los genotipos de los progenitores y el tipo de herencia.</li>
+      <li>Observa el cuadro de Punnett animado y lee los resultados.</li>
+      <li>Practica con los pedigríes: analiza patrones y deduce genotipos.</li>
+      <li>Usa el constructor de pedigríes para crear tus propios árboles genealógicos.</li>
+    </ol>
+  </div>
+
+</div>
+
+<footer>
+  <div>
+    <strong><a href="https://bilateria.org" target="_blank" rel="noopener">Juan José de Haro</a></strong> &mdash; MendelSim v1.0
+  </div>
+  <div style="margin-top:0.3rem">
+    Código: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">AGPLv3</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    Contenidos: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    &copy; 2026
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <a href="https://github.com/mendelsim/mendelsim.github.io/issues" target="_blank" rel="noopener">Sugerencias y errores</a>
+  </div>
+</footer>
+
+</body>
+</html>

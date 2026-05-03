@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cruce Dihíbrido — MendelSim</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/darkmode.js"></script>
+  <style>
+    .punnett-grid.dihybrid {
+      grid-template-columns: 90px repeat(4, 76px);
+    }
+    .punnett-cell { min-width: 76px; min-height: 52px; font-size: 0.82rem; }
+    .punnett-cell.header-cell { font-size: 0.85rem; }
+    .law-box {
+      background: linear-gradient(135deg, #f0fdf4, #e8f5e9);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      margin: 1rem 0;
+    }
+    .law-title { font-weight: 700; color: var(--primary); font-size: 1rem; margin-bottom: 0.5rem; }
+    .preset-btn {
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .preset-btn:hover { border-color: var(--primary-light); background: #f0fdf4; }
+    .presets-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .pheno-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+    .pheno-card {
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1.5px solid;
+      font-size: 0.88rem;
+    }
+    .result-section { display: none; }
+    .result-section.visible { display: block; }
+    .ratio-equation {
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--primary);
+      padding: 0.5rem 0.9rem;
+      background: #f0fdf4;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      display: inline-block;
+      margin: 0.5rem 0;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-content">
+    <a href="../index.html" class="back-btn">← Inicio</a>
+    <span class="logo">🧪</span>
+    <h1>Cruce Dihíbrido</h1>
+    <p>Herencia de dos caracteres independientes — Cuadro de Punnett 4×4</p>
+  </div>
+  <button id="darkToggle" class="dark-toggle" title="Modo oscuro">🌙</button>
+</header>
+
+<div class="container">
+
+  <!-- Ley de Mendel -->
+  <div class="law-box">
+    <div class="law-title">📜 Ley de la Distribución Independiente (3.ª Ley de Mendel)</div>
+    <p style="font-size:0.9rem;">Los alelos de genes situados en cromosomas diferentes se distribuyen de forma independiente durante la formación de gametos. Esto produce 4 tipos de gametos en proporciones iguales (para un doble heterocigoto AaBb: AB, Ab, aB, ab).</p>
+  </div>
+
+  <!-- ── Sección 1: Configuración ── -->
+  <div class="card">
+    <div class="card-title"><span class="step-number">1</span> Configuración del cruce dihíbrido</div>
+
+    <div class="presets-row">
+      <button class="preset-btn" onclick="loadPreset('clasico')">🟡 Clásico AaBb × AaBb</button>
+      <button class="preset-btn" onclick="loadPreset('testcross')">🔬 Testcross (AaBb × aabb)</button>
+      <button class="preset-btn" onclick="loadPreset('guisantes')">🌱 Guisantes (color × forma)</button>
+      <button class="preset-btn" onclick="loadPreset('AAbb')">AABb × AaBb</button>
+      <button class="preset-btn" onclick="loadRandomExample()">🎲 Nuevo ejemplo</button>
+    </div>
+
+    <div id="exampleInfo" class="alert alert-info" style="display:none;margin-bottom:1rem;">
+      <span class="alert-icon">📌</span>
+      <div id="exampleInfoText"></div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Genotipo Progenitor P1</label>
+        <select id="p1A">
+          <option value="Aa">Aa</option>
+          <option value="AA">AA</option>
+          <option value="aa">aa</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>&nbsp;</label>
+        <select id="p1B">
+          <option value="Bb">Bb</option>
+          <option value="BB">BB</option>
+          <option value="bb">bb</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:flex-end;padding-bottom:0.5rem;font-size:1.3rem;font-weight:700;color:var(--primary)">×</div>
+      <div class="form-group">
+        <label>Genotipo Progenitor P2</label>
+        <select id="p2A">
+          <option value="Aa">Aa</option>
+          <option value="AA">AA</option>
+          <option value="aa">aa</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>&nbsp;</label>
+        <select id="p2B">
+          <option value="Bb">Bb</option>
+          <option value="BB">BB</option>
+          <option value="bb">bb</option>
+        </select>
+      </div>
+    </div>
+
+    <hr class="divider" style="margin:0.75rem 0;">
+
+    <p style="font-size:0.85rem;font-weight:600;color:#374151;margin-bottom:0.5rem;">Nombres de los rasgos (dominancia completa en ambos genes):</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Carácter A dominante (A_)</label>
+        <input type="text" id="traitAdom" value="Amarillo" placeholder="Ej: Amarillo">
+      </div>
+      <div class="form-group">
+        <label>Carácter A recesivo (aa)</label>
+        <input type="text" id="traitArec" value="Verde" placeholder="Ej: Verde">
+      </div>
+      <div class="form-group">
+        <label>Carácter B dominante (B_)</label>
+        <input type="text" id="traitBdom" value="Liso" placeholder="Ej: Liso">
+      </div>
+      <div class="form-group">
+        <label>Carácter B recesivo (bb)</label>
+        <input type="text" id="traitBrec" value="Rugoso" placeholder="Ej: Rugoso">
+      </div>
+    </div>
+
+    <div class="btn-group" style="margin-top:0.5rem;">
+      <button class="btn btn-primary btn-lg" onclick="realizarCruce()">▶ Realizar cruce</button>
+      <button class="btn btn-outline" onclick="limpiar()">↺ Limpiar</button>
+    </div>
+  </div>
+
+  <!-- ── Sección 2: Cuadro de Punnett 4×4 ── -->
+  <div class="card result-section" id="punnettSection">
+    <div class="card-title"><span class="step-number">2</span> Cuadro de Punnett 4×4 (16 combinaciones)</div>
+    <div class="punnett-wrap">
+      <div class="punnett-grid dihybrid" id="punnettGrid"></div>
+    </div>
+    <div id="phenoLegend" style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:0.75rem;font-size:0.85rem;"></div>
+  </div>
+
+  <!-- ── Sección 3: Resultados ── -->
+  <div class="card result-section" id="resultsSection">
+    <div class="card-title"><span class="step-number">3</span> Resultados</div>
+
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+      <div style="flex:1;min-width:220px;">
+        <div class="section-title">📊 Proporciones genotípicas</div>
+        <div class="ratio-equation" id="genoRatioEq">—</div>
+        <div id="genoRatioList"></div>
+      </div>
+      <div style="flex:1;min-width:220px;">
+        <div class="section-title">🎨 Proporciones fenotípicas</div>
+        <div class="ratio-equation" id="phenoRatioEq">—</div>
+        <div id="phenoCards"></div>
+      </div>
+    </div>
+
+    <div id="mendel93Alert" class="alert alert-success" style="margin-top:1rem;display:none;">
+      <span class="alert-icon">🏆</span>
+      <div><strong>¡Proporción 9:3:3:1 de Mendel!</strong> Este resultado clásico confirma que los dos genes se heredan de forma independiente (cromosomas distintos).</div>
+    </div>
+  </div>
+
+  <!-- ── Sección 4: Comprensión ── -->
+  <div class="card result-section" id="understandSection">
+    <div class="card-title"><span class="step-number">4</span> Comprensión y autoevaluación</div>
+
+    <div id="explanationBox" class="alert alert-info" style="margin-bottom:1rem;">
+      <span class="alert-icon">💡</span>
+      <div id="explanationContent"></div>
+    </div>
+
+    <div class="section-title">❓ Preguntas de repaso</div>
+    <div id="qaList"></div>
+  </div>
+
+</div>
+
+<footer>
+  <div>
+    <strong><a href="https://bilateria.org" target="_blank" rel="noopener">Juan José de Haro</a></strong> &mdash; MendelSim v1.0
+  </div>
+  <div style="margin-top:0.3rem">
+    Código: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">AGPLv3</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    Contenidos: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    &copy; 2026
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <a href="https://github.com/mendelsim/mendelsim.github.io/issues" target="_blank" rel="noopener">Sugerencias y errores</a>
+  </div>
+</footer>
+
+<script src="../js/genetics.js"></script>
+<script>
+// ── Presets ──────────────────────────────────────────────────
+const PRESETS = {
+  clasico:    { p1A:'Aa', p1B:'Bb', p2A:'Aa', p2B:'Bb', ta:'Amarillo', tr:'Verde', tb:'Liso', tbr:'Rugoso', description:'Cruce dihíbrido clásico con dos genes independientes y doble heterocigosis en ambos progenitores.' },
+  testcross:  { p1A:'Aa', p1B:'Bb', p2A:'aa', p2B:'bb', ta:'Amarillo', tr:'Verde', tb:'Liso', tbr:'Rugoso', description:'Cruce de prueba: el doble heterocigoto se cruza con un doble homocigoto recesivo.' },
+  guisantes:  { p1A:'Aa', p1B:'Bb', p2A:'Aa', p2B:'Bb', ta:'Semilla amarilla', tr:'Semilla verde', tb:'Forma lisa', tbr:'Forma rugosa', description:'Caso mendeliano clásico con color y forma de la semilla de guisante.' },
+  AAbb:       { p1A:'AA', p1B:'Bb', p2A:'Aa', p2B:'Bb', ta:'Amarillo', tr:'Verde', tb:'Liso', tbr:'Rugoso', description:'Cruce con homocigosis dominante en el primer gen y segregación en el segundo.' },
+};
+
+const RANDOM_TRAIT_PAIRS = [
+  {
+    context: 'guisantes',
+    ta: 'Semilla amarilla',
+    tr: 'Semilla verde',
+    tb: 'Semilla lisa',
+    tbr: 'Semilla rugosa',
+    description: 'Dos caracteres mendelianos clásicos de guisante, tratados como genes independientes.'
+  },
+  {
+    context: 'Drosophila',
+    ta: 'Cuerpo gris',
+    tr: 'Cuerpo negro',
+    tb: 'Alas normales',
+    tbr: 'Alas vestigiales',
+    description: 'Dos rasgos autosómicos de Drosophila usados habitualmente como modelo escolar de segregación independiente.'
+  },
+  {
+    context: 'maíz',
+    ta: 'Grano pigmentado',
+    tr: 'Grano sin pigmento',
+    tb: 'Grano liso',
+    tbr: 'Grano rugoso',
+    description: 'Rasgos de grano de maíz modelados como dos loci con dominancia completa.'
+  },
+  {
+    context: 'tomate',
+    ta: 'Tallo alto',
+    tr: 'Tallo enano',
+    tb: 'Fruto rojo',
+    tbr: 'Fruto amarillo',
+    description: 'Ejemplo didáctico de dos caracteres vegetales independientes con dominancia completa.'
+  }
+];
+
+const RANDOM_DIHYBRID_CROSSES = [
+  { p1A:'Aa', p1B:'Bb', p2A:'Aa', p2B:'Bb', label:'AaBb × AaBb' },
+  { p1A:'Aa', p1B:'Bb', p2A:'aa', p2B:'bb', label:'AaBb × aabb' },
+  { p1A:'Aa', p1B:'Bb', p2A:'Aa', p2B:'bb', label:'AaBb × Aabb' },
+  { p1A:'Aa', p1B:'bb', p2A:'Aa', p2B:'Bb', label:'Aabb × AaBb' },
+  { p1A:'AA', p1B:'Bb', p2A:'Aa', p2B:'Bb', label:'AABb × AaBb' },
+  { p1A:'Aa', p1B:'BB', p2A:'Aa', p2B:'Bb', label:'AaBB × AaBb' },
+  { p1A:'aa', p1B:'Bb', p2A:'Aa', p2B:'Bb', label:'aaBb × AaBb' }
+];
+
+function pickRandom(items) {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+function setExampleInfo(text) {
+  const box = document.getElementById('exampleInfo');
+  const content = document.getElementById('exampleInfoText');
+  if (!text) {
+    box.style.display = 'none';
+    content.textContent = '';
+    return;
+  }
+  box.style.display = '';
+  content.textContent = text;
+}
+
+function loadPreset(name) {
+  const p = PRESETS[name];
+  if (!p) return;
+  document.getElementById('p1A').value = p.p1A;
+  document.getElementById('p1B').value = p.p1B;
+  document.getElementById('p2A').value = p.p2A;
+  document.getElementById('p2B').value = p.p2B;
+  document.getElementById('traitAdom').value = p.ta;
+  document.getElementById('traitArec').value = p.tr;
+  document.getElementById('traitBdom').value = p.tb;
+  document.getElementById('traitBrec').value = p.tbr;
+  setExampleInfo(p.description);
+  realizarCruce();
+}
+
+function loadRandomExample() {
+  const traits = pickRandom(RANDOM_TRAIT_PAIRS);
+  const cross = pickRandom(RANDOM_DIHYBRID_CROSSES);
+
+  document.getElementById('p1A').value = cross.p1A;
+  document.getElementById('p1B').value = cross.p1B;
+  document.getElementById('p2A').value = cross.p2A;
+  document.getElementById('p2B').value = cross.p2B;
+  document.getElementById('traitAdom').value = traits.ta;
+  document.getElementById('traitArec').value = traits.tr;
+  document.getElementById('traitBdom').value = traits.tb;
+  document.getElementById('traitBrec').value = traits.tbr;
+  setExampleInfo(`Ejemplo generado (${traits.context}): ${traits.description} Cruce: ${cross.label}.`);
+  realizarCruce();
+}
+
+// ── Phenotype color map ──────────────────────────────────────
+const PHENO_STYLE = {
+  AB: { bg:'#d1fae5', border:'#6ee7b7', text:'#065f46', fill:'ratio-fill-1' },
+  Ab: { bg:'#fef3c7', border:'#fcd34d', text:'#92400e', fill:'ratio-fill-2' },
+  aB: { bg:'#dbeafe', border:'#93c5fd', text:'#1e3a8a', fill:'ratio-fill-3' },
+  ab: { bg:'#fee2e2', border:'#fca5a5', text:'#991b1b', fill:'ratio-fill-4' },
+};
+
+function getPhenoClass(pheno) {
+  const map = { AB:'pheno-dom', Ab:'pheno-inter', aB:'pheno-a', ab:'pheno-rec' };
+  return map[pheno] || 'pheno-dom';
+}
+
+// ── Main cross ───────────────────────────────────────────────
+function realizarCruce() {
+  const p1str = document.getElementById('p1A').value + document.getElementById('p1B').value;
+  const p2str = document.getElementById('p2A').value + document.getElementById('p2B').value;
+  const traitNames = {
+    domA: document.getElementById('traitAdom').value || 'A_',
+    recA: document.getElementById('traitArec').value || 'aa',
+    domB: document.getElementById('traitBdom').value || 'B_',
+    recB: document.getElementById('traitBrec').value || 'bb',
+    phAB: document.getElementById('traitAdom').value + ' + ' + document.getElementById('traitBdom').value,
+    phAb: document.getElementById('traitAdom').value + ' + ' + document.getElementById('traitBrec').value,
+    phaB: document.getElementById('traitArec').value + ' + ' + document.getElementById('traitBdom').value,
+    phab: document.getElementById('traitArec').value + ' + ' + document.getElementById('traitBrec').value,
+  };
+
+  const loci1 = Genetics.parseGenotype(p1str);
+  const loci2 = Genetics.parseGenotype(p2str);
+  const gametes1 = Genetics.generateGametes(loci1);
+  const gametes2 = Genetics.generateGametes(loci2);
+  const punnett  = Genetics.buildPunnett(gametes1, gametes2);
+  const flat     = punnett.flat();
+
+  const genoRatios  = Genetics.genotypeRatios(flat);
+  const phenoRatios = Genetics.dihybridPhenotypeRatios(flat, traitNames);
+
+  renderPunnett(gametes1, gametes2, punnett);
+  renderResults(genoRatios, phenoRatios, traitNames, p1str, p2str);
+  renderUnderstanding(p1str, p2str, phenoRatios, traitNames);
+
+  ['punnettSection','resultsSection','understandSection'].forEach(id => {
+    document.getElementById(id).classList.add('visible');
+  });
+}
+
+// ── Punnett rendering ────────────────────────────────────────
+function renderPunnett(gametes1, gametes2, punnett) {
+  const grid = document.getElementById('punnettGrid');
+  grid.innerHTML = '';
+  grid.style.gridTemplateColumns = `90px repeat(${gametes2.length}, 76px)`;
+
+  // Corner
+  grid.appendChild(makeCell('', 'header-cell corner'));
+  // Column headers
+  for (const g of gametes2) grid.appendChild(makeCell(g, 'header-cell'));
+
+  const resultCells = [];
+  for (let i = 0; i < gametes1.length; i++) {
+    grid.appendChild(makeCell(gametes1[i], 'row-header'));
+    for (let j = 0; j < gametes2.length; j++) {
+      const geno  = punnett[i][j];
+      const pheno = Genetics.getDihybridPhenotype(geno);
+      const cell  = makeCell(geno, `result ${getPhenoClass(pheno)}`);
+      grid.appendChild(cell);
+      resultCells.push(cell);
+    }
+  }
+  // Animate
+  resultCells.forEach((cell, idx) => {
+    setTimeout(() => cell.classList.add('show'), 100 + idx * 100);
+  });
+
+  // Legend
+  const legend = document.getElementById('phenoLegend');
+  legend.innerHTML = '<strong style="font-size:0.85rem;color:#374151;margin-right:0.5rem;">Fenotipos:</strong>';
+  const phenos = ['AB','Ab','aB','ab'];
+  const labels = {
+    AB: `${document.getElementById('traitAdom').value||'A_'} + ${document.getElementById('traitBdom').value||'B_'}`,
+    Ab: `${document.getElementById('traitAdom').value||'A_'} + ${document.getElementById('traitBrec').value||'bb'}`,
+    aB: `${document.getElementById('traitArec').value||'aa'} + ${document.getElementById('traitBdom').value||'B_'}`,
+    ab: `${document.getElementById('traitArec').value||'aa'} + ${document.getElementById('traitBrec').value||'bb'}`,
+  };
+  for (const ph of phenos) {
+    const s = PHENO_STYLE[ph];
+    legend.innerHTML += `<div style="display:flex;align-items:center;gap:0.4rem;">
+      <div style="width:16px;height:16px;border-radius:3px;background:${s.bg};border:1px solid ${s.border};flex-shrink:0;"></div>
+      <span style="color:${s.text};font-size:0.82rem;">${labels[ph]}</span>
+    </div>`;
+  }
+}
+
+function makeCell(text, classes) {
+  const div = document.createElement('div');
+  div.className = 'punnett-cell ' + classes;
+  div.textContent = text;
+  return div;
+}
+
+// ── Results ──────────────────────────────────────────────────
+function renderResults(genoRatios, phenoRatios, traitNames, p1str, p2str) {
+  // Geno
+  const counts = genoRatios.map(r => r.count);
+  const gcd = counts.reduce((a,b)=>{while(b){[a,b]=[b,a%b];}return a;});
+  document.getElementById('genoRatioEq').textContent =
+    genoRatios.map(r => `${r.count/gcd} ${r.genotype}`).join(' : ');
+
+  const genoList = document.getElementById('genoRatioList');
+  genoList.innerHTML = '';
+  genoRatios.forEach((r, idx) => {
+    genoList.innerHTML += `
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-label">
+          <span><code>${r.genotype}</code></span><span>${r.percent}%</span>
+        </div>
+        <div class="ratio-bar">
+          <div class="ratio-bar-fill ratio-fill-${(idx%4)+1}" style="width:${r.percent}%">${r.percent>=10?r.percent+'%':''}</div>
+        </div>
+      </div>`;
+  });
+
+  // Pheno
+  const pCounts = phenoRatios.map(r=>r.count);
+  const pgcd = pCounts.reduce((a,b)=>{while(b){[a,b]=[b,a%b];}return a;});
+  document.getElementById('phenoRatioEq').textContent =
+    phenoRatios.map(r => `${r.count/pgcd} ${r.phenotype}`).join(' : ');
+
+  const phenoCards = document.getElementById('phenoCards');
+  phenoCards.innerHTML = '';
+  for (const r of phenoRatios) {
+    const s = PHENO_STYLE[r.phenotype] || {};
+    phenoCards.innerHTML += `
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-label">
+          <span style="color:${s.text||'#374151'};font-weight:600;">${r.label}</span>
+          <span>${r.percent}%</span>
+        </div>
+        <div class="ratio-bar">
+          <div class="ratio-bar-fill" style="width:${r.percent}%;background:${s.text||'var(--primary-light)'};">${r.percent>=12?r.percent+'%':''}</div>
+        </div>
+      </div>`;
+  }
+
+  // Check 9:3:3:1
+  const sortedRatios = [...phenoRatios].sort((a,b)=>b.count-a.count);
+  const is9331 = sortedRatios.length === 4 &&
+    sortedRatios[0].count === 9 && sortedRatios[1].count === 3 &&
+    sortedRatios[2].count === 3 && sortedRatios[3].count === 1;
+  document.getElementById('mendel93Alert').style.display = is9331 ? '' : 'none';
+}
+
+// ── Understanding ────────────────────────────────────────────
+function renderUnderstanding(p1str, p2str, phenoRatios, traitNames) {
+  let expl = `El cruce <strong>${p1str} × ${p2str}</strong> produce ${phenoRatios.length} fenotipos distintos. `;
+  if (phenoRatios.find(r=>r.count===9)) {
+    expl += 'La proporción 9:3:3:1 es la firma clásica del cruce dihíbrido de Mendel y confirma que los dos genes se encuentran en cromosomas diferentes (se heredan de forma independiente).';
+  } else {
+    expl += 'Al ser al menos uno de los progenitores homocigoto para algún gen, las proporciones difieren de la 9:3:3:1 clásica.';
+  }
+  document.getElementById('explanationContent').innerHTML = expl;
+
+  const qa = [
+    {
+      q: '¿Por qué el cruce AaBb × AaBb produce la proporción 9:3:3:1?',
+      a: 'Porque cada gen se hereda de forma independiente. El doble heterocigoto AaBb produce 4 tipos de gametos (AB, Ab, aB, ab) en proporciones iguales. Al cruzar 4 × 4 gametos obtenemos 16 combinaciones, de las cuales 9 tienen al menos un alelo A y un alelo B (A_B_), 3 tienen A_ con bb, 3 tienen aaB_, y 1 es aabb.'
+    },
+    {
+      q: '¿Qué es un cruce de prueba (testcross)?',
+      a: 'Es el cruce de un individuo con genotipo desconocido con un individuo homocigoto recesivo (aabb). Las proporciones de descendientes revelan el genotipo del progenitor desconocido. Si la progenie es 1:1:1:1, el progenitor era AaBb; si es 1:1, era homocigoto para un gen.'
+    },
+    {
+      q: '¿Qué ocurre si los dos genes están en el mismo cromosoma?',
+      a: 'Si los genes están ligados (en el mismo cromosoma), no se distribuyen de forma independiente y no se obtiene la proporción 9:3:3:1. Las combinaciones parentales son más frecuentes que las recombinantes. Esto se estudia en el concepto de ligamiento y recombinación.'
+    },
+  ];
+
+  const qaList = document.getElementById('qaList');
+  qaList.innerHTML = '';
+  for (const item of qa) {
+    qaList.innerHTML += `
+      <div class="qa-item">
+        <div class="qa-question" onclick="toggleQA(this)">
+          ${item.q}
+          <span style="font-size:0.9rem;color:var(--primary);">▼ Ver respuesta</span>
+        </div>
+        <div class="qa-answer">${item.a}</div>
+      </div>`;
+  }
+}
+
+function toggleQA(el) {
+  const a = el.nextElementSibling;
+  a.classList.toggle('open');
+  el.querySelector('span').textContent = a.classList.contains('open') ? '▲ Ocultar' : '▼ Ver respuesta';
+}
+
+function limpiar() {
+  ['punnettSection','resultsSection','understandSection'].forEach(id => {
+    document.getElementById(id).classList.remove('visible');
+  });
+  document.getElementById('punnettGrid').innerHTML = '';
+}
+</script>
+</body>
+</html>

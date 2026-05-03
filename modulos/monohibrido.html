@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cruce Monohíbrido — MendelSim</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/darkmode.js"></script>
+  <style>
+    .punnett-legend {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+    }
+    .legend-item { display: flex; align-items: center; gap: 0.4rem; }
+    .legend-swatch {
+      width: 20px; height: 20px;
+      border-radius: 4px;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+    .preset-btn {
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .preset-btn:hover { border-color: var(--primary-light); background: #f0fdf4; }
+    .presets-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    #probabilityResult { font-size: 1rem; font-weight: 600; color: var(--primary); }
+    .result-section { display: none; }
+    .result-section.visible { display: block; }
+    .radio-group.locked { opacity: 0.72; }
+    .radio-group.locked label { cursor: not-allowed; }
+    .dominance-note {
+      margin: 0.45rem 0 0;
+      font-size: 0.82rem;
+      color: #64748b;
+    }
+    .ratio-equation {
+      font-family: var(--mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+      padding: 0.6rem 1rem;
+      background: #f0fdf4;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      display: inline-block;
+      margin: 0.5rem 0;
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-content">
+    <a href="../index.html" class="back-btn">← Inicio</a>
+    <span class="logo">🔬</span>
+    <h1>Cruce Monohíbrido</h1>
+    <p>Herencia de un solo carácter — Cuadro de Punnett 2×2</p>
+  </div>
+  <button id="darkToggle" class="dark-toggle" title="Modo oscuro">🌙</button>
+</header>
+
+<div class="container">
+
+  <!-- ── Sección 1: Configuración ── -->
+  <div class="card">
+    <div class="card-title"><span class="step-number">1</span> Configuración del cruce</div>
+
+    <p style="font-size:0.88rem;color:#6b7280;margin-bottom:1rem;">
+      Selecciona ejemplos predefinidos o configura tu propio cruce:
+    </p>
+
+    <div class="presets-row" id="presetsRow">
+      <button class="preset-btn" onclick="loadPreset('guisantes')">🟡 Guisantes (color)</button>
+      <button class="preset-btn" onclick="loadPreset('sangre')">🩸 Sistema MN</button>
+      <button class="preset-btn" onclick="loadPreset('boca')">🌸 Boca de dragón</button>
+      <button class="preset-btn" onclick="loadPreset('pelaje')">🐱 Pelaje de gato</button>
+      <button class="preset-btn" onclick="loadRandomExample()">🎲 Nuevo ejemplo</button>
+      <button class="preset-btn" onclick="enableCustomMode()">⚙️ Personalizado</button>
+    </div>
+
+    <div id="exampleInfo" class="alert alert-info" style="display:none;margin-bottom:1rem;">
+      <span class="alert-icon">📌</span>
+      <div id="exampleInfoText"></div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="p1Select">Genotipo Progenitor P1</label>
+        <select id="p1Select" onchange="onGenoChange()">
+          <option value="Aa">Aa (heterocigoto)</option>
+          <option value="AA">AA (homocigoto dominante)</option>
+          <option value="aa">aa (homocigoto recesivo)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="p2Select">Genotipo Progenitor P2</label>
+        <select id="p2Select" onchange="onGenoChange()">
+          <option value="Aa">Aa (heterocigoto)</option>
+          <option value="AA">AA (homocigoto dominante)</option>
+          <option value="aa">aa (homocigoto recesivo)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Tipo de dominancia</label>
+      <div class="radio-group" id="dominanceGroup">
+        <label><input type="radio" name="dominance" value="complete" checked onchange="onDomChange()"> Dominancia completa</label>
+        <label><input type="radio" name="dominance" value="incomplete" onchange="onDomChange()"> Dominancia incompleta</label>
+        <label><input type="radio" name="dominance" value="codominance" onchange="onDomChange()"> Codominancia</label>
+      </div>
+      <p class="dominance-note" id="dominanceNote"></p>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="traitDom" id="labelDom">Fenotipo alelo dominante (A)</label>
+        <input type="text" id="traitDom" value="Amarillo" placeholder="Ej: Amarillo">
+      </div>
+      <div class="form-group">
+        <label for="traitRec" id="labelRec">Fenotipo alelo recesivo (a)</label>
+        <input type="text" id="traitRec" value="Verde" placeholder="Ej: Verde">
+      </div>
+      <div class="form-group" id="interGroup" style="display:none;">
+        <label for="traitInter" id="labelInter">Fenotipo intermedio (Aa)</label>
+        <input type="text" id="traitInter" value="Intermedio" placeholder="Ej: Rosa">
+      </div>
+    </div>
+
+    <div class="btn-group" style="margin-top:0.5rem;">
+      <button class="btn btn-primary btn-lg" onclick="realizarCruce()">▶ Realizar cruce</button>
+      <button class="btn btn-outline" onclick="limpiar()">↺ Limpiar</button>
+    </div>
+  </div>
+
+  <!-- ── Sección 2: Cuadro de Punnett ── -->
+  <div class="card result-section" id="punnettSection">
+    <div class="card-title"><span class="step-number">2</span> Cuadro de Punnett</div>
+
+    <div class="alert alert-info">
+      <span class="alert-icon">💡</span>
+      <div>Cada celda muestra el genotipo de un posible descendiente. Las celdas aparecen una por una para que puedas seguir el proceso.</div>
+    </div>
+
+    <div class="punnett-wrap">
+      <div class="punnett-grid mono" id="punnettGrid"></div>
+    </div>
+
+    <div id="phenoLegend" class="punnett-legend"></div>
+  </div>
+
+  <!-- ── Sección 3: Resultados ── -->
+  <div class="card result-section" id="resultsSection">
+    <div class="card-title"><span class="step-number">3</span> Resultados</div>
+
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;">
+        <div class="section-title">📊 Proporciones genotípicas</div>
+        <div class="ratio-equation" id="genoRatioEq">—</div>
+        <div id="genoRatioList"></div>
+      </div>
+      <div style="flex:1;min-width:200px;">
+        <div class="section-title">🎨 Proporciones fenotípicas</div>
+        <div class="ratio-equation" id="phenoRatioEq">—</div>
+        <div id="phenoRatioList"></div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-title">🎯 Calculadora de probabilidades</div>
+    <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
+      <div style="flex:1;min-width:180px;">
+        <label>¿Cuál es la probabilidad de obtener...?</label>
+        <select id="probSelect" style="margin-top:0.3rem;" onchange="calcProb()">
+          <option value="">— Selecciona un fenotipo —</option>
+        </select>
+      </div>
+      <div class="prob-display" id="probDisplay" style="min-width:140px;">
+        <div class="prob-value" id="probValue">—</div>
+        <div class="prob-fraction" id="probFraction"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Sección 4: Comprensión ── -->
+  <div class="card result-section" id="understandSection">
+    <div class="card-title"><span class="step-number">4</span> Comprensión y autoevaluación</div>
+
+    <div id="explanationText" class="alert alert-success" style="margin-bottom:1rem;">
+      <span class="alert-icon">🔬</span>
+      <div id="explanationContent"></div>
+    </div>
+
+    <div class="section-title">❓ Preguntas de repaso</div>
+    <div id="qaList"></div>
+  </div>
+
+</div>
+
+<footer>
+  <div>
+    <strong><a href="https://bilateria.org" target="_blank" rel="noopener">Juan José de Haro</a></strong> &mdash; MendelSim v1.0
+  </div>
+  <div style="margin-top:0.3rem">
+    Código: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">AGPLv3</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    Contenidos: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    &copy; 2026
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <a href="https://github.com/mendelsim/mendelsim.github.io/issues" target="_blank" rel="noopener">Sugerencias y errores</a>
+  </div>
+</footer>
+
+<script src="../js/genetics.js"></script>
+<script>
+// ── State ────────────────────────────────────────────────────
+let currentPunnett = [];
+let currentPhenoRatios = [];
+let currentGenoRatios = [];
+
+const DOMINANCE_LABELS = {
+  complete: 'dominancia completa',
+  incomplete: 'dominancia incompleta',
+  codominance: 'codominancia',
+};
+
+// ── Presets ─────────────────────────────────────────────────
+const PRESETS = {
+  guisantes: {
+    p1: 'Aa', p2: 'Aa', dominance: 'complete',
+    dom: 'Amarillo', rec: 'Verde', inter: '',
+    description: 'Mendel cruzó guisantes amarillos (AA y Aa) con guisantes verdes (aa). El color amarillo (A) es dominante sobre el verde (a).'
+  },
+  sangre: {
+    p1: 'Aa', p2: 'Aa', dominance: 'codominance',
+    dom: 'Grupo sanguíneo M', rec: 'Grupo sanguíneo N', inter: 'Grupo sanguíneo MN',
+    description: 'El sistema sanguíneo MN presenta codominancia. En el heterocigoto se expresan simultáneamente los alelos M y N.'
+  },
+  boca: {
+    p1: 'Aa', p2: 'Aa', dominance: 'incomplete',
+    dom: 'Roja', rec: 'Blanca', inter: 'Rosa',
+    description: 'La flor de boca de dragón muestra dominancia incompleta. La mezcla de alelos rojo (A) y blanco (a) produce flores rosas (Aa).'
+  },
+  pelaje: {
+    p1: 'Aa', p2: 'aa', dominance: 'complete',
+    dom: 'Negro', rec: 'Naranja', inter: '',
+    description: 'En el pelaje del gato, el alelo negro (A) es dominante sobre el naranja (a) en herencia autosómica.'
+  }
+};
+
+const RANDOM_TRAITS = {
+  complete: [
+    {
+      dom: 'Semillas amarillas',
+      rec: 'Semillas verdes',
+      description: 'Caso mendeliano clásico en guisantes: el alelo para color amarillo se modela como dominante sobre el verde.'
+    },
+    {
+      dom: 'Semillas lisas',
+      rec: 'Semillas rugosas',
+      description: 'Rasgo clásico de guisantes de Mendel: la forma lisa se modela como dominante sobre la rugosa.'
+    },
+    {
+      dom: 'Alas normales',
+      rec: 'Alas vestigiales',
+      description: 'Ejemplo didáctico en Drosophila: las alas vestigiales se tratan como fenotipo recesivo frente a alas normales.'
+    },
+    {
+      dom: 'Pigmentación normal',
+      rec: 'Albinismo',
+      description: 'Modelo autosómico recesivo frecuente en genética humana escolar: el albinismo aparece en homocigosis recesiva.'
+    }
+  ],
+  incomplete: [
+    {
+      dom: 'Flores rojas',
+      rec: 'Flores blancas',
+      inter: 'Flores rosas',
+      description: 'Dominancia incompleta en boca de dragón o dondiego de noche: el heterocigoto presenta un fenotipo intermedio.'
+    },
+    {
+      dom: 'Plumaje negro',
+      rec: 'Plumaje blanco',
+      inter: 'Plumaje azul',
+      description: 'Modelo clásico de dominancia incompleta en gallinas andaluzas: el heterocigoto presenta plumaje azul.'
+    },
+    {
+      dom: 'Frutos rojos',
+      rec: 'Frutos blancos',
+      inter: 'Frutos rosados',
+      description: 'Ejemplo escolar de dominancia incompleta: el heterocigoto muestra una intensidad intermedia del color.'
+    }
+  ],
+  codominance: [
+    {
+      dom: 'Grupo sanguíneo M',
+      rec: 'Grupo sanguíneo N',
+      inter: 'Grupo sanguíneo MN',
+      description: 'Sistema sanguíneo MN: los alelos M y N se expresan simultáneamente en el heterocigoto.'
+    },
+    {
+      dom: 'Pelaje rojo',
+      rec: 'Pelaje blanco',
+      inter: 'Pelaje ruano',
+      description: 'Codominancia en ganado ruano: en el heterocigoto se observan pelos rojos y blancos a la vez.'
+    }
+  ]
+};
+
+const RANDOM_CROSSES = [
+  ['Aa', 'Aa'],
+  ['Aa', 'aa'],
+  ['aa', 'Aa'],
+  ['AA', 'aa'],
+  ['aa', 'AA'],
+  ['AA', 'Aa'],
+  ['Aa', 'AA']
+];
+
+function pickRandom(items) {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+function escapeHTML(text) {
+  return String(text || '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+  }[ch]));
+}
+
+function formatAlleleNotationHTML(text) {
+  return escapeHTML(text).replace(/([A-Za-z])\^([A-Za-z0-9]+)/g, '$1<sup>$2</sup>');
+}
+
+function setExampleInfo(text) {
+  const box = document.getElementById('exampleInfo');
+  const content = document.getElementById('exampleInfoText');
+  if (!text) {
+    box.style.display = 'none';
+    content.innerHTML = '';
+    return;
+  }
+  box.style.display = '';
+  content.innerHTML = formatAlleleNotationHTML(text);
+}
+
+function selectedDominanceLabel() {
+  const value = document.querySelector('input[name="dominance"]:checked')?.value || 'complete';
+  return DOMINANCE_LABELS[value] || value;
+}
+
+function setDominanceLocked(locked, message = '') {
+  const group = document.getElementById('dominanceGroup');
+  const note = document.getElementById('dominanceNote');
+  group.classList.toggle('locked', locked);
+  document.querySelectorAll('input[name="dominance"]').forEach(r => {
+    r.disabled = locked;
+  });
+  note.textContent = locked
+    ? (message || `Tipo fijado por el ejemplo: ${selectedDominanceLabel()}.`)
+    : 'Modo personalizado: puedes elegir libremente el tipo de dominancia.';
+}
+
+function enableCustomMode() {
+  setDominanceLocked(false);
+  setExampleInfo('Modo personalizado: elige genotipos, fenotipos y tipo de dominancia. Los ejemplos guiados fijan su tipo para evitar combinaciones incoherentes.');
+}
+
+function loadPreset(name) {
+  const p = PRESETS[name];
+  if (!p) return;
+  document.getElementById('p1Select').value = p.p1;
+  document.getElementById('p2Select').value = p.p2;
+  document.querySelectorAll('input[name="dominance"]').forEach(r => {
+    r.checked = (r.value === p.dominance);
+  });
+  document.getElementById('traitDom').value  = p.dom;
+  document.getElementById('traitRec').value  = p.rec;
+  document.getElementById('traitInter').value = p.inter || 'Intermedio';
+  setExampleInfo(p.description);
+  onDomChange();
+  setDominanceLocked(true, `Tipo fijado por este ejemplo: ${DOMINANCE_LABELS[p.dominance]}. Usa “Personalizado” si quieres cambiarlo.`);
+  realizarCruce();
+}
+
+function loadRandomExample() {
+  const dominance = pickRandom(['complete', 'complete', 'incomplete', 'codominance']);
+  const trait = pickRandom(RANDOM_TRAITS[dominance]);
+  const [p1, p2] = pickRandom(RANDOM_CROSSES);
+
+  document.getElementById('p1Select').value = p1;
+  document.getElementById('p2Select').value = p2;
+  document.querySelectorAll('input[name="dominance"]').forEach(r => {
+    r.checked = (r.value === dominance);
+  });
+  document.getElementById('traitDom').value = trait.dom;
+  document.getElementById('traitRec').value = trait.rec;
+  document.getElementById('traitInter').value = trait.inter || 'Intermedio';
+  setExampleInfo(`Ejemplo generado: ${trait.description} Cruce: ${p1} × ${p2}.`);
+  onDomChange();
+  setDominanceLocked(true, `Tipo fijado por el ejemplo aleatorio: ${DOMINANCE_LABELS[dominance]}. Usa “Personalizado” si quieres cambiarlo.`);
+  realizarCruce();
+}
+
+function onGenoChange() {}
+function onDomChange() {
+  const dom = document.querySelector('input[name="dominance"]:checked').value;
+  const interGroup = document.getElementById('interGroup');
+  const labelDom   = document.getElementById('labelDom');
+  const labelRec   = document.getElementById('labelRec');
+  const labelInter = document.getElementById('labelInter');
+  if (dom === 'incomplete') {
+    interGroup.style.display = '';
+    labelDom.textContent = 'Fenotipo homocigoto AA';
+    labelRec.textContent = 'Fenotipo homocigoto aa';
+    labelInter.textContent = 'Fenotipo heterocigoto Aa';
+    document.getElementById('traitInter').placeholder = 'Ej: Rosa';
+  } else if (dom === 'codominance') {
+    interGroup.style.display = '';
+    labelDom.textContent = 'Fenotipo homocigoto AA';
+    labelRec.textContent = 'Fenotipo homocigoto aa';
+    labelInter.textContent = 'Fenotipo heterocigoto Aa';
+    document.getElementById('traitInter').placeholder = 'Ej: Grupo AB';
+  } else {
+    interGroup.style.display = 'none';
+    labelDom.textContent = 'Fenotipo alelo dominante (A)';
+    labelRec.textContent = 'Fenotipo alelo recesivo (a)';
+    labelInter.textContent = 'Fenotipo intermedio (Aa)';
+  }
+}
+
+// ── Main cross function ──────────────────────────────────────
+function realizarCruce() {
+  const p1str = document.getElementById('p1Select').value;
+  const p2str = document.getElementById('p2Select').value;
+  const dominance = document.querySelector('input[name="dominance"]:checked').value;
+  const traitNames = {
+    dominant:     document.getElementById('traitDom').value  || 'Dominante',
+    recessive:    document.getElementById('traitRec').value  || 'Recesivo',
+    intermediate: document.getElementById('traitInter').value || 'Intermedio',
+  };
+
+  const loci1 = Genetics.parseGenotype(p1str);
+  const loci2 = Genetics.parseGenotype(p2str);
+  const gametes1 = Genetics.generateGametes(loci1);
+  const gametes2 = Genetics.generateGametes(loci2);
+
+  currentPunnett = Genetics.buildPunnett(gametes1, gametes2);
+  const flat = currentPunnett.flat();
+
+  currentGenoRatios  = Genetics.genotypeRatios(flat);
+  currentPhenoRatios = Genetics.phenotypeRatios(flat, dominance, traitNames);
+
+  renderPunnett(gametes1, gametes2, currentPunnett, dominance, traitNames);
+  renderResults(currentGenoRatios, currentPhenoRatios, traitNames, dominance);
+  renderUnderstanding(p1str, p2str, dominance, traitNames, currentPhenoRatios);
+
+  // Show result sections
+  ['punnettSection','resultsSection','understandSection'].forEach(id => {
+    document.getElementById(id).classList.add('visible');
+  });
+}
+
+// ── Punnett rendering ────────────────────────────────────────
+const PHENO_COLORS = {
+  'pheno-dom':   '#d1fae5',
+  'pheno-rec':   '#fee2e2',
+  'pheno-inter': '#fef3c7',
+  'pheno-ab':    '#fce7f3',
+  'pheno-a':     '#dbeafe',
+  'pheno-b':     '#ede9fe',
+};
+
+function getPhenoClass(genotype, dominance) {
+  const pheno = Genetics.getPhenotype(genotype, dominance);
+  if (pheno === 'dom')   return 'pheno-dom';
+  if (pheno === 'rec')   return 'pheno-rec';
+  if (pheno === 'inter') return 'pheno-inter';
+  if (pheno === 'AB')    return 'pheno-ab';
+  return 'pheno-dom';
+}
+
+function renderPunnett(gametes1, gametes2, punnett, dominance, traitNames) {
+  const grid = document.getElementById('punnettGrid');
+  grid.innerHTML = '';
+
+  const n1 = gametes1.length; // rows
+  const n2 = gametes2.length; // cols
+
+  // Set grid columns: 1 header + n2 data columns
+  grid.style.gridTemplateColumns = `60px repeat(${n2}, 80px)`;
+
+  // Top-left corner cell
+  const corner = makeCell('', 'header-cell corner');
+  grid.appendChild(corner);
+
+  // Column headers (gametes2)
+  for (const g of gametes2) {
+    grid.appendChild(makeCell(g, 'header-cell'));
+  }
+
+  // Rows
+  const resultCells = [];
+  for (let i = 0; i < n1; i++) {
+    // Row header (gametes1[i])
+    grid.appendChild(makeCell(gametes1[i], 'row-header'));
+
+    // Data cells
+    for (let j = 0; j < n2; j++) {
+      const geno = punnett[i][j];
+      const phenoClass = getPhenoClass(geno, dominance);
+      const cell = makeCell(geno, `result ${phenoClass}`);
+      grid.appendChild(cell);
+      resultCells.push(cell);
+    }
+  }
+
+  // Animate cells one by one
+  resultCells.forEach((cell, idx) => {
+    setTimeout(() => {
+      cell.classList.add('show');
+    }, 150 + idx * 180);
+  });
+
+  // Build legend
+  buildPhenoLegend(dominance, traitNames);
+}
+
+function makeCell(text, classes) {
+  const div = document.createElement('div');
+  div.className = 'punnett-cell ' + classes;
+  div.textContent = text;
+  return div;
+}
+
+function buildPhenoLegend(dominance, traitNames) {
+  const legend = document.getElementById('phenoLegend');
+  legend.innerHTML = '<strong style="font-size:0.85rem;color:#374151;margin-right:0.5rem;">Leyenda:</strong>';
+  const items = [
+    { cls: 'pheno-dom',   label: traitNames.dominant,     show: true },
+    { cls: 'pheno-rec',   label: traitNames.recessive,    show: true },
+    { cls: 'pheno-inter', label: traitNames.intermediate, show: dominance === 'incomplete' },
+    { cls: 'pheno-ab',    label: traitNames.intermediate || `${traitNames.dominant} + ${traitNames.recessive}`, show: dominance === 'codominance' },
+  ];
+  for (const item of items) {
+    if (!item.show || !item.label) continue;
+    const el = document.createElement('div');
+    el.className = 'legend-item';
+    el.innerHTML = `<div class="legend-swatch" style="background:${PHENO_COLORS[item.cls] || '#eee'}"></div><span>${item.label}</span>`;
+    legend.appendChild(el);
+  }
+}
+
+// ── Results rendering ────────────────────────────────────────
+function renderResults(genoRatios, phenoRatios, traitNames, dominance) {
+  // Genotypic ratios
+  const genoEq = document.getElementById('genoRatioEq');
+  genoEq.textContent = buildRatioEq(genoRatios, r => r.genotype);
+  const genoList = document.getElementById('genoRatioList');
+  genoList.innerHTML = '';
+  for (const r of genoRatios) {
+    const pct = r.percent;
+    genoList.innerHTML += `
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-label">
+          <span><code>${r.genotype}</code></span>
+          <span>${pct}%</span>
+        </div>
+        <div class="ratio-bar">
+          <div class="ratio-bar-fill ratio-fill-${genoRatios.indexOf(r)+1}" style="width:${pct}%">${pct >= 15 ? pct+'%' : ''}</div>
+        </div>
+      </div>`;
+  }
+
+  // Phenotypic ratios
+  const phenoEq = document.getElementById('phenoRatioEq');
+  phenoEq.textContent = buildRatioEq(phenoRatios, r => r.label);
+  const phenoList = document.getElementById('phenoRatioList');
+  phenoList.innerHTML = '';
+  for (const r of phenoRatios) {
+    const pct = r.percent;
+    phenoList.innerHTML += `
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-label">
+          <span style="color:${r.textColor || '#374151'}"><strong>${r.label}</strong></span>
+          <span>${pct}%</span>
+        </div>
+        <div class="ratio-bar">
+          <div class="ratio-bar-fill" style="width:${pct}%;background:${r.textColor || 'var(--primary-light)'};">${pct >= 15 ? pct+'%' : ''}</div>
+        </div>
+      </div>`;
+  }
+
+  // Probability calculator
+  const probSelect = document.getElementById('probSelect');
+  probSelect.innerHTML = '<option value="">— Selecciona un fenotipo —</option>';
+  for (const r of phenoRatios) {
+    const opt = document.createElement('option');
+    opt.value = r.percent;
+    opt.textContent = r.label;
+    opt.dataset.fraction = Genetics.fractionToRatio(r.fraction);
+    probSelect.appendChild(opt);
+  }
+  document.getElementById('probValue').textContent = '—';
+  document.getElementById('probFraction').textContent = '';
+}
+
+function buildRatioEq(ratios, labelFn) {
+  const counts = ratios.map(r => r.count);
+  const gcd = counts.reduce((a, b) => { while(b){[a,b]=[b,a%b];} return a; });
+  return ratios.map(r => `${r.count/gcd} ${labelFn(r)}`).join(' : ');
+}
+
+function calcProb() {
+  const sel = document.getElementById('probSelect');
+  const opt = sel.options[sel.selectedIndex];
+  if (!opt || !opt.value) return;
+  document.getElementById('probValue').textContent = opt.value + '%';
+  document.getElementById('probFraction').textContent = 'Proporción: ' + opt.dataset.fraction;
+}
+
+// ── Understanding section ────────────────────────────────────
+function renderUnderstanding(p1, p2, dominance, traitNames, phenoRatios) {
+  const domName = { complete: 'dominancia completa', incomplete: 'dominancia incompleta', codominance: 'codominancia' }[dominance];
+  let explanation = `El cruce <strong>${p1} × ${p2}</strong> con <strong>${domName}</strong> produce los resultados mostrados. `;
+
+  if (phenoRatios.length === 1) {
+    explanation += `Todos los descendientes presentan el mismo fenotipo: <strong>${phenoRatios[0].label}</strong>.`;
+  } else if (phenoRatios.length === 2) {
+    const r = phenoRatios;
+    explanation += `Se obtienen dos fenotipos distintos en proporción <strong>${r[0].count}:${r[1].count}</strong> (${r[0].label} : ${r[1].label}).`;
+  } else {
+    explanation += `Se obtienen <strong>${phenoRatios.length} fenotipos</strong> distintos en las proporciones indicadas.`;
+  }
+
+  if (dominance === 'incomplete') {
+    explanation += ' La dominancia incompleta produce un fenotipo intermedio en los heterocigotos, ya que ningún alelo "domina" completamente al otro.';
+  } else if (dominance === 'codominance') {
+    explanation += ' En la codominancia, ambos alelos se expresan simultáneamente y de forma independiente en el fenotipo del heterocigoto.';
+  }
+
+  document.getElementById('explanationContent').innerHTML = explanation;
+
+  // Q&A
+  const qa = [
+    {
+      q: '¿Qué significa que un alelo sea dominante?',
+      a: 'Un alelo es dominante cuando se expresa en el fenotipo aunque solo esté presente en una copia (heterocigoto). El alelo recesivo solo se expresa cuando está en doble copia (homocigoto recesivo).'
+    },
+    {
+      q: `¿Por qué se obtiene la proporción ${phenoRatios.map(r=>r.percent+'%').join(' / ')}?`,
+      a: `En el cruce ${p1} × ${p2}, los gametos posibles se combinan al azar. Cada cuadrícula del cuadro de Punnett representa una combinación igualmente probable. Las ${currentPunnett.flat().length} casillas representan el total de combinaciones posibles.`
+    },
+    {
+      q: '¿Es posible predecir exactamente qué hijos tendrá una pareja?',
+      a: 'No. Las proporciones son probabilidades estadísticas que se cumplen aproximadamente en grandes números de descendientes. Cada hijo individual es producto del azar (qué gameto fecunda a qué gameto).'
+    },
+  ];
+
+  const qaList = document.getElementById('qaList');
+  qaList.innerHTML = '';
+  for (const item of qa) {
+    qaList.innerHTML += `
+      <div class="qa-item">
+        <div class="qa-question" onclick="toggleQA(this)">
+          ${item.q}
+          <span style="font-size:0.9rem;color:var(--primary);">▼ Ver respuesta</span>
+        </div>
+        <div class="qa-answer">${item.a}</div>
+      </div>`;
+  }
+}
+
+function toggleQA(el) {
+  const answer = el.nextElementSibling;
+  answer.classList.toggle('open');
+  const arrow = el.querySelector('span');
+  arrow.textContent = answer.classList.contains('open') ? '▲ Ocultar' : '▼ Ver respuesta';
+}
+
+function limpiar() {
+  ['punnettSection','resultsSection','understandSection'].forEach(id => {
+    document.getElementById(id).classList.remove('visible');
+  });
+  document.getElementById('punnettGrid').innerHTML = '';
+  document.getElementById('genoRatioList').innerHTML = '';
+  document.getElementById('phenoRatioList').innerHTML = '';
+  document.getElementById('phenoLegend').innerHTML = '';
+  currentPunnett = [];
+}
+
+// Initialize
+onDomChange();
+setDominanceLocked(false);
+</script>
+</body>
+</html>

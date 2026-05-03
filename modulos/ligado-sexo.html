@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Herencia Ligada al Sexo — MendelSim</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/darkmode.js"></script>
+  <style>
+    .xlinked-notation {
+      font-family: var(--mono);
+      background: #f3f4f6;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      line-height: 2;
+    }
+    .genotype-option {
+      display: block;
+      padding: 0.5rem 0.9rem;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 0.92rem;
+      margin-bottom: 0.4rem;
+      transition: all 0.15s;
+    }
+    .genotype-option:hover { border-color: var(--primary-light); background: #f0fdf4; }
+    .genotype-option.selected { border-color: var(--primary-light); background: #d1fae5; font-weight: 600; }
+    .xpunnett-wrap { overflow-x: auto; }
+    .xpunnett-grid {
+      display: inline-grid;
+      grid-template-columns: 80px 130px 130px;
+      gap: 0;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .xcell {
+      min-height: 80px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 0.4rem;
+      font-family: var(--mono);
+      font-size: 0.88rem;
+      text-align: center;
+      transition: all 0.3s;
+      line-height: 1.3;
+    }
+    .xcell sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
+    .xcell > span:first-child { display: block; text-align: center; white-space: nowrap; }
+    .xcell.header { background: var(--primary); color: #fff; font-family: var(--font); font-size: 0.85rem; font-weight: 600; }
+    .xcell.result { opacity:0; transform:scale(0.8); }
+    .xcell.result.show { opacity:1; transform:scale(1); }
+    .xcell.xnorm  { background: #dcfce7; color: #166534; }
+    .xcell.xcarr  { background: #ffedd5; color: #9a3412; }
+    .xcell.xaff   { background: #fee2e2; color: #991b1b; }
+    .xcell.ynorm  { background: #f0f9ff; color: #0c4a6e; }
+    .xcell.yaff   { background: #fee2e2; color: #991b1b; }
+    .pheno-badge {
+      font-size: 0.68rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 10px;
+      margin-top: 0.25rem;
+      font-weight: 600;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.2;
+      max-width: 100%;
+    }
+    .sex-results { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.75rem; }
+    .sex-card {
+      flex: 1; min-width: 160px;
+      padding: 1rem;
+      border-radius: 10px;
+      border: 1.5px solid;
+      font-size: 0.88rem;
+    }
+    .sex-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .sex-male   { background: #f0f9ff; border-color: #7dd3fc; color: #0c4a6e; }
+    .sex-female { background: #fdf2f8; border-color: #f0abfc; color: #701a75; }
+    .result-section { display:none; }
+    .result-section.visible { display:block; }
+    .preset-btn {
+      padding: 0.35rem 0.75rem; border-radius: 6px;
+      border: 1.5px solid var(--border); background: #fff;
+      font-size: 0.82rem; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .preset-btn:hover { border-color: var(--primary-light); background: #f0fdf4; }
+    .presets-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+
+    /* Dark mode overrides for module-specific colors */
+    [data-theme="dark"] .xlinked-notation { background: #1a2a1a; color: var(--text, #dce8dc); border-color: #2a4a2a; }
+    [data-theme="dark"] .genotype-option { background: #1e301e; border-color: #2a4a2a; color: var(--text, #dce8dc); }
+    [data-theme="dark"] .genotype-option:hover { background: #1a361a; border-color: var(--primary-light, #5fdb8b); }
+    [data-theme="dark"] .genotype-option.selected { background: #0d2e1f; border-color: var(--primary-light, #5fdb8b); }
+    [data-theme="dark"] .xcell { background: #1e2e1e; color: var(--text, #dce8dc); }
+    [data-theme="dark"] .xcell.xnorm { background: #0d2e1f; color: #6ee7b7; }
+    [data-theme="dark"] .xcell.xcarr { background: #2e1a0d; color: #fdba74; }
+    [data-theme="dark"] .xcell.xaff  { background: #2e0d0d; color: #fca5a5; }
+    [data-theme="dark"] .xcell.ynorm { background: #0d1a2e; color: #93c5fd; }
+    [data-theme="dark"] .xcell.yaff  { background: #2e0d0d; color: #fca5a5; }
+    [data-theme="dark"] .sex-male   { background: #0d1a2e; border-color: #1e4a7a; color: #93c5fd; }
+    [data-theme="dark"] .sex-female { background: #2e0d1e; border-color: #6a1e4a; color: #f9a8d4; }
+    [data-theme="dark"] .preset-btn { background: #1e301e; border-color: #2a4a2a; color: var(--text, #dce8dc); }
+    [data-theme="dark"] .preset-btn:hover { background: #1a361a; border-color: var(--primary-light, #5fdb8b); }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-content">
+    <a href="../index.html" class="back-btn">← Inicio</a>
+    <span class="logo">🧬</span>
+    <h1>Herencia Ligada al Sexo</h1>
+    <p>Genes en el cromosoma X — portadoras, hemicigotos, herencia recesiva y dominante</p>
+  </div>
+  <button id="darkToggle" class="dark-toggle" title="Modo oscuro">🌙</button>
+</header>
+
+<div class="container">
+
+  <!-- Notación -->
+  <div class="card">
+    <div class="card-title">📌 Notación utilizada</div>
+    <div class="xlinked-notation">
+      <strong>X<sup>A</sup></strong> — alelo dominante en el cromosoma X &nbsp;|&nbsp;
+      <strong>X<sup>a</sup></strong> — alelo recesivo en el cromosoma X &nbsp;|&nbsp;
+      <strong>Y</strong> — cromosoma Y (sin alelo para este gen)<br>
+      <strong>Mujeres:</strong> X<sup>A</sup>X<sup>A</sup> (normal), X<sup>A</sup>X<sup>a</sup> (portadora), X<sup>a</sup>X<sup>a</sup> (afectada)<br>
+      <strong>Hombres:</strong> X<sup>A</sup>Y (normal), X<sup>a</sup>Y (afectado)
+    </div>
+  </div>
+
+  <!-- ── Sección 1: Configuración ── -->
+  <div class="card">
+    <div class="card-title"><span class="step-number">1</span> Configuración del cruce</div>
+
+    <div class="presets-row">
+      <button class="preset-btn" onclick="loadPreset('hemofilia')">🩸 Hemofilia A</button>
+      <button class="preset-btn" onclick="loadPreset('daltonismo')">🎨 Daltonismo</button>
+      <button class="preset-btn" onclick="loadPreset('duchenne')">💪 Distrofia Duchenne</button>
+      <button class="preset-btn" onclick="loadRandomExample()">🎲 Nuevo ejemplo</button>
+    </div>
+
+    <div id="exampleInfo" class="alert alert-info" style="display:none;margin-bottom:1rem;">
+      <span class="alert-icon">📌</span>
+      <div id="exampleInfoText"></div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Genotipo de la madre</label>
+        <div>
+          <label class="genotype-option selected" id="opt-fXAXA">
+            <input type="radio" name="mother" value="X^AX^A" checked onchange="onMotherChange(this)">
+            X<sup>A</sup>X<sup>A</sup> — Normal (homocigota dominante)
+          </label>
+          <label class="genotype-option" id="opt-fXAXa">
+            <input type="radio" name="mother" value="X^AX^a" onchange="onMotherChange(this)">
+            X<sup>A</sup>X<sup>a</sup> — Portadora (heterocigota)
+          </label>
+          <label class="genotype-option" id="opt-fXaXa">
+            <input type="radio" name="mother" value="X^aX^a" onchange="onMotherChange(this)">
+            X<sup>a</sup>X<sup>a</sup> — Afectada (homocigota recesiva)
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Genotipo del padre</label>
+        <div>
+          <label class="genotype-option selected" id="opt-mXAY">
+            <input type="radio" name="father" value="X^AY" checked onchange="onFatherChange(this)">
+            X<sup>A</sup>Y — Normal
+          </label>
+          <label class="genotype-option" id="opt-mXaY">
+            <input type="radio" name="father" value="X^aY" onchange="onFatherChange(this)">
+            X<sup>a</sup>Y — Afectado
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="traitName">Nombre del rasgo / enfermedad</label>
+        <input type="text" id="traitName" value="Hemofilia A" placeholder="Ej: Daltonismo">
+      </div>
+      <div class="form-group">
+        <label for="alleleA">Alelo dominante (A = normal)</label>
+        <input type="text" id="alleleA" value="H" placeholder="H">
+      </div>
+      <div class="form-group">
+        <label for="alleleA2">Alelo recesivo (a = afectado)</label>
+        <input type="text" id="alleleA2" value="h" placeholder="h">
+      </div>
+    </div>
+
+    <div class="btn-group" style="margin-top:0.5rem;">
+      <button class="btn btn-primary btn-lg" onclick="realizarCruce()">▶ Realizar cruce</button>
+      <button class="btn btn-outline" onclick="limpiar()">↺ Limpiar</button>
+    </div>
+  </div>
+
+  <!-- ── Sección 2: Cuadro de Punnett X-linked ── -->
+  <div class="card result-section" id="punnettSection">
+    <div class="card-title"><span class="step-number">2</span> Cuadro de Punnett (herencia ligada al X)</div>
+
+    <div class="alert alert-info">
+      <span class="alert-icon">💡</span>
+      <div>Los hombres heredan el cromosoma X de la madre y el Y del padre. Por eso los hombres no pueden ser "portadores" de rasgos ligados al X recesivo — o lo expresan o no lo tienen.</div>
+    </div>
+
+    <p style="font-size:0.88rem;color:#6b7280;margin-bottom:0.75rem;">
+      <strong>Progenitores:</strong> <span id="parentDisplay"></span>
+    </p>
+
+    <div class="xpunnett-wrap">
+      <div class="xpunnett-grid" id="xpunnettGrid"></div>
+    </div>
+
+    <div id="xLegend" style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:0.75rem;font-size:0.85rem;"></div>
+  </div>
+
+  <!-- ── Sección 3: Resultados ── -->
+  <div class="card result-section" id="resultsSection">
+    <div class="card-title"><span class="step-number">3</span> Resultados por sexo</div>
+
+    <div class="sex-results" id="sexResults"></div>
+
+    <hr class="divider">
+
+    <div class="section-title">📊 Probabilidades globales</div>
+    <div id="globalResults"></div>
+  </div>
+
+  <!-- ── Sección 4: Explicación ── -->
+  <div class="card result-section" id="explainSection">
+    <div class="card-title"><span class="step-number">4</span> ¿Por qué los rasgos X-recesivos afectan más a hombres?</div>
+
+    <div class="alert alert-warning" style="margin-bottom:1rem;">
+      <span class="alert-icon">🔬</span>
+      <div>
+        <strong>Los hombres son hemicigotos para los genes del cromosoma X.</strong>
+        Un hombre solo tiene un cromosoma X (herencia de la madre) y un cromosoma Y (del padre).
+        Si ese único X lleva el alelo recesivo patológico, el hombre <strong>siempre</strong> expresa el rasgo,
+        ya que no tiene un segundo alelo X que lo "compense". En cambio, las mujeres necesitan
+        <strong>dos copias</strong> del alelo recesivo para estar afectadas.
+      </div>
+    </div>
+
+    <div id="caseExplanation" class="alert alert-success">
+      <span class="alert-icon">📋</span>
+      <div id="caseExplanationContent"></div>
+    </div>
+
+    <div class="section-title">❓ Preguntas de repaso</div>
+    <div id="qaList"></div>
+  </div>
+
+</div>
+
+<footer>
+  <div>
+    <strong><a href="https://bilateria.org" target="_blank" rel="noopener">Juan José de Haro</a></strong> &mdash; MendelSim v1.0
+  </div>
+  <div style="margin-top:0.3rem">
+    Código: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">AGPLv3</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    Contenidos: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    &copy; 2026
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <a href="https://github.com/mendelsim/mendelsim.github.io/issues" target="_blank" rel="noopener">Sugerencias y errores</a>
+  </div>
+</footer>
+
+<script src="../js/genetics.js"></script>
+<script>
+// ── UI helpers ───────────────────────────────────────────────
+function onMotherChange(radio) {
+  document.querySelectorAll('[id^="opt-f"]').forEach(el => el.classList.remove('selected'));
+  radio.closest('label').classList.add('selected');
+}
+function onFatherChange(radio) {
+  document.querySelectorAll('[id^="opt-m"]').forEach(el => el.classList.remove('selected'));
+  radio.closest('label').classList.add('selected');
+}
+
+// ── Presets ──────────────────────────────────────────────────
+const PRESETS = {
+  hemofilia: { trait:'Hemofilia A', allA:'H', allA2:'h', description:'Rasgo recesivo ligado al X: el alelo h se expresa en hombres hemicigotos y en mujeres homocigotas recesivas.' },
+  daltonismo:{ trait:'Daltonismo rojo-verde', allA:'C', allA2:'c', description:'Rasgo recesivo ligado al X usado como ejemplo clásico de mayor frecuencia en hombres.' },
+  duchenne:  { trait:'Distrofia Muscular Duchenne', allA:'D', allA2:'d', description:'Enfermedad recesiva ligada al X: las madres portadoras pueden tener hijos hombres afectados.' },
+};
+
+const RANDOM_X_TRAITS = [
+  { trait:'Hemofilia A', allA:'H', allA2:'h' },
+  { trait:'Daltonismo rojo-verde', allA:'C', allA2:'c' },
+  { trait:'Distrofia Muscular Duchenne', allA:'D', allA2:'d' },
+  { trait:'Deficiencia de G6PD', allA:'G', allA2:'g' },
+  { trait:'Ictiosis ligada al X', allA:'I', allA2:'i' },
+  { trait:'Adrenoleucodistrofia ligada al X', allA:'L', allA2:'l' }
+];
+
+const RANDOM_X_CROSSES = [
+  {
+    mother:'X^AX^a',
+    father:'X^AY',
+    label:'madre portadora × padre normal'
+  },
+  {
+    mother:'X^AX^a',
+    father:'X^aY',
+    label:'madre portadora × padre afectado'
+  },
+  {
+    mother:'X^aX^a',
+    father:'X^AY',
+    label:'madre afectada × padre normal'
+  },
+  {
+    mother:'X^AX^A',
+    father:'X^aY',
+    label:'madre normal homocigota × padre afectado'
+  }
+];
+
+function pickRandom(items) {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+function setExampleInfo(text) {
+  const box = document.getElementById('exampleInfo');
+  const content = document.getElementById('exampleInfoText');
+  if (!text) {
+    box.style.display = 'none';
+    content.textContent = '';
+    return;
+  }
+  box.style.display = '';
+  content.textContent = text;
+}
+
+function selectParents(mother, father) {
+  document.querySelector(`[name="mother"][value="${mother}"]`).click();
+  document.querySelector(`[name="father"][value="${father}"]`).click();
+}
+
+function loadPreset(name) {
+  const p = PRESETS[name];
+  document.getElementById('traitName').value = p.trait;
+  document.getElementById('alleleA').value   = p.allA;
+  document.getElementById('alleleA2').value  = p.allA2;
+  // Default: carrier mother × normal father
+  selectParents('X^AX^a', 'X^AY');
+  setExampleInfo(p.description);
+  realizarCruce();
+}
+
+function loadRandomExample() {
+  const trait = pickRandom(RANDOM_X_TRAITS);
+  const cross = pickRandom(RANDOM_X_CROSSES);
+  document.getElementById('traitName').value = trait.trait;
+  document.getElementById('alleleA').value = trait.allA;
+  document.getElementById('alleleA2').value = trait.allA2;
+  selectParents(cross.mother, cross.father);
+  setExampleInfo(`Ejemplo generado: ${trait.trait}, ${cross.label}. El caso usa herencia recesiva ligada al X con genotipos parentales resolubles.`);
+  realizarCruce();
+}
+
+// ── Main cross ───────────────────────────────────────────────
+function realizarCruce() {
+  const motherGeno = document.querySelector('[name="mother"]:checked').value;
+  const fatherGeno = document.querySelector('[name="father"]:checked').value;
+  const domAllele  = document.getElementById('alleleA').value  || 'A';
+  const recAllele  = document.getElementById('alleleA2').value || 'a';
+  const traitName  = document.getElementById('traitName').value || 'Rasgo';
+
+  // Replace A/a placeholders with actual allele letters in notation
+  const motherDisp = motherGeno.replace(/A/g, domAllele).replace(/a/g, recAllele);
+  const fatherDisp = fatherGeno.replace(/A/g, domAllele).replace(/a/g, recAllele);
+  document.getElementById('parentDisplay').innerHTML =
+    `Madre: <strong>${formatXNotation(motherDisp)}</strong> &nbsp;×&nbsp; Padre: <strong>${formatXNotation(fatherDisp)}</strong>`;
+
+  // Parse
+  const mother = Genetics.parseXLinked(motherGeno);
+  const father = Genetics.parseXLinked(fatherGeno);
+  const femGametes = Genetics.generateXLinkedGametes(mother);
+  const malGametes = Genetics.generateXLinkedGametes(father);
+
+  // Substitute actual allele letters
+  const femG = femGametes.map(g => g.replace('X^A', `X^${domAllele}`).replace('X^a', `X^${recAllele}`));
+  const malG = malGametes.map(g => g.replace('X^A', `X^${domAllele}`).replace('X^a', `X^${recAllele}`));
+
+  // Build punnett (row = father gametes, col = mother gametes)
+  renderXPunnett(femG, malG, domAllele, recAllele, traitName);
+  renderXResults(femG, malG, domAllele, recAllele, traitName, motherGeno, fatherGeno);
+  renderExplanation(motherGeno, fatherGeno, traitName, domAllele, recAllele);
+
+  ['punnettSection','resultsSection','explainSection'].forEach(id => {
+    document.getElementById(id).classList.add('visible');
+  });
+}
+
+function formatXNotation(str) {
+  // Convert X^A → X<sup>A</sup>
+  return str.replace(/X\^([A-Za-z\d])/g, 'X<sup>$1</sup>');
+}
+
+// ── Punnett rendering ────────────────────────────────────────
+function renderXPunnett(femGametes, malGametes, domAllele, recAllele, traitName) {
+  const grid = document.getElementById('xpunnettGrid');
+  grid.innerHTML = '';
+  // Grid: 1 header col + femGametes.length data cols, rows = 1 header + malGametes.length
+  const numCols = femGametes.length + 1;
+  grid.style.gridTemplateColumns = `80px repeat(${femGametes.length}, 130px)`;
+
+  // Header row
+  addXCell(grid, '', 'header');
+  for (const fg of femGametes) {
+    addXCell(grid, fg, 'header', true);
+  }
+
+  // Data rows (father gametes as row headers)
+  const resultCells = [];
+  for (const mg of malGametes) {
+    addXCell(grid, mg, 'header', true);
+    for (const fg of femGametes) {
+      let geno, phenoClass, phenoLabel;
+      if (mg === 'Y') {
+        geno = fg + 'Y';
+      } else {
+        // Two X chromosomes
+        geno = combineXGametes(fg, mg, domAllele, recAllele);
+      }
+      const xpheno = getXPhenoInfo(geno, domAllele, recAllele, traitName);
+      const cell = addXCell(grid, geno, `result ${xpheno.cls}`, true, xpheno.label);
+      resultCells.push(cell);
+    }
+  }
+
+  // Animate
+  resultCells.forEach((cell, i) => {
+    setTimeout(() => cell.classList.add('show'), 200 + i * 200);
+  });
+
+  // Legend
+  buildXLegend(domAllele, recAllele, traitName);
+}
+
+function combineXGametes(fg, mg, domAllele, recAllele) {
+  // Sort: dominant X first
+  const alleles = [fg, mg].map(g => g.replace('X^', ''));
+  // Sort: domAllele first
+  alleles.sort((a, b) => {
+    if (a === domAllele && b !== domAllele) return -1;
+    if (b === domAllele && a !== domAllele) return 1;
+    return 0;
+  });
+  return `X^${alleles[0]}X^${alleles[1]}`;
+}
+
+function addXCell(grid, text, classes, formatHTML, sublabel) {
+  const div = document.createElement('div');
+  div.className = 'xcell ' + classes;
+  if (formatHTML) {
+    const geno = document.createElement('span');
+    geno.innerHTML = formatXNotation(text);
+    div.appendChild(geno);
+  } else {
+    div.textContent = text;
+  }
+  if (sublabel) {
+    const badge = document.createElement('span');
+    badge.className = 'pheno-badge';
+    badge.style.cssText = getBadgeStyle(classes);
+    badge.textContent = sublabel;
+    div.appendChild(badge);
+  }
+  grid.appendChild(div);
+  return div;
+}
+
+function getBadgeStyle(classes) {
+  if (classes.includes('xnorm'))  return 'background:#bbf7d0;color:#166534;';
+  if (classes.includes('xcarr'))  return 'background:#fed7aa;color:#9a3412;';
+  if (classes.includes('xaff'))   return 'background:#fecaca;color:#991b1b;';
+  if (classes.includes('ynorm'))  return 'background:#bae6fd;color:#0c4a6e;';
+  if (classes.includes('yaff'))   return 'background:#fecaca;color:#991b1b;';
+  return '';
+}
+
+function getXPhenoInfo(geno, domAllele, recAllele, traitName) {
+  if (geno.endsWith('Y')) {
+    // Male
+    const allele = geno.replace(/X\^/, '').replace('Y', '');
+    if (allele === domAllele) {
+      return { cls:'ynorm', label:`Hombre normal` };
+    } else {
+      return { cls:'yaff',  label:`Hombre afectado` };
+    }
+  } else {
+    // Female
+    const match = geno.match(/X\^([A-Za-z\d]+)X\^([A-Za-z\d]+)/);
+    if (!match) return { cls:'xnorm', label:'Mujer normal' };
+    const a1 = match[1], a2 = match[2];
+    if (a1 === domAllele && a2 === domAllele) return { cls:'xnorm', label:'Mujer normal' };
+    if ((a1 === domAllele && a2 === recAllele) || (a1 === recAllele && a2 === domAllele)) {
+      return { cls:'xcarr', label:'Mujer portadora' };
+    }
+    if (a1 === recAllele && a2 === recAllele) return { cls:'xaff', label:'Mujer afectada' };
+    return { cls:'xnorm', label:'Mujer normal' };
+  }
+}
+
+function buildXLegend(domAllele, recAllele, traitName) {
+  const legend = document.getElementById('xLegend');
+  legend.innerHTML = '<strong style="font-size:0.85rem;color:#374151;margin-right:0.5rem;">Leyenda:</strong>';
+  const items = [
+    { color:'#dcfce7', border:'#86efac', label:'Mujer normal' },
+    { color:'#ffedd5', border:'#fdba74', label:'Mujer portadora' },
+    { color:'#fee2e2', border:'#fca5a5', label:'Mujer afectada / Hombre afectado' },
+    { color:'#f0f9ff', border:'#7dd3fc', label:'Hombre normal' },
+  ];
+  for (const it of items) {
+    legend.innerHTML += `<div style="display:flex;align-items:center;gap:0.4rem;">
+      <div style="width:16px;height:16px;border-radius:3px;background:${it.color};border:1px solid ${it.border};flex-shrink:0;"></div>
+      <span style="font-size:0.82rem;">${it.label}</span>
+    </div>`;
+  }
+}
+
+// ── Results rendering ────────────────────────────────────────
+function renderXResults(femGametes, malGametes, domAllele, recAllele, traitName, motherGeno, fatherGeno) {
+  const offspring = [];
+  for (const mg of malGametes) {
+    for (const fg of femGametes) {
+      let geno;
+      if (mg === 'Y') {
+        geno = fg + 'Y';
+      } else {
+        geno = combineXGametes(fg, mg, domAllele, recAllele);
+      }
+      offspring.push(geno);
+    }
+  }
+
+  // Split by sex
+  const males   = offspring.filter(g => g.endsWith('Y'));
+  const females = offspring.filter(g => !g.endsWith('Y'));
+
+  const sexResults = document.getElementById('sexResults');
+  sexResults.innerHTML = '';
+
+  // Males
+  if (males.length > 0) {
+    const affMales  = males.filter(g => getXPhenoInfo(g, domAllele, recAllele, traitName).cls === 'yaff');
+    const normMales = males.filter(g => getXPhenoInfo(g, domAllele, recAllele, traitName).cls === 'ynorm');
+    let maleHTML = `<div class="sex-card sex-male">
+      <h4>♂ Hijos hombres (${males.length}/4 combinaciones)</h4>`;
+    if (normMales.length > 0) maleHTML += `<div>✅ <strong>${Math.round(normMales.length/males.length*100)}%</strong> normales (${normMales.length}/${males.length})</div>`;
+    if (affMales.length > 0)  maleHTML += `<div>🔴 <strong>${Math.round(affMales.length/males.length*100)}%</strong> afectados (${affMales.length}/${males.length})</div>`;
+    maleHTML += `</div>`;
+    sexResults.innerHTML += maleHTML;
+  }
+
+  // Females
+  if (females.length > 0) {
+    const normF  = females.filter(g => getXPhenoInfo(g, domAllele, recAllele, traitName).cls === 'xnorm');
+    const carrF  = females.filter(g => getXPhenoInfo(g, domAllele, recAllele, traitName).cls === 'xcarr');
+    const affF   = females.filter(g => getXPhenoInfo(g, domAllele, recAllele, traitName).cls === 'xaff');
+    let femHTML = `<div class="sex-card sex-female">
+      <h4>♀ Hijas (${females.length}/4 combinaciones)</h4>`;
+    if (normF.length > 0) femHTML += `<div>✅ <strong>${Math.round(normF.length/females.length*100)}%</strong> normales (${normF.length}/${females.length})</div>`;
+    if (carrF.length > 0) femHTML += `<div>🟠 <strong>${Math.round(carrF.length/females.length*100)}%</strong> portadoras (${carrF.length}/${females.length})</div>`;
+    if (affF.length > 0)  femHTML += `<div>🔴 <strong>${Math.round(affF.length/females.length*100)}%</strong> afectadas (${affF.length}/${females.length})</div>`;
+    femHTML += `</div>`;
+    sexResults.innerHTML += femHTML;
+  }
+
+  // Global stats
+  const total = offspring.length;
+  const allAff = offspring.filter(g => {
+    const p = getXPhenoInfo(g, domAllele, recAllele, traitName);
+    return p.cls === 'yaff' || p.cls === 'xaff';
+  });
+  const allCarr = offspring.filter(g => getXPhenoInfo(g, domAllele, recAllele, traitName).cls === 'xcarr');
+
+  const globalEl = document.getElementById('globalResults');
+  globalEl.innerHTML = `
+    <div class="ratio-bar-wrap">
+      <div class="ratio-bar-label">
+        <span>Descendientes afectados (cualquier sexo)</span>
+        <span>${Math.round(allAff.length/total*100)}%</span>
+      </div>
+      <div class="ratio-bar"><div class="ratio-bar-fill ratio-fill-4" style="width:${Math.round(allAff.length/total*100)}%">${Math.round(allAff.length/total*100)}%</div></div>
+    </div>
+    ${allCarr.length > 0 ? `<div class="ratio-bar-wrap">
+      <div class="ratio-bar-label">
+        <span>Mujeres portadoras</span><span>${Math.round(allCarr.length/total*100)}%</span>
+      </div>
+      <div class="ratio-bar"><div class="ratio-bar-fill" style="width:${Math.round(allCarr.length/total*100)}%;background:var(--carrier);">${Math.round(allCarr.length/total*100)}%</div></div>
+    </div>` : ''}
+  `;
+}
+
+// ── Explanation ──────────────────────────────────────────────
+function renderExplanation(motherGeno, fatherGeno, traitName, domAllele, recAllele) {
+  const mGeno = motherGeno.replace(/A/g, domAllele).replace(/a/g, recAllele);
+  const fGeno = fatherGeno.replace(/A/g, domAllele).replace(/a/g, recAllele);
+
+  const key = `${motherGeno}|${fatherGeno}`;
+  const outcomeText = {
+    'X^AX^A|X^AY': `La madre solo aporta X<sup>${domAllele}</sup> y el padre aporta X<sup>${domAllele}</sup> o Y. Toda la descendencia será normal para ${traitName}.`,
+    'X^AX^A|X^aY': `La madre solo aporta X<sup>${domAllele}</sup>. El padre afectado aporta X<sup>${recAllele}</sup> a todas sus hijas, que serán portadoras, y aporta Y a sus hijos, que serán normales.`,
+    'X^AX^a|X^AY': `La madre portadora aporta X<sup>${domAllele}</sup> o X<sup>${recAllele}</sup>. Cada hijo hombre tiene un 50% de probabilidad de estar afectado y cada hija tiene un 50% de probabilidad de ser portadora.`,
+    'X^AX^a|X^aY': `La madre portadora aporta X<sup>${domAllele}</sup> o X<sup>${recAllele}</sup>, y el padre afectado aporta X<sup>${recAllele}</sup> a sus hijas. La mitad de los hijos hombres estarán afectados; entre las hijas, la mitad serán portadoras y la mitad afectadas.`,
+    'X^aX^a|X^AY': `La madre afectada siempre aporta X<sup>${recAllele}</sup>. Todos los hijos hombres estarán afectados y todas las hijas serán portadoras.`,
+    'X^aX^a|X^aY': `Ambos progenitores aportan el alelo recesivo ligado al X cuando transmiten un cromosoma X. Todas las hijas estarán afectadas y todos los hijos hombres también estarán afectados.`
+  };
+
+  let text = `En este cruce, la madre (${formatXNotation(mGeno)}) y el padre (${formatXNotation(fGeno)}) siguen un modelo recesivo ligado al cromosoma X. `;
+  text += outcomeText[key] || `Los descendientes dependen de qué cromosoma X hereden de la madre y de si el padre aporta X o Y. Los hombres expresan el alelo recesivo si lo reciben en su único cromosoma X.`;
+
+  document.getElementById('caseExplanationContent').innerHTML = text;
+
+  const qa = [
+    {
+      q: `¿Por qué los hombres no pueden ser "portadores" de ${traitName}?`,
+      a: `Los hombres solo tienen un cromosoma X (hemicigotos). Si ese X lleva el alelo recesivo patológico, no tienen un segundo alelo X que lo "enmascare", por lo que el rasgo siempre se expresa. Las mujeres, con dos cromosomas X, pueden tener un alelo recesivo "oculto" por el dominante (portadoras).`
+    },
+    {
+      q: `Si una mujer es portadora de ${traitName}, ¿cuál es la probabilidad de tener un hijo afectado?`,
+      a: `Si la madre es portadora (X<sup>${domAllele}</sup>X<sup>${recAllele}</sup>) y el padre es normal (X<sup>${domAllele}</sup>Y): cada hijo hombre tiene un 50% de probabilidad de ser afectado (hereda el X<sup>${recAllele}</sup> materno), y cada hija tiene un 50% de ser portadora. La probabilidad global de descendiente afectado es del 25%.`
+    },
+    {
+      q: `¿Puede una hija estar afectada por ${traitName}?`,
+      a: `Sí, pero requiere que tenga DOS copias del alelo recesivo: hereda X<sup>${recAllele}</sup> de la madre portadora o afectada Y X<sup>${recAllele}</sup> del padre afectado. Esto es mucho menos frecuente que en hombres. Por ejemplo, para el daltonismo, afecta al ~8% de hombres pero solo al ~0,5% de mujeres.`
+    },
+  ];
+
+  const qaList = document.getElementById('qaList');
+  qaList.innerHTML = '';
+  for (const item of qa) {
+    qaList.innerHTML += `
+      <div class="qa-item">
+        <div class="qa-question" onclick="toggleQA(this)">
+          ${item.q}
+          <span style="font-size:0.9rem;color:var(--primary);">▼ Ver respuesta</span>
+        </div>
+        <div class="qa-answer">${item.a}</div>
+      </div>`;
+  }
+}
+
+function toggleQA(el) {
+  const a = el.nextElementSibling;
+  a.classList.toggle('open');
+  el.querySelector('span').textContent = a.classList.contains('open') ? '▲ Ocultar' : '▼ Ver respuesta';
+}
+
+function limpiar() {
+  ['punnettSection','resultsSection','explainSection'].forEach(id => {
+    document.getElementById(id).classList.remove('visible');
+  });
+}
+</script>
+</body>
+</html>

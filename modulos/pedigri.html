@@ -1,0 +1,2974 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedigríes Interactivos — MendelSim</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/darkmode.js"></script>
+  <style>
+    .ped-svg-container {
+      width: 100%;
+      overflow-x: auto;
+      background: #fafffe;
+      border-radius: 0 0 var(--radius) var(--radius);
+      border: 1.5px solid var(--border);
+      border-top: none;
+    }
+    #analysisSvg, #practiceSvg, #builderSvg, #studentSvg {
+      display: block;
+      min-height: 380px;
+    }
+    .tree-frame {
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1.5px solid var(--border);
+    }
+    .tree-header {
+      background: #f8fdf8;
+      padding: 0.5rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .tree-title { min-width: 180px; }
+    .tree-controls {
+      display: inline-flex;
+      gap: 0.35rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .tree-control-btn {
+      border: 1.5px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      border-radius: 6px;
+      min-width: 2rem;
+      height: 2rem;
+      padding: 0 0.55rem;
+      font-family: var(--font);
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+    }
+    .tree-control-btn:hover {
+      border-color: var(--primary-light);
+      color: var(--primary);
+      background: #f0fdf4;
+    }
+    .zoom-readout {
+      min-width: 3rem;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: #4b5563;
+    }
+    .exercise-selector {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .exercise-selector select { max-width: 380px; }
+    .clue-list { min-height: 2rem; }
+    .solution-box {
+      background: #f0fdf4;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      margin-top: 0.75rem;
+      display: none;
+    }
+    .solution-box.visible { display: block; }
+    .genotype-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 0.75rem;
+    }
+    .genotype-table th {
+      background: var(--primary);
+      color: #fff;
+      padding: 0.4rem 0.7rem;
+      text-align: left;
+      font-weight: 600;
+    }
+    .genotype-table td {
+      padding: 0.4rem 0.7rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .genotype-table tr:last-child td { border-bottom: none; }
+    .genotype-table tr:nth-child(even) td { background: #f9fafb; }
+    .practice-mc label {
+      display: block;
+      padding: 0.55rem 0.9rem;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      margin-bottom: 0.4rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 0.92rem;
+    }
+    .practice-mc label:hover { border-color: var(--primary-light); background: #f0fdf4; }
+    .practice-mc label.correct { background: #d1fae5; border-color: #34d399; }
+    .practice-mc label.wrong   { background: #fee2e2; border-color: #f87171; }
+    .practice-mc label.selected { border-color: var(--primary-light); background: #ecfdf5; }
+    .score-row {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    #feedbackBox {
+      display: none;
+      margin-top: 0.75rem;
+    }
+    .builder-section { position: relative; }
+    .snap-grid-hint {
+      position: absolute;
+      bottom: 6px;
+      right: 8px;
+      font-size: 0.72rem;
+      color: #9ca3af;
+      pointer-events: none;
+    }
+    .legend-pedigree {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding: 0.5rem 0;
+      font-size: 0.82rem;
+      align-items: center;
+    }
+    .legend-pedigree .leg-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .leg-sq {
+      width: 16px; height: 16px;
+      border: 2px solid #2c3e50;
+      display: inline-block;
+    }
+    .leg-circle {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 2px solid #2c3e50;
+      display: inline-block;
+    }
+	    .leg-filled-sq { background: var(--affected); border-color: var(--affected); }
+	    .leg-filled-ci { background: var(--affected); border-color: var(--affected); }
+	    .leg-carrier-sq,
+	    .leg-carrier-ci {
+	      background: #fff;
+	      border-color: #2c3e50;
+	      position: relative;
+	    }
+	    .leg-carrier-sq::after,
+	    .leg-carrier-ci::after {
+	      content: '';
+	      position: absolute;
+	      width: 6px;
+	      height: 6px;
+	      border-radius: 50%;
+	      background: var(--carrier);
+	      left: 50%;
+	      top: 50%;
+	      transform: translate(-50%, -50%);
+	    }
+	    .analysis-result {
+	      display: none;
+	      margin-top: 1rem;
+	    }
+	    .analysis-result.visible { display: block; }
+    .builder-options {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .builder-options .form-group { margin-bottom: 0; }
+    .builder-options .allele-symbol-input { max-width: 90px; }
+    .builder-options textarea { min-height: 72px; resize: vertical; }
+    .builder-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 0.75rem;
+    }
+    .builder-status {
+      font-size: 0.82rem;
+      color: #64748b;
+    }
+    .student-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+      font-size: 0.9rem;
+    }
+    .student-meta-item {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.55rem 0.7rem;
+      background: #fff;
+    }
+    .student-answer-input {
+      min-width: 120px;
+    }
+    .student-feedback {
+      display: none;
+      margin-top: 0.75rem;
+    }
+    .student-feedback.visible { display: block; }
+    .check-ok { color: #15803d; font-weight: 700; }
+    .check-warn { color: #b45309; font-weight: 700; }
+    .check-error { color: #b91c1c; font-weight: 700; }
+    /* Fullscreen via JS class (works in all browsers) */
+    #builderWorkspace.is-fullscreen {
+      background: var(--bg);
+      overflow: auto;
+      padding: 0.75rem;
+      border-radius: 0;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+    }
+    #builderWorkspace.is-fullscreen .card-title { display: none !important; }
+    #builderWorkspace.is-fullscreen #builderSourceNotice { display: none !important; }
+    #builderWorkspace.is-fullscreen .builder-options { display: none !important; }
+    #builderWorkspace.is-fullscreen #builderActions { display: none !important; }
+    #builderWorkspace.is-fullscreen .ped-svg-container {
+      max-height: calc(100vh - 110px);
+      overflow: auto;
+    }
+    #builderWorkspace.is-fullscreen #builderSvg {
+      min-height: calc(100vh - 150px);
+    }
+    @media print {
+      .tree-controls, .pedigree-toolbar, .builder-options, .tabs, .header, footer, .btn-group {
+        display: none !important;
+      }
+      .tree-frame, .card {
+        box-shadow: none !important;
+      }
+    }
+
+    /* Dark mode overrides for module-specific colors */
+    [data-theme="dark"] .ped-svg-container { background: #141e14; }
+    [data-theme="dark"] .tree-header { background: #162016; color: var(--primary, #4ec97a); }
+    [data-theme="dark"] .tree-control-btn { background: #1e301e; border-color: #2a4a2a; color: var(--text, #dce8dc); }
+    [data-theme="dark"] .tree-control-btn:hover { background: #1a361a; border-color: var(--primary-light, #5fdb8b); color: var(--primary, #4ec97a); }
+    [data-theme="dark"] .zoom-readout { color: #9dba9d; }
+    [data-theme="dark"] .solution-box { background: #1a2a1a; border-color: #2a4a2a; }
+    [data-theme="dark"] .genotype-table td { border-bottom-color: #2a4a2a; color: var(--text, #dce8dc); }
+    [data-theme="dark"] .genotype-table tr:nth-child(even) td { background: #1e2e1e; }
+    [data-theme="dark"] .practice-mc label { color: var(--text, #dce8dc); }
+    [data-theme="dark"] .practice-mc label:hover { background: #1a361a; }
+    [data-theme="dark"] .practice-mc label.correct { background: #0d2e1f; border-color: #34d399; color: #6ee7b7; }
+    [data-theme="dark"] .practice-mc label.wrong   { background: #2e0d0d; border-color: #f87171; color: #fca5a5; }
+    [data-theme="dark"] .practice-mc label.selected { background: #1a2e1a; }
+    [data-theme="dark"] .builder-options { background: #192619; border-color: #2a4a2a; }
+    [data-theme="dark"] .builder-status { color: #9dba9d; }
+    [data-theme="dark"] .student-meta-item { background: #192619; border-color: #2a4a2a; }
+    [data-theme="dark"] .leg-sq,
+    [data-theme="dark"] .leg-circle { border-color: var(--text, #dce8dc); }
+    [data-theme="dark"] .leg-carrier-sq,
+    [data-theme="dark"] .leg-carrier-ci { background: #2a3e2a; border-color: var(--text, #dce8dc); }
+    [data-theme="dark"] #feedbackBox { color: var(--text, #dce8dc); }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-content">
+    <a href="../index.html" class="back-btn">← Inicio</a>
+    <span class="logo">🌳</span>
+    <h1>Pedigríes Interactivos</h1>
+    <p>Analiza árboles genealógicos e identifica patrones hereditarios</p>
+  </div>
+  <button id="darkToggle" class="dark-toggle" title="Modo oscuro">🌙</button>
+</header>
+
+<div class="container">
+
+  <!-- Leyenda global -->
+  <div class="card" style="padding:0.85rem 1.2rem;">
+    <div class="legend-pedigree">
+      <strong style="font-size:0.85rem;color:var(--primary);">Leyenda:</strong>
+      <div class="leg-item"><div class="leg-sq"></div> <span id="legendMaleUnaffected">Hombre no afectado</span></div>
+      <div class="leg-item"><div class="leg-circle"></div> <span id="legendFemaleUnaffected">Mujer no afectada</span></div>
+      <div class="leg-item"><div class="leg-sq leg-filled-sq"></div> <span id="legendMaleAffected">Hombre afectado</span></div>
+      <div class="leg-item"><div class="leg-circle leg-filled-ci"></div> <span id="legendFemaleAffected">Mujer afectada</span></div>
+	      <div class="leg-item"><div class="leg-circle leg-carrier-ci"></div><span id="legendFemaleCarrier" style="color:var(--carrier);">Mujer portadora (heterocigota)</span></div>
+	      <div class="leg-item"><div class="leg-sq leg-carrier-sq"></div><span id="legendMaleCarrier" style="color:var(--carrier);">Hombre portador (heterocigoto)</span></div>
+    </div>
+  </div>
+
+  <!-- ── Tabs ── -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="analizar" onclick="switchTab('analizar',this)">🔍 Analizar ejercicios</button>
+    <button class="tab-btn" data-tab="practicar" onclick="switchTab('practicar',this)">📝 Practicar</button>
+    <button class="tab-btn" data-tab="constructor" onclick="switchTab('constructor',this)">🔨 Constructor</button>
+    <button class="tab-btn" data-tab="alumno" id="studentTabBtn" onclick="switchTab('alumno',this)" style="display:none;">📥 Respuesta</button>
+  </div>
+
+  <!-- ══════════ TAB: ANALIZAR ══════════ -->
+  <div id="tab-analizar" class="tab-content active">
+
+    <div class="card">
+      <div class="card-title">📋 Seleccionar ejercicio</div>
+
+      <div class="exercise-selector">
+        <div style="flex:1;min-width:200px;">
+          <label for="exerciseSelect">Ejercicio:</label>
+          <select id="exerciseSelect" onchange="loadAnalysisExercise()" style="margin-top:0.3rem;">
+          </select>
+        </div>
+        <button class="btn btn-secondary" onclick="loadRandomAnalysisExercise()" style="margin-top:1.35rem;">🎲 Generar caso</button>
+        <button class="btn btn-outline" onclick="copyAnalysisToBuilder()" style="margin-top:1.35rem;">✏️ Editar copia</button>
+      </div>
+
+      <div id="exerciseDescription" class="alert alert-info" style="display:none;">
+        <span class="alert-icon">📖</span>
+        <div id="exerciseDescText"></div>
+      </div>
+
+      <div id="exerciseQuestion" class="alert alert-warning" style="display:none;margin-top:0.5rem;">
+        <span class="alert-icon">❓</span>
+        <div id="exerciseQuestionText"></div>
+      </div>
+    </div>
+
+    <!-- SVG Pedigree -->
+    <div class="tree-frame">
+      <div class="tree-header">
+        <div class="tree-title">🌳 Árbol genealógico <span id="analysisSvgTitle" style="font-weight:400;color:#6b7280;"></span></div>
+        <div class="tree-controls" aria-label="Controles del árbol de análisis">
+          <button class="tree-control-btn" type="button" onclick="adjustTreeZoom('analysisSvg', -0.1)" title="Alejar">−</button>
+          <span class="zoom-readout" id="analysisSvgZoom">100%</span>
+          <button class="tree-control-btn" type="button" onclick="adjustTreeZoom('analysisSvg', 0.1)" title="Acercar">+</button>
+          <button class="tree-control-btn" type="button" onclick="resetTreeZoom('analysisSvg')" title="Restaurar zoom">100%</button>
+          <button class="tree-control-btn" type="button" onclick="printTree('analysisSvg', getAnalysisPrintTitle())" title="Imprimir o guardar como PDF">🖨</button>
+        </div>
+      </div>
+      <div class="ped-svg-container" style="border:none;border-radius:0;">
+        <svg id="analysisSvg" viewBox="0 0 700 420" width="700" style="max-width:100%;height:auto;min-height:360px;"></svg>
+      </div>
+    </div>
+
+    <!-- Clues and solution -->
+    <div class="card" style="margin-top:1rem;">
+      <div class="btn-group" style="margin-bottom:1rem;">
+        <button class="btn btn-secondary" onclick="revealNextClue()" id="clueBtn">💡 Ver pista (0/0)</button>
+        <button class="btn btn-primary"   onclick="toggleSolution()" id="solutionBtn">✅ Ver solución</button>
+        <button class="btn btn-outline"   onclick="resetExercise()">↺ Reiniciar</button>
+      </div>
+
+      <div id="clueList" class="clue-list"></div>
+
+      <div class="solution-box" id="solutionBox">
+        <div id="patternDisplay"></div>
+        <div style="margin-top:0.75rem;font-size:0.92rem;" id="patternDesc"></div>
+        <div class="section-title" style="margin-top:1rem;">🧬 Genotipos de los individuos:</div>
+        <table class="genotype-table" id="genotypeTable">
+          <thead><tr><th>Individuo</th><th>Genotipo</th><th>Estado</th></tr></thead>
+          <tbody id="genotypeTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════ TAB: PRACTICAR ══════════ -->
+  <div id="tab-practicar" class="tab-content">
+
+    <div class="card">
+      <div class="score-row">
+        <div class="score-display" id="scoreDisplay">🏆 Puntuación: <span id="scoreNum">0</span> / <span id="scoreTot">0</span></div>
+        <button class="btn btn-outline btn-sm" onclick="resetScore()">Reiniciar puntuación</button>
+      </div>
+
+      <div class="exercise-selector" style="margin-bottom:0;">
+        <div style="flex:1;min-width:200px;">
+          <label>Selecciona un ejercicio para practicar:</label>
+          <select id="practiceExerciseSelect" onchange="loadPracticeExercise()" style="max-width:380px;margin-top:0.3rem;"></select>
+        </div>
+        <button class="btn btn-secondary" onclick="loadRandomPracticeExercise()" style="margin-top:1.35rem;">🎲 Generar caso</button>
+        <button class="btn btn-outline" onclick="copyPracticeToBuilder()" style="margin-top:1.35rem;">✏️ Editar copia</button>
+      </div>
+
+      <div id="practiceQuestion" class="alert alert-warning" style="display:none;margin-top:0.75rem;">
+        <span class="alert-icon">❓</span>
+        <div id="practiceQuestionText"></div>
+      </div>
+    </div>
+
+    <!-- Practice SVG -->
+    <div class="tree-frame">
+      <div class="tree-header">
+        <div class="tree-title">🌳 Árbol genealógico (sin solución)</div>
+        <div class="tree-controls" aria-label="Controles del árbol de práctica">
+          <button class="tree-control-btn" type="button" onclick="adjustTreeZoom('practiceSvg', -0.1)" title="Alejar">−</button>
+          <span class="zoom-readout" id="practiceSvgZoom">100%</span>
+          <button class="tree-control-btn" type="button" onclick="adjustTreeZoom('practiceSvg', 0.1)" title="Acercar">+</button>
+          <button class="tree-control-btn" type="button" onclick="resetTreeZoom('practiceSvg')" title="Restaurar zoom">100%</button>
+          <button class="tree-control-btn" type="button" onclick="printTree('practiceSvg', getPracticePrintTitle())" title="Imprimir o guardar como PDF">🖨</button>
+        </div>
+      </div>
+      <div class="ped-svg-container" style="border:none;border-radius:0;">
+        <svg id="practiceSvg" viewBox="0 0 700 420" width="700" style="max-width:100%;height:auto;min-height:360px;"></svg>
+      </div>
+    </div>
+
+    <!-- Multiple choice -->
+    <div class="card" style="margin-top:1rem;" id="practiceAnswerCard">
+      <div class="card-title">📝 Identifica el patrón de herencia</div>
+
+      <div class="practice-mc" id="patternChoices">
+        <label><input type="radio" name="pattern" value="AR"> AR — Autosómica Recesiva</label>
+        <label><input type="radio" name="pattern" value="AD"> AD — Autosómica Dominante</label>
+        <label><input type="radio" name="pattern" value="XR"> XR — Recesiva ligada al X</label>
+        <label><input type="radio" name="pattern" value="XD"> XD — Dominante ligada al X</label>
+      </div>
+
+      <div class="form-group" style="margin-top:0.75rem;">
+        <label for="justification">Justificación (opcional):</label>
+        <textarea id="justification" rows="2" placeholder="Explica por qué has elegido ese patrón..." style="margin-top:0.3rem;"></textarea>
+      </div>
+
+      <button class="btn btn-primary" onclick="checkAnswer()" style="margin-top:0.5rem;">Comprobar respuesta</button>
+
+      <div id="feedbackBox" class="alert" style="margin-top:0.75rem;display:none;"></div>
+    </div>
+
+  </div>
+
+  <!-- ══════════ TAB: CONSTRUCTOR ══════════ -->
+  <div id="tab-constructor" class="tab-content">
+
+    <div class="card" id="builderWorkspace" style="padding:1rem;">
+      <div class="card-title">🔨 Constructor de pedigríes</div>
+      <div id="builderSourceNotice" class="alert alert-info" style="display:none;margin-bottom:0.75rem;">
+        <span class="alert-icon">✏️</span>
+        <div id="builderSourceText"></div>
+      </div>
+
+      <div class="builder-options">
+        <div class="form-row">
+          <div class="form-group" style="flex:2;min-width:220px;">
+            <label for="builderCaseTitle">Título del caso</label>
+            <input type="text" id="builderCaseTitle" placeholder="Ej: Albinismo en tres generaciones" oninput="updateBuilderMetadata()">
+          </div>
+          <div class="form-group" style="flex:1;min-width:180px;">
+            <label for="builderTraitName">Rasgo o enfermedad</label>
+            <input type="text" id="builderTraitName" placeholder="Ej: albinismo" oninput="updateBuilderMetadata()">
+          </div>
+          <div class="form-group" style="flex:1;min-width:170px;">
+            <label for="builderOrganismType">Organismo</label>
+            <select id="builderOrganismType" onchange="updateBuilderMetadata()">
+              <option value="human">Personas</option>
+              <option value="other">Otros organismos</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1;min-width:190px;">
+            <label for="builderExpectedPattern">Patrón esperado</label>
+            <select id="builderExpectedPattern" onchange="updateBuilderMetadata()">
+              <option value="">Sin fijar</option>
+              <option value="AR">Autosómica recesiva</option>
+              <option value="AD">Autosómica dominante</option>
+              <option value="XR">Recesiva ligada al X</option>
+              <option value="XD">Dominante ligada al X</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row" style="margin-top:0.75rem;">
+          <div class="form-group">
+            <label for="builderAlleleDom">Símbolo dominante</label>
+            <input type="text" id="builderAlleleDom" class="allele-symbol-input" value="A" maxlength="3" oninput="updateBuilderMetadata()">
+          </div>
+          <div class="form-group" style="flex:2;min-width:220px;">
+            <label for="builderAlleleDomName">Significado del alelo dominante</label>
+            <input type="text" id="builderAlleleDomName" placeholder="Ej: pigmentación normal" oninput="updateBuilderMetadata()">
+          </div>
+          <div class="form-group">
+            <label for="builderAlleleRec">Símbolo recesivo</label>
+            <input type="text" id="builderAlleleRec" class="allele-symbol-input" value="a" maxlength="3" oninput="updateBuilderMetadata()">
+          </div>
+          <div class="form-group" style="flex:2;min-width:220px;">
+            <label for="builderAlleleRecName">Significado del alelo recesivo</label>
+            <input type="text" id="builderAlleleRecName" placeholder="Ej: albinismo" oninput="updateBuilderMetadata()">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:0.75rem;">
+          <label for="builderCasePrompt">Enunciado para el alumnado</label>
+          <textarea id="builderCasePrompt" rows="3" placeholder="Describe el caso, qué deben observar o qué deben deducir..." oninput="updateBuilderMetadata()"></textarea>
+        </div>
+
+        <div class="form-row" style="margin-top:0.75rem;align-items:flex-end;">
+          <div class="form-group" style="flex:1;min-width:220px;">
+            <label for="builderTeacherEmail">Correo del profesor (opcional)</label>
+            <input type="email" id="builderTeacherEmail" placeholder="profesor@centro.edu" oninput="updateBuilderMetadata()">
+          </div>
+          <label class="form-group" style="display:flex;gap:0.45rem;align-items:center;min-width:260px;">
+            <input type="checkbox" id="builderAllowAutoCheck" onchange="updateBuilderMetadata()">
+            <span>Permitir autocorrección al alumnado</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="pedigree-toolbar" id="builderToolbar">
+        <button class="tool-btn active" id="tool-select"        onclick="setBuilderTool('select')">✥ Mover</button>
+        <button class="tool-btn"        id="tool-addMale"       onclick="setBuilderTool('addMale')">♂ Añadir hombre</button>
+        <button class="tool-btn"        id="tool-addFemale"     onclick="setBuilderTool('addFemale')">♀ Añadir mujer</button>
+        <button class="tool-btn"        id="tool-couple"        onclick="setBuilderTool('couple')">💑 Crear pareja</button>
+        <button class="tool-btn"        id="tool-child"         onclick="setBuilderTool('child')">👶 Descendiente</button>
+        <div class="builder-sex-toggle" role="group" aria-label="Sexo del descendiente">
+          <button type="button" class="sex-option active" id="child-sex-random" onclick="setBuilderChildSex('')" title="Sexo aleatorio">🎲</button>
+          <button type="button" class="sex-option" id="child-sex-male" onclick="setBuilderChildSex('M')" title="Descendiente hombre">♂</button>
+          <button type="button" class="sex-option" id="child-sex-female" onclick="setBuilderChildSex('F')" title="Descendiente mujer">♀</button>
+        </div>
+	        <button class="tool-btn"        id="tool-toggleAffected" onclick="setBuilderTool('toggleAffected')">● Afectado</button>
+	        <button class="tool-btn"        id="tool-toggleCarrier" onclick="setBuilderTool('toggleCarrier')">◉ Portador</button>
+        <button class="tool-btn"        id="tool-delete"        onclick="setBuilderTool('delete')">🗑 Eliminar</button>
+	        <div style="flex:1;"></div>
+	        <button class="tool-btn"        onclick="clearBuilderTree()">↺ Limpiar</button>
+	      </div>
+
+	      <div class="builder-section">
+        <div class="tree-header" style="border:1px solid var(--border);border-bottom:none;border-radius:0;">
+          <div class="tree-title">🌳 Árbol del constructor <span id="builderSvgTitle" style="font-weight:400;color:#6b7280;"></span></div>
+          <div class="tree-controls" aria-label="Controles del árbol del constructor">
+            <button class="tree-control-btn" type="button" onclick="adjustTreeZoom('builderSvg', -0.1)" title="Alejar">−</button>
+            <span class="zoom-readout" id="builderSvgZoom">100%</span>
+            <button class="tree-control-btn" type="button" onclick="adjustTreeZoom('builderSvg', 0.1)" title="Acercar">+</button>
+            <button class="tree-control-btn" type="button" onclick="resetTreeZoom('builderSvg')" title="Restaurar zoom">100%</button>
+            <button class="tree-control-btn" type="button" onclick="toggleBuilderFullscreen()" id="builderFullscreenBtn" title="Pantalla completa">⛶</button>
+          </div>
+        </div>
+        <div class="ped-svg-container" style="border-radius:0;border-top:none;">
+          <svg id="builderSvg" viewBox="0 0 1100 520" width="1100"
+               style="max-width:100%;height:auto;min-height:400px;cursor:crosshair;"></svg>
+          <div class="snap-grid-hint">Cuadrícula de 20px</div>
+        </div>
+        <div class="pedigree-info" id="builderInfo">
+          🔧 Herramienta: Mover — Arrastra un individuo para moverlo.
+        </div>
+      </div>
+
+      <div id="builderActions" style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.75rem;">
+        <button class="btn btn-primary" onclick="analyzeBuilderTree()">🔍 Analizar árbol</button>
+        <button class="btn btn-outline" onclick="loadBuilderExample()">📋 Cargar ejemplo</button>
+        <button class="btn btn-outline" onclick="saveBuilderCaseToDisk('teacher')">💾 Guardar editable</button>
+        <button class="btn btn-outline" onclick="saveBuilderCaseToDisk('student')">🎓 Guardar alumno</button>
+        <button class="btn btn-outline" onclick="document.getElementById('builderCaseFile').click()">📂 Cargar caso</button>
+        <button class="btn btn-outline" onclick="document.getElementById('studentAnswerFile').click()">📥 Revisar respuesta</button>
+        <button class="btn btn-outline" onclick="copyBuilderShareURL()">🔗 Compartir con alumnado</button>
+        <button class="btn btn-outline" onclick="downloadBuilderPNG()">🖼 Descargar PNG</button>
+        <button class="btn btn-outline" onclick="printTree('builderSvg', getBuilderPrintTitle())">🖨 Imprimir</button>
+        <input type="file" id="builderCaseFile" accept=".json,application/json" style="display:none;" onchange="loadBuilderCaseFromFile(event)">
+        <input type="file" id="studentAnswerFile" accept=".json,application/json" style="display:none;" onchange="loadStudentAnswerFromFile(event)">
+      </div>
+      <div class="builder-status" id="builderSaveStatus" aria-live="polite"></div>
+
+	      <div class="analysis-result" id="builderAnalysisResult">
+	        <div id="builderPatternDisplay"></div>
+	        <div id="builderPatternDesc" style="font-size:0.9rem;margin-top:0.5rem;color:#374151;"></div>
+	        <div class="section-title" style="margin-top:1rem;">🧬 Genotipos compatibles</div>
+	        <table class="genotype-table">
+	          <thead><tr><th>Individuo</th><th>Genotipo</th><th>Estado</th></tr></thead>
+	          <tbody id="builderGenotypeTableBody"></tbody>
+	        </table>
+	        <div id="builderGenotypeNote" style="font-size:0.85rem;margin-top:0.6rem;color:#6b7280;"></div>
+	      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════ TAB: ALUMNO ══════════ -->
+  <div id="tab-alumno" class="tab-content">
+
+    <div class="card">
+      <div class="card-title" id="studentCaseTitle">Actividad de pedigrí</div>
+      <div id="studentCasePrompt" class="alert alert-info" style="display:none;">
+        <span class="alert-icon">📖</span>
+        <div id="studentCasePromptText"></div>
+      </div>
+      <div class="student-meta" id="studentCaseMeta"></div>
+    </div>
+
+    <div class="tree-frame" style="margin-top:1rem;">
+      <div class="tree-header">
+        <div class="tree-title">🌳 Árbol genealógico <span id="studentSvgTitle" style="font-weight:400;color:#6b7280;"></span></div>
+        <div class="tree-controls" aria-label="Controles del árbol del alumno">
+          <button class="tree-control-btn" type="button" onclick="adjustTreeZoom('studentSvg', -0.1)" title="Alejar">−</button>
+          <span class="zoom-readout" id="studentSvgZoom">100%</span>
+          <button class="tree-control-btn" type="button" onclick="adjustTreeZoom('studentSvg', 0.1)" title="Acercar">+</button>
+          <button class="tree-control-btn" type="button" onclick="resetTreeZoom('studentSvg')" title="Restaurar zoom">100%</button>
+          <button class="tree-control-btn" type="button" onclick="printTree('studentSvg', getStudentPrintTitle())" title="Imprimir o guardar como PDF">🖨</button>
+        </div>
+      </div>
+      <div class="ped-svg-container" style="border:none;border-radius:0;">
+        <svg id="studentSvg" viewBox="0 0 1100 520" width="1100" style="max-width:100%;height:auto;min-height:390px;"></svg>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:1rem;">
+      <div class="card-title">✍️ Respuesta del alumno</div>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:1;min-width:220px;">
+          <label for="studentName">Nombre</label>
+          <input type="text" id="studentName" placeholder="Nombre y apellidos" oninput="updateStudentResponsePreview()">
+        </div>
+        <div class="form-group" style="flex:1;min-width:240px;">
+          <label for="studentPattern">Patrón de herencia propuesto</label>
+          <select id="studentPattern" onchange="updateStudentResponsePreview()">
+            <option value="">Selecciona un patrón</option>
+            <option value="AR">Autosómica recesiva</option>
+            <option value="AD">Autosómica dominante</option>
+            <option value="XR">Recesiva ligada al X</option>
+            <option value="XD">Dominante ligada al X</option>
+            <option value="unknown">No se puede determinar</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="studentJustification">Justificación</label>
+        <textarea id="studentJustification" rows="4" placeholder="Explica qué datos del árbol justifican tu respuesta..." oninput="updateStudentResponsePreview()"></textarea>
+      </div>
+
+      <div class="section-title">🧬 Genotipos propuestos</div>
+      <table class="genotype-table">
+        <thead><tr><th>Individuo</th><th>Sexo</th><th>Estado observado</th><th>Genotipo</th><th>Notas</th></tr></thead>
+        <tbody id="studentGenotypeTableBody"></tbody>
+      </table>
+
+      <div class="btn-group" style="margin-top:0.9rem;">
+        <button class="btn btn-primary" id="studentCheckBtn" onclick="checkStudentAnswers()">✅ Comprobar</button>
+        <button class="btn btn-outline" onclick="downloadStudentAnswers()">💾 Descargar respuestas</button>
+        <button class="btn btn-outline" onclick="copyStudentAnswers()">📋 Copiar respuestas</button>
+        <button class="btn btn-outline" onclick="emailStudentAnswers()">✉️ Preparar correo</button>
+      </div>
+      <div id="studentAutoCheckNote" class="builder-status"></div>
+      <div id="studentFeedback" class="alert student-feedback"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<footer>
+  <div>
+    <strong><a href="https://bilateria.org" target="_blank" rel="noopener">Juan José de Haro</a></strong> &mdash; MendelSim v1.0
+  </div>
+  <div style="margin-top:0.3rem">
+    Código: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">AGPLv3</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    Contenidos: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    &copy; 2026
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <a href="https://github.com/mendelsim/mendelsim.github.io/issues" target="_blank" rel="noopener">Sugerencias y errores</a>
+  </div>
+</footer>
+
+<script src="../js/genetics.js"></script>
+<script src="../js/pedigri.js"></script>
+<script>
+// ══════════════════════════════════════════════════════
+// EXERCISE DATA
+// ══════════════════════════════════════════════════════
+const EXERCISES = [
+  {
+    id: 1,
+    title: "Ejercicio 1: Fibrosis Quística",
+    description: "Dos progenitores sanos tienen descendencia afectada. Analiza el árbol y determina el patrón de herencia.",
+    question: "¿Qué patrón de herencia sigue este rasgo? ¿Cuáles son los genotipos de los progenitores?",
+    individuals: [
+      {id:1,  sex:'M', affected:false, x:220, y:70,  label:'I-1'},
+      {id:2,  sex:'F', affected:false, x:340, y:70,  label:'I-2'},
+      {id:3,  sex:'M', affected:false, x:90,  y:200, label:'II-1'},
+      {id:4,  sex:'F', affected:false, x:190, y:200, label:'II-2'},
+      {id:5,  sex:'F', affected:true,  x:390, y:200, label:'II-3'},
+      {id:6,  sex:'M', affected:false, x:290, y:200, label:'II-4'},
+      {id:7,  sex:'M', affected:false, x:520, y:200, label:'II-5'},
+      {id:8,  sex:'M', affected:false, x:410, y:330, label:'III-1'},
+      {id:9,  sex:'M', affected:true,  x:510, y:330, label:'III-2'},
+      {id:10, sex:'F', affected:false, x:610, y:330, label:'III-3'},
+    ],
+    couples: [
+      {id:'c1', p1:1,  p2:2,  children:[3,4,5,6]},
+      {id:'c2', p1:5,  p2:7,  children:[8,9,10]},
+    ],
+    answer: {
+      pattern: 'AR',
+      patternName: 'Autosómica Recesiva',
+      clues: [
+        'Los progenitores I-1 e I-2 no están afectados, pero tienen una hija afectada (II-3) → el alelo causante es RECESIVO (si fuera dominante, al menos uno de los padres estaría afectado).',
+        'El rasgo aparece en individuos de ambos sexos (II-3 mujer, III-2 hombre) → el gen está en un autosoma, NO en el cromosoma X (herencia autosómica).',
+        'Los progenitores sanos con hijos afectados son portadores heterocigotos (Aa × Aa → 1/4 posibilidad de hijo afectado aa).',
+        'II-5 (no afectado) se unió a II-3 (afectada, genotipo aa) y tienen un hijo afectado (III-2) → II-5 también debe ser portador (Aa).',
+      ],
+      genotypes: {1:'Aa',2:'Aa',3:'AA o Aa',4:'AA o Aa',5:'aa',6:'AA o Aa',7:'Aa',8:'AA o Aa',9:'aa',10:'AA o Aa'},
+      genotypeLabels: {1:'Portador',2:'Portadora',5:'Afectada',7:'Portador',9:'Afectado'},
+    }
+  },
+  {
+    id: 2,
+    title: "Ejercicio 2: Polidactilia",
+    description: "Un progenitor afectado transmite el rasgo a parte de su descendencia.",
+    question: "¿El rasgo es dominante o recesivo? ¿Qué genotipo tiene el progenitor afectado (I-1)?",
+    individuals: [
+      {id:1, sex:'M', affected:true,  x:220, y:70,  label:'I-1'},
+      {id:2, sex:'F', affected:false, x:340, y:70,  label:'I-2'},
+      {id:3, sex:'F', affected:true,  x:110, y:200, label:'II-1'},
+      {id:4, sex:'M', affected:false, x:210, y:200, label:'II-2'},
+      {id:5, sex:'F', affected:true,  x:310, y:200, label:'II-3'},
+      {id:6, sex:'M', affected:false, x:410, y:200, label:'II-4'},
+    ],
+    couples: [
+      {id:'c1', p1:1, p2:2, children:[3,4,5,6]},
+    ],
+    answer: {
+      pattern: 'AD',
+      patternName: 'Autosómica Dominante',
+      clues: [
+        'El rasgo aparece directamente en I-1 y se transmite a sus hijos. Un progenitor afectado tiene hijos afectados → el alelo causante es DOMINANTE.',
+        'El progenitor I-1 afectado tiene dos hijos no afectados (II-2 e II-4) → I-1 debe ser heterocigoto (Aa), no homocigoto (AA). Si fuera AA, todos los hijos serían afectados.',
+        'El rasgo afecta tanto a mujeres (II-1, II-3) como a hombres (I-1) y hay hijos de ambos sexos no afectados → herencia autosómica (no ligada al X).',
+        'La proporción observada (2 afectados de 4 hijos) es consistente con el cruce Aa × aa → 50% afectados esperado.',
+      ],
+      genotypes: {1:'Aa', 2:'aa', 3:'Aa', 4:'aa', 5:'Aa', 6:'aa'},
+    }
+  },
+  {
+    id: 3,
+    title: "Ejercicio 3: Hemofilia A",
+    description: "Un rasgo que afecta principalmente a los hombres. La madre portadora transmite el alelo patológico.",
+    question: "¿Qué tipo de herencia sigue la hemofilia? ¿Cuál es el genotipo de la madre I-2? ¿Y de la hija II-4?",
+    individuals: [
+      {id:1, sex:'M', affected:false, x:200, y:70,  label:'I-1'},
+      {id:2, sex:'F', affected:false, x:320, y:70,  label:'I-2'},
+      {id:3, sex:'M', affected:false, x:90,  y:200, label:'II-1'},
+      {id:4, sex:'M', affected:true,  x:190, y:200, label:'II-2'},
+      {id:5, sex:'F', affected:false, x:290, y:200, label:'II-3'},
+      {id:6, sex:'F', affected:false, x:390, y:200, label:'II-4'},
+      {id:7, sex:'M', affected:false, x:470, y:200, label:'II-5'},
+      {id:8, sex:'M', affected:true,  x:420, y:330, label:'III-1'},
+      {id:9, sex:'F', affected:false, x:520, y:330, label:'III-2'},
+    ],
+    couples: [
+      {id:'c1', p1:1, p2:2, children:[3,4,5,6]},
+      {id:'c2', p1:7, p2:6, children:[8,9]},
+    ],
+    answer: {
+      pattern: 'XR',
+      patternName: 'Recesiva ligada al cromosoma X',
+      clues: [
+        'Solo los hombres aparecen afectados en este árbol (II-2 y III-1) → posible herencia ligada al X (los hombres son hemicigotos).',
+        'La madre I-2 no está afectada, pero tiene un hijo afectado (II-2) → I-2 debe ser portadora (X^H X^h), ya que el padre I-1 es normal.',
+        'La hija II-4 tiene un hijo afectado (III-1) sin estar ella afectada → II-4 también es portadora (X^H X^h). Heredó el alelo X^h de su madre I-2.',
+        'El patrón típico: madres portadoras → hijos hombres afectados (50% de probabilidad); nietas que también pueden ser portadoras.',
+      ],
+      genotypes: {
+        1:'X^H Y',
+        2:'X^H X^h (portadora)',
+        3:'X^H Y',
+        4:'X^h Y',
+        5:'X^H X^H o X^H X^h',
+        6:'X^H X^h (portadora)',
+        7:'X^H Y',
+        8:'X^h Y',
+        9:'X^H X^H o X^H X^h',
+      },
+      genotypeLabels: {2:'Portadora', 4:'Afectado', 6:'Portadora', 8:'Afectado'},
+    }
+  },
+  {
+    id: 4,
+    title: "Ejercicio 4: Albinismo (3 generaciones)",
+    description: "Árbol de 3 generaciones con patrón recesivo. Hay individuos afectados en la generación II y III.",
+    question: "Determina el patrón de herencia y los genotipos de todos los individuos. ¿Cuál es el genotipo de II-6?",
+    individuals: [
+      {id:1,  sex:'M', affected:false, x:150, y:60,  label:'I-1'},
+      {id:2,  sex:'F', affected:false, x:270, y:60,  label:'I-2'},
+      {id:3,  sex:'M', affected:false, x:420, y:60,  label:'I-3'},
+      {id:4,  sex:'F', affected:false, x:540, y:60,  label:'I-4'},
+      {id:5,  sex:'M', affected:true,  x:100, y:190, label:'II-1'},
+      {id:6,  sex:'F', affected:false, x:200, y:190, label:'II-2'},
+      {id:7,  sex:'M', affected:false, x:310, y:190, label:'II-3'},
+      {id:8,  sex:'F', affected:false, x:430, y:190, label:'II-4'},
+      {id:9,  sex:'F', affected:true,  x:530, y:190, label:'II-5'},
+      {id:10, sex:'M', affected:false, x:260, y:190, label:'II-6'},
+      {id:11, sex:'F', affected:false, x:200, y:330, label:'III-1'},
+      {id:12, sex:'M', affected:false, x:300, y:330, label:'III-2'},
+      {id:13, sex:'F', affected:true,  x:400, y:330, label:'III-3'},
+    ],
+    couples: [
+      {id:'c1', p1:1,  p2:2,  children:[5,6,7]},
+      {id:'c2', p1:3,  p2:4,  children:[8,9]},
+      {id:'c3', p1:10, p2:6,  children:[11,12,13]},
+    ],
+    answer: {
+      pattern: 'AR',
+      patternName: 'Autosómica Recesiva',
+      clues: [
+        'Los padres I-1 e I-2 están sanos pero tienen hijos afectados (II-1, hombre afectado) → rasgo RECESIVO.',
+        'El rasgo afecta tanto a hombres (II-1) como a mujeres (II-5, III-3) → gen en autosoma (no ligado al X).',
+        'II-2 es hija de padres portadores (Aa × Aa): puede ser AA o Aa. Como tiene una hija afectada (III-3), II-2 DEBE ser Aa (portadora).',
+        'II-6 (no afectado) × II-2 (Aa) → tienen una hija afectada (III-3, aa) → II-6 también es portador (Aa).',
+        'Los padres I-3 e I-4 también son portadores porque tienen una hija afectada (II-5, aa).',
+      ],
+      genotypes: {1:'Aa',2:'Aa',3:'Aa',4:'Aa',5:'aa',6:'Aa',7:'AA o Aa',8:'AA o Aa',9:'aa',10:'Aa',11:'AA o Aa',12:'AA o Aa',13:'aa'},
+      genotypeLabels: {1:'Portador',2:'Portadora',3:'Portador',4:'Portadora',5:'Afectado',6:'Portadora',9:'Afectada',10:'Portador',13:'Afectada'},
+    }
+  },
+  {
+    id: 5,
+    title: "Ejercicio 5: Padre afectado y descendencia",
+    description: "Un padre afectado y su descendencia. Observa quiénes están afectados: todas las hijas, ningún hijo hombre.",
+    question: "Identifica el patrón de herencia y justifica tu respuesta. ¿Por qué ningún hijo hombre está afectado?",
+    individuals: [
+      {id:1, sex:'M', affected:true,  x:240, y:70,  label:'I-1'},
+      {id:2, sex:'F', affected:false, x:360, y:70,  label:'I-2'},
+      {id:3, sex:'M', affected:false, x:100, y:200, label:'II-1'},
+      {id:4, sex:'F', affected:true,  x:200, y:200, label:'II-2'},
+      {id:5, sex:'M', affected:false, x:300, y:200, label:'II-3'},
+      {id:6, sex:'F', affected:true,  x:400, y:200, label:'II-4'},
+      {id:7, sex:'M', affected:false, x:500, y:200, label:'II-5'},
+    ],
+    couples: [{id:'c1', p1:1, p2:2, children:[3,4,5,6,7]}],
+    answer: {
+      pattern: 'XD',
+      patternName: 'Dominante ligada al cromosoma X',
+      clues: [
+        'El padre afectado (I-1) transmite el rasgo a TODAS sus hijas (II-2 y II-4 afectadas) pero a NINGÚN hijo hombre (II-1, II-3, II-5 no afectados).',
+        'Esto se explica porque el padre pasa su cromosoma X a sus hijas y su Y a sus hijos. Si el X del padre lleva el alelo dominante patológico, todas las hijas lo heredan.',
+        'El rasgo es DOMINANTE porque basta con un solo alelo para expresarse (las hijas solo tienen una copia del alelo X^A pero están afectadas).',
+        'Este patrón diagnóstico — padre afectado → todas hijas afectadas, ningún hijo — es exclusivo de herencia DOMINANTE LIGADA AL X.',
+      ],
+      genotypes: {1:'X^A Y', 2:'X^a X^a', 3:'X^a Y', 4:'X^A X^a', 5:'X^a Y', 6:'X^A X^a', 7:'X^a Y'},
+    }
+  },
+  {
+    id: 6,
+    title: "Ejercicio 6: Caso clínico — Probabilidad",
+    description: "Árbol complejo de 3 generaciones con herencia autosómica recesiva. Hay que determinar la probabilidad para la descendencia de una pareja.",
+    question: "¿Cuál es la probabilidad de que el próximo hijo de II-3 y II-4 sea afectado? Determina antes sus genotipos.",
+    individuals: [
+      {id:1,  sex:'M', affected:false, x:180, y:60,  label:'I-1'},
+      {id:2,  sex:'F', affected:false, x:300, y:60,  label:'I-2'},
+      {id:3,  sex:'M', affected:false, x:420, y:60,  label:'I-3'},
+      {id:4,  sex:'F', affected:false, x:540, y:60,  label:'I-4'},
+      {id:5,  sex:'M', affected:true,  x:120, y:190, label:'II-1'},
+      {id:6,  sex:'F', affected:false, x:220, y:190, label:'II-2'},
+      {id:7,  sex:'M', affected:false, x:340, y:190, label:'II-3'},
+      {id:8,  sex:'F', affected:false, x:470, y:190, label:'II-4'},
+      {id:9,  sex:'M', affected:false, x:560, y:190, label:'II-5'},
+      {id:10, sex:'F', affected:true,  x:410, y:330, label:'III-1'},
+      {id:11, sex:'M', affected:false, x:510, y:330, label:'III-2'},
+    ],
+    couples: [
+      {id:'c1', p1:1, p2:2,  children:[5,6,7]},
+      {id:'c2', p1:3, p2:4,  children:[8,9]},
+      {id:'c3', p1:7, p2:8,  children:[10,11]},
+    ],
+    answer: {
+      pattern: 'AR',
+      patternName: 'Autosómica Recesiva',
+      clues: [
+        'II-3 tiene un hermano afectado (II-1, genotipo aa) → sus padres I-1 e I-2 son ambos portadores (Aa × Aa).',
+        'II-3 no está afectado → es AA o Aa. Como tiene una hija afectada (III-1, aa), II-3 DEBE ser Aa.',
+        'III-1 está afectada (aa) → heredó un alelo "a" de cada progenitor. Su madre II-4 también debe ser portadora (Aa). Sus padres I-3 e I-4 también son portadores.',
+        'Cruce II-3 (Aa) × II-4 (Aa) → proporción de descendientes: 1 AA : 2 Aa : 1 aa. Probabilidad de afectado = 1/4 = 25%.',
+      ],
+      genotypes: {1:'Aa',2:'Aa',3:'Aa',4:'Aa',5:'aa',6:'AA o Aa',7:'Aa',8:'Aa',9:'AA o Aa',10:'aa',11:'AA o Aa'},
+      genotypeLabels: {1:'Portador',2:'Portadora',3:'Portador',4:'Portadora',5:'Afectado',7:'Portador',8:'Portadora',10:'Afectada'},
+      probability: '25% (1/4)',
+    }
+  },
+
+  // ── Ejercicios con organismos no humanos ─────────────────
+
+  {
+    id: 7,
+    title: "Ejercicio 7: Drosophila — Ojos blancos (Morgan)",
+    organismType: 'other',
+    description: "En Drosophila melanogaster, el color de ojo blanco es recesivo y está ligado al cromosoma X. Thomas Morgan observó este patrón en 1910. En este árbol, una hembra de ojos rojos y un macho de ojos rojos tienen descendencia con algunos machos de ojos blancos.",
+    question: "¿Por qué solo los machos presentan ojos blancos en este cruce? Deduce los genotipos de los progenitores e identifica el patrón de herencia.",
+    individuals: [
+      {id:1, sex:'F', affected:false, x:220, y:70,  label:'I-1'},
+      {id:2, sex:'M', affected:false, x:340, y:70,  label:'I-2'},
+      {id:3, sex:'F', affected:false, x:110, y:200, label:'II-1'},
+      {id:4, sex:'M', affected:true,  x:210, y:200, label:'II-2'},
+      {id:5, sex:'F', affected:false, x:310, y:200, label:'II-3'},
+      {id:6, sex:'M', affected:false, x:410, y:200, label:'II-4'},
+    ],
+    couples: [
+      {id:'c1', p1:1, p2:2, children:[3,4,5,6]},
+    ],
+    answer: {
+      pattern: 'XR',
+      patternName: 'Recesiva ligada al cromosoma X',
+      clues: [
+        'Solo los machos presentan ojos blancos → el gen está ligado al cromosoma X. Los machos son hemicigotos (X^w Y): con un solo alelo recesivo expresan el rasgo.',
+        'La hembra I-1 tiene ojos rojos pero tiene un hijo con ojos blancos (II-2) → I-1 es portadora heterocigota (X^W X^w).',
+        'El macho I-2 tiene ojos rojos → su único X lleva el alelo dominante (X^W Y). Transmite su X a las hijas y su Y a los hijos.',
+        'Los hijos varones reciben el X de la madre: 50% X^W (ojos rojos) y 50% X^w (ojos blancos). Las hembras reciben el X^W del padre → nunca afectadas en este cruce.',
+      ],
+      genotypes: {1:'X^W X^w', 2:'X^W Y', 3:'X^W X^W o X^W X^w', 4:'X^w Y', 5:'X^W X^W o X^W X^w', 6:'X^W Y'},
+      genotypeLabels: {1:'Portadora', 4:'Afectado (ojos blancos)'},
+    }
+  },
+
+  {
+    id: 8,
+    title: "Ejercicio 8: Labrador Retriever — Color de pelaje",
+    organismType: 'other',
+    description: "En los perros Labrador Retriever, el pelaje chocolate (marrón) depende de un gen autosómico recesivo (b). Dos labradores negros tienen descendencia chocolate. Analiza el árbol familiar.",
+    question: "¿Qué genotipos tienen los progenitores I-1 e I-2? ¿Qué proporción de la descendencia esperarías que fuera chocolate?",
+    individuals: [
+      {id:1,  sex:'M', affected:false, x:220, y:70,  label:'I-1'},
+      {id:2,  sex:'F', affected:false, x:340, y:70,  label:'I-2'},
+      {id:3,  sex:'M', affected:false, x:100, y:200, label:'II-1'},
+      {id:4,  sex:'F', affected:true,  x:200, y:200, label:'II-2'},
+      {id:5,  sex:'M', affected:true,  x:300, y:200, label:'II-3'},
+      {id:6,  sex:'F', affected:false, x:400, y:200, label:'II-4'},
+      {id:7,  sex:'M', affected:false, x:500, y:200, label:'II-5'},
+    ],
+    couples: [
+      {id:'c1', p1:1, p2:2, children:[3,4,5,6,7]},
+    ],
+    answer: {
+      pattern: 'AR',
+      patternName: 'Autosómica Recesiva',
+      clues: [
+        'Los progenitores I-1 e I-2 tienen pelaje negro (fenotipo dominante) pero tienen descendientes chocolate (bb, fenotipo recesivo) → ambos progenitores son heterocigotos portadores (Bb).',
+        'El pelaje chocolate (bb) aparece en machos y hembras → el gen está en un autosoma, no en el cromosoma X.',
+        'Cruce Bb × Bb → proporciones esperadas: 1/4 BB (negro), 2/4 Bb (negro portador), 1/4 bb (chocolate). El 25% de la descendencia debería ser chocolate.',
+        'En este árbol, 2 de 5 cachorros son chocolate (40%), lo que es coherente con la variabilidad esperada en camadas pequeñas.',
+      ],
+      genotypes: {1:'Bb', 2:'Bb', 3:'BB o Bb', 4:'bb', 5:'bb', 6:'BB o Bb', 7:'BB o Bb'},
+      genotypeLabels: {1:'Negro portador', 2:'Negra portadora', 4:'Chocolate', 5:'Chocolate'},
+    }
+  },
+
+  {
+    id: 9,
+    title: "Ejercicio 9: Ganado vacuno — Sin cuernos (Astas)",
+    organismType: 'other',
+    description: "En el ganado vacuno, la condición 'sin cuernos' (mocho) es autosómica dominante (P) sobre la condición 'con cuernos'. Dos animales mochos heterocigotos se cruzan y producen descendencia con y sin cuernos.",
+    question: "¿Qué proporción de la descendencia tendrá cuernos? ¿Cuál es el genotipo de los progenitores? Identifica el patrón de herencia.",
+    individuals: [
+      {id:1, sex:'M', affected:false, x:220, y:70,  label:'I-1'},
+      {id:2, sex:'F', affected:false, x:340, y:70,  label:'I-2'},
+      {id:3, sex:'M', affected:false, x:110, y:200, label:'II-1'},
+      {id:4, sex:'F', affected:true,  x:210, y:200, label:'II-2'},
+      {id:5, sex:'M', affected:false, x:310, y:200, label:'II-3'},
+      {id:6, sex:'F', affected:false, x:410, y:200, label:'II-4'},
+    ],
+    couples: [
+      {id:'c1', p1:1, p2:2, children:[3,4,5,6]},
+    ],
+    answer: {
+      pattern: 'AD',
+      patternName: 'Autosómica Dominante',
+      clues: [
+        'Los progenitores I-1 e I-2 son mochos (sin cuernos) pero tienen descendencia con cuernos (pp) → el alelo mocho (P) es DOMINANTE y los progenitores son heterocigotos (Pp).',
+        'La descendencia con cuernos aparece en ambos sexos → el gen es autosómico.',
+        'Cruce Pp × Pp → 1/4 PP (mocho), 2/4 Pp (mocho), 1/4 pp (con cuernos). El 75% de la descendencia esperada es mocha y el 25% tiene cuernos.',
+        'Los animales mochos pueden ser PP o Pp; solo los pp (homocigotos recesivos) desarrollan cuernos.',
+      ],
+      genotypes: {1:'Pp', 2:'Pp', 3:'PP o Pp', 4:'pp', 5:'PP o Pp', 6:'PP o Pp'},
+      genotypeLabels: {1:'Mocho (Pp)', 2:'Mocha (Pp)', 4:'Con cuernos'},
+    }
+  },
+
+  {
+    id: 10,
+    title: "Ejercicio 10: Gato doméstico — Pelaje naranja (ligado al X)",
+    organismType: 'other',
+    description: "En el gato doméstico, el color naranja está codificado por un gen ligado al cromosoma X. El alelo X^N produce pelaje naranja y es epistático sobre el negro. Las hembras pueden ser calico (naranja y negro) si son heterocigotas X^N X^n. Analiza este árbol donde una gata calico se cruza con un gato negro.",
+    question: "¿Por qué no existen gatos machos calico en condiciones normales? ¿Qué fenotipos esperas en la descendencia de este cruce?",
+    individuals: [
+      {id:1, sex:'F', affected:false, x:220, y:70,  label:'I-1'},
+      {id:2, sex:'M', affected:false, x:340, y:70,  label:'I-2'},
+      {id:3, sex:'F', affected:false, x:110, y:200, label:'II-1'},
+      {id:4, sex:'M', affected:false, x:210, y:200, label:'II-2'},
+      {id:5, sex:'F', affected:true,  x:310, y:200, label:'II-3'},
+      {id:6, sex:'M', affected:true,  x:410, y:200, label:'II-4'},
+    ],
+    couples: [
+      {id:'c1', p1:2, p2:1, children:[3,4,5,6]},
+    ],
+    answer: {
+      pattern: 'XD',
+      patternName: 'Dominante ligada al cromosoma X',
+      clues: [
+        'La gata I-1 es calico (X^N X^n: portadora de ambos alelos). El gato I-2 es negro (X^n Y: solo tiene el alelo no-naranja).',
+        'Los machos solo tienen un cromosoma X: son naranjas (X^N Y) o negros/no-naranjas (X^n Y). No pueden ser calico porque necesitan dos alelos X diferentes, por eso los gatos calico machos son extremadamente raros (solo en casos de XXY).',
+        'Del cruce X^N X^n × X^n Y: hembras X^N X^n (calico) o X^n X^n (negra/no-naranja); machos X^N Y (naranja) o X^n Y (negro).',
+        'En el árbol: II-1 (negra, X^n X^n), II-2 (negro, X^n Y), II-3 (calico, X^N X^n), II-4 (naranja, X^N Y).',
+      ],
+      genotypes: {1:'X^N X^n', 2:'X^n Y', 3:'X^n X^n', 4:'X^n Y', 5:'X^N X^n', 6:'X^N Y'},
+      genotypeLabels: {1:'Calico (portadora)', 2:'Negro', 3:'Negra', 4:'Negro', 5:'Calico', 6:'Naranja'},
+    }
+  },
+];
+
+const RANDOM_PEDIGREE_TRAITS = {
+  AR: [
+    { name:'Albinismo', affected:'albinismo' },
+    { name:'Fibrosis quística', affected:'fibrosis quística' },
+    { name:'Fenilcetonuria', affected:'fenilcetonuria' },
+    { name:'Anemia falciforme', affected:'anemia falciforme' },
+    { name:'Pelaje chocolate en perros', affected:'pelaje chocolate', organism:'other' },
+    { name:'Sordera congénita en dálmatas', affected:'sordera congénita', organism:'other' },
+    { name:'Pelaje no-agouti en ratones', affected:'pelaje no-agouti', organism:'other' },
+    { name:'Plumaje recesivo en gallinas', affected:'plumaje recesivo', organism:'other' },
+  ],
+  AD: [
+    { name:'Polidactilia', affected:'polidactilia' },
+    { name:'Braquidactilia', affected:'braquidactilia' },
+    { name:'Enfermedad de Huntington', affected:'enfermedad de Huntington' },
+    { name:'Hipercolesterolemia familiar', affected:'hipercolesterolemia familiar' },
+    { name:'Sin cuernos (mocho) en vacuno', affected:'condición con cuernos', organism:'other' },
+    { name:'Cresta de rosa en gallinas', affected:'cresta simple', organism:'other' },
+    { name:'Pelaje ondulado en conejos', affected:'pelaje liso recesivo', organism:'other' },
+  ],
+  XR: [
+    { name:'Hemofilia A', affected:'hemofilia A', dom:'H', rec:'h' },
+    { name:'Daltonismo rojo-verde', affected:'daltonismo rojo-verde', dom:'C', rec:'c' },
+    { name:'Distrofia Muscular Duchenne', affected:'distrofia muscular de Duchenne', dom:'D', rec:'d' },
+    { name:'Deficiencia de G6PD', affected:'deficiencia de G6PD', dom:'G', rec:'g' },
+    { name:'Ojos blancos en Drosophila', affected:'ojos blancos', dom:'W', rec:'w', organism:'other' },
+    { name:'Hemofilia en perros', affected:'hemofilia', dom:'H', rec:'h', organism:'other' },
+  ],
+  XD: [
+    { name:'Raquitismo hipofosfatémico ligado al X', affected:'raquitismo hipofosfatémico', dom:'R', rec:'r' },
+    { name:'Incontinencia pigmentaria', affected:'incontinencia pigmentaria', dom:'I', rec:'i' },
+    { name:'Pelaje naranja en gatos', affected:'pelaje naranja', dom:'N', rec:'n', organism:'other', codominant:true },
+  ]
+};
+
+const RANDOM_PATTERN_NAMES = {
+  AR: 'Autosómica Recesiva',
+  AD: 'Autosómica Dominante',
+  XR: 'Recesiva ligada al cromosoma X',
+  XD: 'Dominante ligada al cromosoma X'
+};
+
+function randomChoice(items) {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+function randomExerciseId(pattern) {
+  return 9000 + ['AR','AD','XR','XD'].indexOf(pattern) * 100 + Math.floor(Math.random() * 100);
+}
+
+function createRandomPedigreeExercise() {
+  const pattern = randomChoice(['AR', 'AD', 'XR', 'XD']);
+  const trait = randomChoice(RANDOM_PEDIGREE_TRAITS[pattern]);
+  const builders = {
+    AR: buildRandomARExercise,
+    AD: buildRandomADExercise,
+    XR: buildRandomXRExercise,
+    XD: buildRandomXDExercise
+  };
+  return builders[pattern](trait);
+}
+
+function buildRandomARExercise(trait) {
+  return {
+    id: randomExerciseId('AR'),
+    organismType: trait.organism || 'human',
+    title: `Caso aleatorio: ${trait.name}`,
+    description: `Dos progenitores no afectados tienen una hija afectada por ${trait.affected}. El árbol está generado con una plantilla mendeliana resoluble.`,
+    question: `Identifica el patrón de herencia de ${trait.name} y deduce los genotipos que quedan determinados por el árbol.`,
+    individuals: [
+      {id:1, sex:'M', affected:false, x:220, y:70,  label:'I-1'},
+      {id:2, sex:'F', affected:false, x:340, y:70,  label:'I-2'},
+      {id:3, sex:'M', affected:false, x:110, y:200, label:'II-1'},
+      {id:4, sex:'F', affected:true,  x:220, y:200, label:'II-2'},
+      {id:5, sex:'M', affected:false, x:330, y:200, label:'II-3'},
+      {id:6, sex:'F', affected:false, x:440, y:200, label:'II-4'}
+    ],
+    couples: [
+      {id:'c1', p1:1, p2:2, children:[3,4,5,6]}
+    ],
+    answer: {
+      pattern: 'AR',
+      patternName: RANDOM_PATTERN_NAMES.AR,
+      clues: [
+        'Los progenitores I-1 e I-2 no están afectados, pero tienen una hija afectada (II-2): el rasgo debe comportarse como recesivo.',
+        'Una hija afectada con padre no afectado descarta una herencia recesiva ligada al X en el modelo escolar, porque una hija X-recesiva afectada necesitaría recibir el X patológico de su padre.',
+        'El patrón se interpreta como autosómico recesivo: ambos progenitores son portadores heterocigotos (Aa × Aa).',
+        'Los descendientes no afectados de ese cruce pueden ser AA o Aa; el árbol no permite distinguirlos sin más datos.'
+      ],
+      genotypes: {1:'Aa', 2:'Aa', 3:'AA o Aa', 4:'aa', 5:'AA o Aa', 6:'AA o Aa'},
+      genotypeLabels: {1:'Portador', 2:'Portadora', 4:'Afectada'}
+    }
+  };
+}
+
+function buildRandomADExercise(trait) {
+  return {
+    id: randomExerciseId('AD'),
+    organismType: trait.organism || 'human',
+    title: `Caso aleatorio: ${trait.name}`,
+    description: `Un padre afectado por ${trait.affected} y una madre no afectada tienen hijos afectados y no afectados, incluyendo transmisión padre-hijo hombre.`,
+    question: `Determina el patrón de herencia de ${trait.name}. ¿Qué genotipo debe tener el progenitor afectado?`,
+    individuals: [
+      {id:1, sex:'M', affected:true,  x:220, y:70,  label:'I-1'},
+      {id:2, sex:'F', affected:false, x:340, y:70,  label:'I-2'},
+      {id:3, sex:'M', affected:true,  x:100, y:200, label:'II-1'},
+      {id:4, sex:'F', affected:false, x:210, y:200, label:'II-2'},
+      {id:5, sex:'F', affected:true,  x:320, y:200, label:'II-3'},
+      {id:6, sex:'M', affected:false, x:430, y:200, label:'II-4'}
+    ],
+    couples: [
+      {id:'c1', p1:1, p2:2, children:[3,4,5,6]}
+    ],
+    answer: {
+      pattern: 'AD',
+      patternName: RANDOM_PATTERN_NAMES.AD,
+      clues: [
+        'El rasgo aparece en un progenitor afectado y en parte de su descendencia: esto encaja con herencia dominante.',
+        'Hay transmisión de padre afectado a hijo hombre afectado (I-1 → II-1), lo que descarta herencia ligada al X.',
+        'Como I-1 tiene hijos no afectados, no puede ser AA. Debe ser heterocigoto Aa.',
+        'El cruce Aa × aa explica que aproximadamente la mitad de la descendencia esté afectada.'
+      ],
+      genotypes: {1:'Aa', 2:'aa', 3:'Aa', 4:'aa', 5:'Aa', 6:'aa'},
+      genotypeLabels: {1:'Afectado heterocigoto', 3:'Afectado', 5:'Afectada'}
+    }
+  };
+}
+
+function buildRandomXRExercise(trait) {
+  const A = trait.dom;
+  const a = trait.rec;
+  return {
+    id: randomExerciseId('XR'),
+    organismType: trait.organism || 'human',
+    title: `Caso aleatorio: ${trait.name}`,
+    description: `Un padre afectado por ${trait.affected} tiene hijas no afectadas que son portadoras obligadas; una de ellas tiene un hijo afectado.`,
+    question: `Identifica el patrón de herencia de ${trait.name}. ¿Por qué el rasgo reaparece en un nieto hombre?`,
+    individuals: [
+      {id:1, sex:'M', affected:true,  x:180, y:70,  label:'I-1'},
+      {id:2, sex:'F', affected:false, x:300, y:70,  label:'I-2'},
+      {id:3, sex:'M', affected:false, x:80,  y:200, label:'II-1'},
+      {id:4, sex:'F', affected:false, x:190, y:200, label:'II-2'},
+      {id:5, sex:'M', affected:false, x:300, y:200, label:'II-3'},
+      {id:6, sex:'F', affected:false, x:410, y:200, label:'II-4'},
+      {id:7, sex:'M', affected:false, x:560, y:200, label:'II-5'},
+      {id:8, sex:'M', affected:true,  x:430, y:330, label:'III-1'},
+      {id:9, sex:'F', affected:false, x:530, y:330, label:'III-2'}
+    ],
+    couples: [
+      {id:'c1', p1:1, p2:2, children:[3,4,5,6]},
+      {id:'c2', p1:6, p2:7, children:[8,9]}
+    ],
+    answer: {
+      pattern: 'XR',
+      patternName: RANDOM_PATTERN_NAMES.XR,
+      clues: [
+        'Un padre afectado transmite su cromosoma X a todas sus hijas y su cromosoma Y a todos sus hijos; por eso sus hijos hombres no heredan el X patológico paterno.',
+        'Las hijas II-2 e II-4 son portadoras obligadas: recibieron X patológico de I-1, pero no están afectadas porque el rasgo es recesivo.',
+        'II-4 puede transmitir su X patológico a un hijo hombre. Si el hijo recibe ese X, expresa el rasgo porque solo tiene un cromosoma X.',
+        'La ausencia de transmisión padre-hijo hombre y la reaparición en hombres a través de mujeres portadoras encajan con herencia recesiva ligada al X.'
+      ],
+      genotypes: {
+        1:`X^${a} Y`,
+        2:`X^${A} X^${A}`,
+        3:`X^${A} Y`,
+        4:`X^${A} X^${a}`,
+        5:`X^${A} Y`,
+        6:`X^${A} X^${a}`,
+        7:`X^${A} Y`,
+        8:`X^${a} Y`,
+        9:`X^${A} X^${A} o X^${A} X^${a}`
+      },
+      genotypeLabels: {1:'Afectado', 4:'Portadora', 6:'Portadora', 8:'Afectado'}
+    }
+  };
+}
+
+function buildRandomXDExercise(trait) {
+  const A = trait.dom;
+  const a = trait.rec;
+  const codo = trait.codominant || false;
+  const femAffected = !codo;
+  const femLabel = codo ? 'Portadora' : 'Afectada';
+  const description = codo
+    ? `Un macho con ${trait.affected} (X^${A} Y) transmite su X a todas sus hijas, que resultan portadoras (X^${A} X^${a}) con fenotipo intermedio. Ningún hijo macho expresa el rasgo.`
+    : `Un padre afectado por ${trait.affected} tiene todas sus hijas afectadas y ningún hijo hombre afectado.`;
+  const question = codo
+    ? `Identifica el patrón de herencia de ${trait.name}. ¿Por qué las hijas muestran un fenotipo distinto al padre? ¿Por qué ningún hijo macho expresa el rasgo paterno?`
+    : `Identifica el patrón de herencia de ${trait.name}. ¿Por qué el padre afectado no transmite el rasgo a sus hijos hombres?`;
+  const clues = codo ? [
+    `El macho afectado (X^${A} Y) transmite su X a todas sus hijas y su Y a todos sus hijos machos.`,
+    `Las hijas reciben X^${A} del padre y X^${a} de la madre (X^${a} X^${a}), resultando heterocigotas X^${A} X^${a} con fenotipo intermedio (portadoras visibles).`,
+    `Los hijos machos solo reciben el X^${a} materno, por eso ninguno expresa el rasgo paterno.`,
+    `El patrón macho afectado → todas las hijas portadoras y ningún hijo macho afectado es típico de herencia ligada al X con codominancia o dominancia incompleta.`
+  ] : [
+    'El padre afectado transmite su cromosoma X a todas sus hijas; por eso todas ellas aparecen afectadas.',
+    'El padre transmite el cromosoma Y a sus hijos hombres, no su X afectado; por eso ningún hijo hombre está afectado.',
+    'Las hijas están afectadas con una sola copia del alelo paterno, así que el alelo se comporta como dominante.',
+    'El patrón padre afectado → todas las hijas afectadas y ningún hijo hombre afectado es diagnóstico de herencia dominante ligada al X.'
+  ];
+  return {
+    id: randomExerciseId('XD'),
+    organismType: trait.organism || 'human',
+    title: `Caso aleatorio: ${trait.name}`,
+    description,
+    question,
+    individuals: [
+      {id:1, sex:'M', affected:true,        x:240, y:70,  label:'I-1'},
+      {id:2, sex:'F', affected:false,        x:360, y:70,  label:'I-2'},
+      {id:3, sex:'M', affected:false,        x:100, y:200, label:'II-1'},
+      {id:4, sex:'F', affected:femAffected, carrier:codo, x:200, y:200, label:'II-2'},
+      {id:5, sex:'M', affected:false,                    x:300, y:200, label:'II-3'},
+      {id:6, sex:'F', affected:femAffected, carrier:codo, x:400, y:200, label:'II-4'},
+      {id:7, sex:'M', affected:false,        x:500, y:200, label:'II-5'}
+    ],
+    couples: [
+      {id:'c1', p1:1, p2:2, children:[3,4,5,6,7]}
+    ],
+    answer: {
+      pattern: 'XD',
+      patternName: RANDOM_PATTERN_NAMES.XD,
+      clues,
+      genotypes: {
+        1:`X^${A} Y`,
+        2:`X^${a} X^${a}`,
+        3:`X^${a} Y`,
+        4:`X^${A} X^${a}`,
+        5:`X^${a} Y`,
+        6:`X^${A} X^${a}`,
+        7:`X^${a} Y`
+      },
+      genotypeLabels: {1:'Afectado', 4:femLabel, 6:femLabel}
+    }
+  };
+}
+
+// ══════════════════════════════════════════════════════
+// TAB SWITCHING
+// ══════════════════════════════════════════════════════
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const targetBtn = btn || document.querySelector(`.tab-btn[data-tab="${name}"]`);
+  if (targetBtn) targetBtn.classList.add('active');
+  if (name === 'constructor') {
+    updateLegendSexLabels(getBuilderSexLabels());
+  } else if (name === 'alumno') {
+    updateLegendSexLabels(labelsForOrganism(currentStudentAssignment?.metadata?.organismType || 'human'));
+  } else {
+    updateLegendSexLabels(SEX_LABELS.human);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// ENGINES
+// ══════════════════════════════════════════════════════
+let analysisEngine, practiceEngine, builderEngine, studentEngine;
+let currentAnalysisExercise = null;
+let currentClueIndex = 0;
+let solutionVisible = false;
+let currentPracticeExercise = null;
+let currentStudentAssignment = null;
+let score = 0, scoreTot = 0;
+let builderPrintTitle = 'Pedigrí construido';
+const TREE_ZOOM = { analysisSvg: 1, practiceSvg: 1, builderSvg: 1, studentSvg: 1 };
+const SEX_LABELS = {
+  human: {
+    male: 'Hombre',
+    female: 'Mujer',
+    maleLower: 'hombre',
+    femaleLower: 'mujer',
+    malePlural: 'hombres',
+    femalePlural: 'mujeres',
+    femaleCarrier: 'Mujer portadora (heterocigota)',
+    maleCarrier: 'Hombre portador (heterocigoto)',
+  },
+  other: {
+    male: 'Macho',
+    female: 'Hembra',
+    maleLower: 'macho',
+    femaleLower: 'hembra',
+    malePlural: 'machos',
+    femalePlural: 'hembras',
+    femaleCarrier: 'Hembra portadora (heterocigota)',
+    maleCarrier: 'Macho portador (heterocigoto)',
+  },
+};
+
+function initEngines() {
+  analysisEngine = new PedigreeEngine('analysisSvg', null);
+  analysisEngine.readOnly = true;
+  practiceEngine = new PedigreeEngine('practiceSvg', null);
+  practiceEngine.readOnly = true;
+  builderEngine  = new PedigreeEngine('builderSvg', 'builderInfo');
+  builderEngine.autoLabel = true;
+  studentEngine  = new PedigreeEngine('studentSvg', null);
+  studentEngine.readOnly = true;
+
+  // Populate exercise selects
+  const selA = document.getElementById('exerciseSelect');
+  const selP = document.getElementById('practiceExerciseSelect');
+  for (const ex of EXERCISES) {
+    const label = ex.title;
+    selA.innerHTML += `<option value="${ex.id}">${label}</option>`;
+    selP.innerHTML += `<option value="${ex.id}">${label}</option>`;
+  }
+
+  loadAnalysisExercise();
+  loadPracticeExercise();
+  resetBuilderMetadata();
+  builderEngine._updateInfo();
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      const workspace = document.getElementById('builderWorkspace');
+      if (workspace?.classList.contains('is-fullscreen')) {
+        workspace.classList.remove('is-fullscreen');
+        updateBuilderFullscreenButton();
+      }
+    }
+  });
+  loadBuilderCaseFromURL();
+}
+
+function getTreeBaseWidth(svg) {
+  return parseFloat(svg.getAttribute('width')) || svg.viewBox.baseVal.width || 700;
+}
+
+function setTreeZoom(svgId, zoom) {
+  const svg = document.getElementById(svgId);
+  if (!svg) return;
+  const clamped = Math.max(0.5, Math.min(2.5, zoom));
+  TREE_ZOOM[svgId] = Math.round(clamped * 10) / 10;
+  const width = getTreeBaseWidth(svg) * TREE_ZOOM[svgId];
+  svg.style.width = `${width}px`;
+  svg.style.maxWidth = TREE_ZOOM[svgId] === 1 ? '100%' : 'none';
+  svg.style.height = 'auto';
+  const readout = document.getElementById(`${svgId}Zoom`);
+  if (readout) readout.textContent = `${Math.round(TREE_ZOOM[svgId] * 100)}%`;
+}
+
+function adjustTreeZoom(svgId, delta) {
+  setTreeZoom(svgId, (TREE_ZOOM[svgId] || 1) + delta);
+}
+
+function resetTreeZoom(svgId) {
+  setTreeZoom(svgId, 1);
+}
+
+function escapeHTML(text) {
+  return String(text || '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+  }[ch]));
+}
+
+function formatGenotypeHTML(text) {
+  return escapeHTML(text).replace(/([A-Za-z])\^([A-Za-z0-9]+)/g, '$1<sup>$2</sup>');
+}
+
+function labelsForOrganism(type) {
+  return SEX_LABELS[type === 'other' ? 'other' : 'human'];
+}
+
+function getBuilderSexLabels() {
+  return labelsForOrganism(document.getElementById('builderOrganismType')?.value || 'human');
+}
+
+function sexLabel(sex, labels = SEX_LABELS.human) {
+  return sex === 'M' ? labels.male : labels.female;
+}
+
+function updateLegendSexLabels(labels = SEX_LABELS.human) {
+  const set = (id, text) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  };
+  set('legendMaleUnaffected', `${labels.male} no afectado`);
+  set('legendFemaleUnaffected', `${labels.female} no afectada`);
+  set('legendMaleAffected', `${labels.male} afectado`);
+  set('legendFemaleAffected', `${labels.female} afectada`);
+  set('legendFemaleCarrier', labels.femaleCarrier);
+  set('legendMaleCarrier', labels.maleCarrier);
+}
+
+function getAnalysisPrintTitle() {
+  return currentAnalysisExercise ? currentAnalysisExercise.title : 'Árbol genealógico';
+}
+
+function getPracticePrintTitle() {
+  return currentPracticeExercise ? currentPracticeExercise.title : 'Árbol genealógico';
+}
+
+function getBuilderPrintTitle() {
+  return builderPrintTitle || 'Pedigrí construido';
+}
+
+function getStudentPrintTitle() {
+  return currentStudentAssignment?.metadata?.title || 'Actividad de pedigrí';
+}
+
+function getBuilderCasePrintHTML() {
+  const meta = getBuilderMetadata();
+  const rows = [];
+  rows.push(`<p><strong>Organismo:</strong> ${meta.organismType === 'other' ? 'otros organismos (macho/hembra)' : 'personas (hombre/mujer)'}</p>`);
+  if (meta.trait) rows.push(`<p><strong>Rasgo:</strong> ${escapeHTML(meta.trait)}</p>`);
+  const alleles = [];
+  if (meta.alleleDomName) alleles.push(`${formatGenotypeHTML(meta.alleleDom)} = ${escapeHTML(meta.alleleDomName)}`);
+  if (meta.alleleRecName) alleles.push(`${formatGenotypeHTML(meta.alleleRec)} = ${escapeHTML(meta.alleleRecName)}`);
+  if (alleles.length) rows.push(`<p><strong>Alelos:</strong> ${alleles.join('; ')}</p>`);
+  if (meta.expectedPattern) rows.push(`<p><strong>Patrón esperado:</strong> ${RANDOM_PATTERN_NAMES[meta.expectedPattern] || meta.expectedPattern}</p>`);
+  if (meta.prompt) rows.push(`<p><strong>Enunciado:</strong> ${formatGenotypeHTML(meta.prompt).replace(/\n/g, '<br>')}</p>`);
+  return rows.length ? `<div class="case-meta">${rows.join('')}</div>` : '';
+}
+
+function caseMetaRowsHTML(meta) {
+  const rows = [];
+  rows.push(`<p><strong>Organismo:</strong> ${meta.organismType === 'other' ? 'otros organismos (macho/hembra)' : 'personas (hombre/mujer)'}</p>`);
+  if (meta.trait) rows.push(`<p><strong>Rasgo:</strong> ${escapeHTML(meta.trait)}</p>`);
+  const alleles = [];
+  if (meta.alleleDomName) alleles.push(`${formatGenotypeHTML(meta.alleleDom || 'A')} = ${escapeHTML(meta.alleleDomName)}`);
+  if (meta.alleleRecName) alleles.push(`${formatGenotypeHTML(meta.alleleRec || 'a')} = ${escapeHTML(meta.alleleRecName)}`);
+  if (alleles.length) rows.push(`<p><strong>Alelos:</strong> ${alleles.join('; ')}</p>`);
+  if (meta.prompt) rows.push(`<p><strong>Enunciado:</strong> ${formatGenotypeHTML(meta.prompt).replace(/\n/g, '<br>')}</p>`);
+  return rows;
+}
+
+function getStudentCasePrintHTML() {
+  const meta = currentStudentAssignment?.metadata || {};
+  const rows = caseMetaRowsHTML(meta);
+  return rows.length ? `<div class="case-meta">${rows.join('')}</div>` : '';
+}
+
+function getStudentAnswerPrintHTML() {
+  if (!currentStudentAssignment) return '';
+  const answer = collectStudentAnswers();
+  const labels = labelsForOrganism(currentStudentAssignment.metadata.organismType);
+  const individuals = [...currentStudentAssignment.exercise.individuals].sort((a, b) => a.id - b.id);
+  const rows = individuals.map(ind => {
+    const genotype = answer.genotypes[ind.id] || '';
+    const note = answer.notes[ind.id] || '';
+    return `<tr>
+      <td><strong>${escapeHTML(ind.label)}</strong></td>
+      <td>${sexLabel(ind.sex, labels)}</td>
+      <td>${studentObservedStatus(ind)}</td>
+      <td><code>${genotype ? formatGenotypeHTML(genotype) : '(sin responder)'}</code></td>
+      <td>${note ? escapeHTML(note) : ''}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="student-print-answer">
+      <div class="section-title">Respuesta del alumno</div>
+      <p><strong>Nombre:</strong> ${escapeHTML(answer.studentName || '(sin nombre)')}</p>
+      <p><strong>Patrón propuesto:</strong> ${escapeHTML(answer.patternLabel || '(sin responder)')}</p>
+      <p><strong>Justificación:</strong><br>${escapeHTML(answer.justification || '(sin responder)').replace(/\n/g, '<br>')}</p>
+      <table class="genotype-table">
+        <thead><tr><th>Individuo</th><th>Sexo</th><th>Estado observado</th><th>Genotipo propuesto</th><th>Notas</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function getPrintExtra(svgId) {
+  if (svgId === 'analysisSvg' && document.getElementById('solutionBox').classList.contains('visible')) {
+    return document.getElementById('solutionBox').outerHTML;
+  }
+  if (svgId === 'builderSvg') {
+    const analysis = document.getElementById('builderAnalysisResult').classList.contains('visible')
+      ? document.getElementById('builderAnalysisResult').outerHTML
+      : '';
+    return getBuilderCasePrintHTML() + analysis;
+  }
+  if (svgId === 'studentSvg' && currentStudentAssignment) {
+    return getStudentCasePrintHTML() + getStudentAnswerPrintHTML();
+  }
+  if (svgId === 'practiceSvg' && currentPracticeExercise) {
+    return `<p><strong>Pregunta:</strong> ${formatGenotypeHTML(currentPracticeExercise.question)}</p>`;
+  }
+  return '';
+}
+
+function printTree(svgId, title) {
+  const svg = document.getElementById(svgId);
+  if (!svg) return;
+  const clone = svg.cloneNode(true);
+  clone.removeAttribute('style');
+  clone.setAttribute('width', '100%');
+  clone.setAttribute('height', 'auto');
+
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    alert('No se pudo abrir la ventana de impresión. Revisa si el navegador ha bloqueado las ventanas emergentes.');
+    return;
+  }
+
+  const legend = document.querySelector('.legend-pedigree')?.outerHTML || '';
+  const extra = getPrintExtra(svgId);
+  printWindow.document.write(`
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>${escapeHTML(title)}</title>
+  <style>
+    :root { --primary:#1a7431; --affected:#c0392b; --carrier:#e67e22; --text:#2c3e50; --border:#cde0cd; --font: Inter, Arial, sans-serif; --mono: Consolas, monospace; }
+    body { font-family: var(--font); color: var(--text); margin: 24px; }
+    h1 { font-size: 20px; margin: 0 0 12px; color: var(--primary); }
+    .print-tree { border: 1px solid var(--border); padding: 12px; margin-top: 12px; page-break-inside: avoid; }
+    svg { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+    .legend-pedigree { display:flex; gap:14px; flex-wrap:wrap; align-items:center; font-size:12px; margin: 10px 0 14px; }
+    .leg-item { display:flex; align-items:center; gap:5px; }
+    .leg-sq { width:14px; height:14px; border:2px solid #2c3e50; display:inline-block; position:relative; }
+    .leg-circle { width:14px; height:14px; border-radius:50%; border:2px solid #2c3e50; display:inline-block; position:relative; }
+    .leg-filled-sq, .leg-filled-ci { background:var(--affected); border-color:var(--affected); }
+    .leg-carrier-sq::after, .leg-carrier-ci::after { content:''; position:absolute; width:6px; height:6px; border-radius:50%; background:var(--carrier); left:50%; top:50%; transform:translate(-50%,-50%); }
+    .ped-line { stroke: var(--text); stroke-width: 1.8; fill: none; }
+    .ped-label { font-family: var(--font); font-size: 11px; fill: #555; text-anchor: middle; }
+    .ped-genotype { font-family: var(--mono); font-size: 10px; fill: #1a7431; text-anchor: middle; font-weight: 600; }
+    .genotype-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:10px; }
+    .genotype-table th { background:var(--primary); color:#fff; text-align:left; padding:5px 7px; }
+    .genotype-table td { padding:5px 7px; border-bottom:1px solid #e5e7eb; }
+    .case-meta { font-size:13px; margin: 8px 0 12px; }
+    .case-meta p { margin: 4px 0; }
+    .student-print-answer { margin-top: 14px; page-break-inside: avoid; }
+    .student-print-answer p { font-size:13px; margin: 6px 0; }
+    code { font-family: var(--mono); color: #14532d; font-weight: 600; }
+    .pattern-result { text-align:center; padding:10px; border-radius:8px; margin:10px 0; font-size:16px; font-weight:700; }
+    .pattern-AR { background:#fef3c7; color:#92400e; border:2px solid #fcd34d; }
+    .pattern-AD { background:#dbeafe; color:#1e40af; border:2px solid #93c5fd; }
+    .pattern-XR { background:#fce7f3; color:#9d174d; border:2px solid #f9a8d4; }
+    .pattern-XD { background:#ede9fe; color:#6d28d9; border:2px solid #c4b5fd; }
+    .section-title { color:var(--primary); font-weight:700; margin-top:12px; }
+    @media print {
+      body { margin: 12mm; }
+      .genotype-table { page-break-inside: auto; }
+      .genotype-table tr { page-break-inside: avoid; page-break-after: auto; }
+      .print-tree { max-height: 45vh; overflow: hidden; }
+    }
+  </style>
+</head>
+<body>
+  <h1>${escapeHTML(title || 'Árbol genealógico')}</h1>
+  ${legend}
+  <div class="print-tree">${clone.outerHTML}</div>
+  ${extra}
+  <script>window.addEventListener('load', () => { window.focus(); window.print(); });<\/script>
+</body>
+</html>`);
+  printWindow.document.close();
+}
+
+function toggleBuilderFullscreen() {
+  const workspace = document.getElementById('builderWorkspace');
+  workspace.classList.toggle('is-fullscreen');
+  updateBuilderFullscreenButton();
+}
+
+function updateBuilderFullscreenButton() {
+  const btn = document.getElementById('builderFullscreenBtn');
+  const workspace = document.getElementById('builderWorkspace');
+  if (!btn || !workspace) return;
+  const isFs = workspace.classList.contains('is-fullscreen');
+  btn.textContent = isFs ? '⊡' : '⛶';
+  btn.title = isFs ? 'Salir de pantalla completa' : 'Pantalla completa';
+}
+
+function resetBuilderAnalysisPanel() {
+  document.getElementById('builderAnalysisResult').classList.remove('visible');
+  document.getElementById('builderGenotypeTableBody').innerHTML = '';
+  document.getElementById('builderGenotypeNote').innerHTML = '';
+}
+
+function getBuilderMetadata() {
+  return {
+    title: document.getElementById('builderCaseTitle').value.trim(),
+    trait: document.getElementById('builderTraitName').value.trim(),
+    organismType: document.getElementById('builderOrganismType').value,
+    prompt: document.getElementById('builderCasePrompt').value.trim(),
+    expectedPattern: document.getElementById('builderExpectedPattern').value,
+    alleleDom: document.getElementById('builderAlleleDom').value.trim() || 'A',
+    alleleDomName: document.getElementById('builderAlleleDomName').value.trim(),
+    alleleRec: document.getElementById('builderAlleleRec').value.trim() || 'a',
+    alleleRecName: document.getElementById('builderAlleleRecName').value.trim(),
+    teacherEmail: document.getElementById('builderTeacherEmail').value.trim(),
+    allowAutoCheck: document.getElementById('builderAllowAutoCheck').checked,
+  };
+}
+
+function setBuilderMetadata(metadata = {}) {
+  document.getElementById('builderCaseTitle').value = metadata.title || '';
+  document.getElementById('builderTraitName').value = metadata.trait || '';
+  document.getElementById('builderOrganismType').value = metadata.organismType === 'other' ? 'other' : 'human';
+  document.getElementById('builderCasePrompt').value = metadata.prompt || '';
+  document.getElementById('builderExpectedPattern').value = metadata.expectedPattern || '';
+  document.getElementById('builderAlleleDom').value = metadata.alleleDom || 'A';
+  document.getElementById('builderAlleleDomName').value = metadata.alleleDomName || '';
+  document.getElementById('builderAlleleRec').value = metadata.alleleRec || 'a';
+  document.getElementById('builderAlleleRecName').value = metadata.alleleRecName || '';
+  document.getElementById('builderTeacherEmail').value = metadata.teacherEmail || '';
+  document.getElementById('builderAllowAutoCheck').checked = !!metadata.allowAutoCheck;
+  updateBuilderMetadata();
+}
+
+function updateBuilderMetadata() {
+  const meta = getBuilderMetadata();
+  const title = meta.title || meta.trait || 'Pedigrí construido';
+  document.getElementById('builderSvgTitle').textContent = title === 'Pedigrí construido' ? '' : `— ${title}`;
+  builderPrintTitle = title;
+  updateBuilderOrganismLabels();
+}
+
+function resetBuilderMetadata() {
+  setBuilderMetadata({
+    title: '',
+    trait: '',
+    organismType: 'human',
+    prompt: '',
+    expectedPattern: '',
+    alleleDom: 'A',
+    alleleDomName: '',
+    alleleRec: 'a',
+    alleleRecName: '',
+    teacherEmail: '',
+    allowAutoCheck: false,
+  });
+}
+
+function updateBuilderOrganismLabels() {
+  const labels = getBuilderSexLabels();
+  if (builderEngine) builderEngine.setSexLabels(labels);
+
+  const addMale = document.getElementById('tool-addMale');
+  const addFemale = document.getElementById('tool-addFemale');
+  const childMale = document.getElementById('child-sex-male');
+  const childFemale = document.getElementById('child-sex-female');
+  if (addMale) addMale.textContent = `♂ Añadir ${labels.maleLower}`;
+  if (addFemale) addFemale.textContent = `♀ Añadir ${labels.femaleLower}`;
+  if (childMale) childMale.title = `Descendiente ${labels.maleLower}`;
+  if (childFemale) childFemale.title = `Descendiente ${labels.femaleLower}`;
+
+  if (document.getElementById('tab-constructor')?.classList.contains('active')) {
+    updateLegendSexLabels(labels);
+  }
+}
+
+function setBuilderSource(title) {
+  const notice = document.getElementById('builderSourceNotice');
+  const text = document.getElementById('builderSourceText');
+
+  if (!title) {
+    notice.style.display = 'none';
+    text.innerHTML = '';
+    return;
+  }
+
+  notice.style.display = '';
+  text.innerHTML = `<strong>Copia editable:</strong> ${escapeHTML(title)}`;
+}
+
+function cloneExerciseForBuilder(exercise) {
+  const copy = JSON.parse(JSON.stringify(exercise));
+  copy.individuals = copy.individuals.map(ind => ({ ...ind, genotype: '' }));
+  return copy;
+}
+
+function inferAlleleSymbolsFromExercise(exercise) {
+  const values = Object.values(exercise.answer?.genotypes || {}).join(' ');
+  const xAlleles = [...values.matchAll(/X\^([A-Za-z0-9]+)/g)].map(m => m[1]);
+  if (xAlleles.length) {
+    const dom = xAlleles.find(a => a !== a.toLowerCase()) || xAlleles[0] || 'A';
+    const rec = xAlleles.find(a => a !== a.toUpperCase()) || dom.toLowerCase() || 'a';
+    return { alleleDom: dom, alleleRec: rec };
+  }
+
+  const autosomal = [...values.matchAll(/\b([A-Za-z])([A-Za-z_])\b/g)]
+    .flatMap(m => [m[1], m[2]])
+    .filter(a => /^[A-Za-z]$/.test(a));
+  const dom = autosomal.find(a => a === a.toUpperCase()) || 'A';
+  const rec = autosomal.find(a => a === a.toLowerCase()) || dom.toLowerCase() || 'a';
+  return { alleleDom: dom, alleleRec: rec };
+}
+
+function metadataFromExercise(exercise) {
+  const alleles = inferAlleleSymbolsFromExercise(exercise);
+  return {
+    title: exercise.title || '',
+    trait: (exercise.title || '').replace(/^Caso aleatorio:\s*/i, '').replace(/^Ejercicio\s+\d+:\s*/i, ''),
+    organismType: 'human',
+    prompt: [exercise.description, exercise.question].filter(Boolean).join('\n\n'),
+    expectedPattern: exercise.answer?.pattern || '',
+    alleleDom: alleles.alleleDom,
+    alleleDomName: '',
+    alleleRec: alleles.alleleRec,
+    alleleRecName: '',
+    teacherEmail: '',
+    allowAutoCheck: false,
+  };
+}
+
+function copyExerciseToBuilder(exercise) {
+  if (!exercise) {
+    alert('No hay ningún ejercicio cargado para copiar.');
+    return;
+  }
+
+  const copy = cloneExerciseForBuilder(exercise);
+  builderEngine.readOnly = false;
+  setBuilderMetadata(metadataFromExercise(exercise));
+  builderEngine.loadExercise(copy);
+  setBuilderTool('select');
+  setBuilderChildSex('');
+  resetBuilderZoomAndSource(exercise.title);
+  resetBuilderAnalysisPanel();
+  switchTab('constructor');
+  document.getElementById('builderWorkspace').scrollIntoView({ block: 'start' });
+}
+
+function resetBuilderZoomAndSource(title) {
+  resetTreeZoom('builderSvg');
+  setBuilderSource(title);
+}
+
+function copyAnalysisToBuilder() {
+  copyExerciseToBuilder(currentAnalysisExercise);
+}
+
+function copyPracticeToBuilder() {
+  copyExerciseToBuilder(currentPracticeExercise);
+}
+
+function setBuilderStatus(message) {
+  const el = document.getElementById('builderSaveStatus');
+  if (!el) return;
+  el.textContent = message || '';
+  if (message) {
+    clearTimeout(setBuilderStatus._timer);
+    setBuilderStatus._timer = setTimeout(() => { el.textContent = ''; }, 4500);
+  }
+}
+
+function buildBuilderReferenceSolution() {
+  const meta = getBuilderMetadata();
+  const pattern = meta.expectedPattern || builderEngine.analyzePattern();
+  const alleles = getBuilderAlleles();
+  const inferred = inferBuilderGenotypes(pattern, alleles);
+  return {
+    pattern,
+    patternName: RANDOM_PATTERN_NAMES[pattern] || builderEngine.getPatternInfo(pattern).name,
+    genotypes: inferred.genotypes,
+    genotypeLabels: inferred.genotypeLabels,
+    notes: inferred.notes,
+  };
+}
+
+function serializeBuilderCase(mode = 'teacher') {
+  const studentMode = mode === 'student';
+  const metadata = getBuilderMetadata();
+  const data = {
+    type: 'mendelsim-pedigree-case',
+    version: 1,
+    launchMode: mode,
+    metadata,
+    assignment: {
+      allowAutoCheck: !!metadata.allowAutoCheck,
+      teacherEmail: metadata.teacherEmail || '',
+    },
+    individuals: Array.from(builderEngine.individuals.values()).map(ind => ({
+      id: ind.id,
+      sex: ind.sex,
+      affected: !!ind.affected,
+      carrier: !!ind.carrier,
+      x: ind.x,
+      y: ind.y,
+      label: ind.label,
+      genotype: studentMode ? '' : (ind.genotype || ''),
+    })),
+    couples: builderEngine.couples.map(c => ({
+      id: c.id,
+      p1: c.p1,
+      p2: c.p2,
+      children: [...c.children],
+    })),
+  };
+  if (studentMode && metadata.allowAutoCheck) {
+    data.solution = buildBuilderReferenceSolution();
+  }
+  return data;
+}
+
+function normalizeBuilderCase(data) {
+  if (!data || !Array.isArray(data.individuals) || !Array.isArray(data.couples)) {
+    throw new Error('El archivo no contiene un caso de pedigrí válido.');
+  }
+  const metadata = { ...(data.metadata || {}) };
+  if (!metadata.title && data.title) metadata.title = data.title;
+  if (!metadata.organismType) metadata.organismType = 'human';
+  metadata.teacherEmail = metadata.teacherEmail || data.assignment?.teacherEmail || '';
+  metadata.allowAutoCheck = !!(metadata.allowAutoCheck || data.assignment?.allowAutoCheck);
+  if (!metadata.prompt && (data.description || data.question)) {
+    metadata.prompt = [data.description, data.question].filter(Boolean).join('\n\n');
+  }
+  return {
+    metadata,
+    launchMode: data.launchMode || 'teacher',
+    assignment: data.assignment || { allowAutoCheck: !!metadata.allowAutoCheck, teacherEmail: metadata.teacherEmail || '' },
+    solution: data.solution || null,
+    exercise: {
+      id: data.id || Date.now(),
+      title: metadata.title || data.title || 'Pedigrí construido',
+      description: metadata.prompt || data.description || '',
+      question: data.question || '',
+      individuals: data.individuals.map(ind => ({
+        id: Number(ind.id),
+        sex: ind.sex === 'F' ? 'F' : 'M',
+        affected: !!ind.affected,
+        carrier: !!ind.carrier,
+        x: Number(ind.x) || 80,
+        y: Number(ind.y) || 80,
+        label: ind.label || `#${ind.id}`,
+        genotype: ind.genotype || '',
+      })),
+      couples: data.couples.map(c => ({
+        id: c.id || `c${c.p1}-${c.p2}`,
+        p1: Number(c.p1),
+        p2: Number(c.p2),
+        children: Array.isArray(c.children) ? c.children.map(Number) : [],
+      })),
+    },
+  };
+}
+
+function loadBuilderCaseData(data, sourceLabel = 'caso cargado') {
+  const normalized = normalizeBuilderCase(data);
+  setStudentModeUI(false);
+  builderEngine.readOnly = false;
+  setBuilderMetadata(normalized.metadata);
+  builderEngine.loadExercise(normalized.exercise);
+  setBuilderTool('select');
+  setBuilderChildSex('');
+  resetTreeZoom('builderSvg');
+  resetBuilderAnalysisPanel();
+  setBuilderSource(sourceLabel);
+  switchTab('constructor');
+  setBuilderStatus(`Caso cargado: ${normalized.metadata.title || normalized.exercise.title}.`);
+}
+
+function safeFilename(text, fallback = 'pedigri-mendelsim') {
+  return (text || fallback)
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 70) || fallback;
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function saveBuilderCaseToDisk(mode = 'teacher') {
+  const data = serializeBuilderCase(mode);
+  const json = JSON.stringify(data, null, 2);
+  const suffix = mode === 'student' ? 'alumno' : 'editable';
+  const filename = `${safeFilename(data.metadata.title || data.metadata.trait)}.${suffix}.mendelsim-pedigri.json`;
+  downloadBlob(new Blob([json], { type: 'application/json;charset=utf-8' }), filename);
+  setBuilderStatus(mode === 'student'
+    ? 'Actividad guardada en modo alumno. Al cargarla se abrirá lista para resolver.'
+    : 'Caso editable guardado para modificarlo más tarde.');
+}
+
+function loadBuilderCaseFromFile(event) {
+  const file = event.target.files?.[0];
+  event.target.value = '';
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (data.type === 'mendelsim-pedigree-answer') {
+        loadStudentSubmissionData(data, file.name);
+      } else if (data.launchMode === 'student') {
+        loadStudentAssignmentData(data, file.name);
+      } else {
+        loadBuilderCaseData(data, file.name);
+      }
+    } catch (err) {
+      alert(err.message || 'No se pudo cargar el caso.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function loadStudentAnswerFromFile(event) {
+  const file = event.target.files?.[0];
+  event.target.value = '';
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      loadStudentSubmissionData(data, file.name);
+    } catch (err) {
+      alert(err.message || 'No se pudo cargar la respuesta del alumno.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function encodeCaseForURL(data) {
+  const bytes = new TextEncoder().encode(JSON.stringify(data));
+  let binary = '';
+  bytes.forEach(b => { binary += String.fromCharCode(b); });
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function decodeCaseFromURL(encoded) {
+  const padded = encoded.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - encoded.length % 4) % 4);
+  const binary = atob(padded);
+  const bytes = Uint8Array.from(binary, ch => ch.charCodeAt(0));
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+async function copyBuilderShareURL() {
+  const encoded = encodeCaseForURL(serializeBuilderCase('student'));
+  const url = `${location.origin}${location.pathname}#alumno=${encoded}`;
+  try {
+    await navigator.clipboard.writeText(url);
+    setBuilderStatus('URL de alumno copiada al portapapeles.');
+  } catch (err) {
+    prompt('Copia esta URL para compartirla con el alumnado:', url);
+    setBuilderStatus('URL generada.');
+  }
+}
+
+function loadBuilderCaseFromURL() {
+  const studentMatch = location.hash.match(/^#alumno=(.+)$/);
+  const teacherMatch = location.hash.match(/^#caso=(.+)$/);
+  const match = studentMatch || teacherMatch;
+  if (!match) return;
+  try {
+    const data = decodeCaseFromURL(match[1]);
+    if (studentMatch || data.launchMode === 'student') {
+      loadStudentAssignmentData(data, 'URL compartida');
+    } else {
+      loadBuilderCaseData(data, 'URL editable');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('No se pudo leer el caso desde la URL.');
+  }
+}
+
+function setStudentModeUI(enabled) {
+  const tabs = document.querySelector('.tabs');
+  if (tabs) tabs.style.display = enabled ? 'none' : '';
+  const studentTab = document.getElementById('studentTabBtn');
+  if (studentTab && enabled) studentTab.style.display = 'none';
+}
+
+function showStudentReviewTab() {
+  setStudentModeUI(false);
+  const studentTab = document.getElementById('studentTabBtn');
+  if (studentTab) studentTab.style.display = '';
+  switchTab('alumno', studentTab);
+}
+
+function studentObservedStatus(ind) {
+  if (ind.affected) return ind.sex === 'F' ? 'Afectada' : 'Afectado';
+  if (ind.carrier) return ind.sex === 'F' ? 'Portadora' : 'Portador';
+  return ind.sex === 'F' ? 'No afectada' : 'No afectado';
+}
+
+function loadStudentAssignmentData(data, sourceLabel = 'actividad') {
+  const normalized = normalizeBuilderCase(data);
+  const metadata = normalized.metadata;
+  const labels = labelsForOrganism(metadata.organismType);
+  const exercise = {
+    ...normalized.exercise,
+    individuals: normalized.exercise.individuals.map(ind => ({ ...ind, genotype: '' })),
+  };
+
+  currentStudentAssignment = {
+    metadata,
+    assignment: normalized.assignment || {},
+    solution: normalized.solution || null,
+    exercise,
+    sourceLabel,
+  };
+
+  studentEngine.setSexLabels(labels);
+  studentEngine.readOnly = true;
+  studentEngine.loadExercise(exercise);
+  resetTreeZoom('studentSvg');
+  renderStudentCase();
+  setStudentModeUI(true);
+  switchTab('alumno');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function loadStudentSubmissionData(answer, sourceLabel = 'respuesta') {
+  if (!answer || answer.type !== 'mendelsim-pedigree-answer') {
+    throw new Error('El archivo no parece una respuesta de alumno de MendelSim.');
+  }
+  if (!answer.exercise || !Array.isArray(answer.exercise.individuals) || !Array.isArray(answer.exercise.couples)) {
+    throw new Error('La respuesta no incluye el árbol original. Pide al alumno que descargue de nuevo sus respuestas desde esta versión de MendelSim.');
+  }
+
+  const data = {
+    type: 'mendelsim-pedigree-case',
+    version: answer.version || 1,
+    launchMode: 'student',
+    metadata: {
+      ...(answer.metadata || {}),
+      title: answer.metadata?.title || answer.caseTitle || answer.exercise.title || 'Actividad de pedigrí',
+    },
+    assignment: answer.assignment || {},
+    solution: answer.solution || null,
+    individuals: answer.exercise.individuals,
+    couples: answer.exercise.couples,
+  };
+
+  loadStudentAssignmentData(data, sourceLabel);
+  showStudentReviewTab();
+
+  document.getElementById('studentName').value = answer.studentName || '';
+  document.getElementById('studentPattern').value = answer.pattern || '';
+  document.getElementById('studentJustification').value = answer.justification || '';
+
+  const genotypes = answer.genotypes || {};
+  const notes = answer.notes || {};
+  for (const ind of currentStudentAssignment.exercise.individuals) {
+    const genotypeInput = document.getElementById(`studentGeno-${ind.id}`);
+    if (genotypeInput) {
+      genotypeInput.value = genotypes[ind.id] || '';
+      updateStudentGenotype(ind.id);
+    }
+    const noteInput = document.getElementById(`studentNote-${ind.id}`);
+    if (noteInput) noteInput.value = notes[ind.id] || '';
+  }
+
+  setStudentAnswerReadonly(true);
+  showStudentFeedback(
+    `Respuesta cargada para revisión: <strong>${escapeHTML(answer.studentName || '(sin nombre)')}</strong>.`,
+    'info'
+  );
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderStudentCase() {
+  const assignment = currentStudentAssignment;
+  if (!assignment) return;
+  const meta = assignment.metadata;
+  const labels = labelsForOrganism(meta.organismType);
+
+  document.getElementById('studentCaseTitle').textContent = meta.title || 'Actividad de pedigrí';
+  document.getElementById('studentSvgTitle').textContent = meta.title ? `— ${meta.title}` : '';
+
+  const promptBox = document.getElementById('studentCasePrompt');
+  if (meta.prompt) {
+    promptBox.style.display = '';
+    document.getElementById('studentCasePromptText').innerHTML = formatGenotypeHTML(meta.prompt).replace(/\n/g, '<br>');
+  } else {
+    promptBox.style.display = 'none';
+    document.getElementById('studentCasePromptText').innerHTML = '';
+  }
+
+  const metaItems = [];
+  metaItems.push(`<div class="student-meta-item"><strong>Organismo</strong><br>${meta.organismType === 'other' ? 'Otros organismos: macho/hembra' : 'Personas: hombre/mujer'}</div>`);
+  if (meta.trait) metaItems.push(`<div class="student-meta-item"><strong>Rasgo</strong><br>${escapeHTML(meta.trait)}</div>`);
+  const alleleText = [
+    meta.alleleDomName ? `${formatGenotypeHTML(meta.alleleDom || 'A')} = ${escapeHTML(meta.alleleDomName)}` : '',
+    meta.alleleRecName ? `${formatGenotypeHTML(meta.alleleRec || 'a')} = ${escapeHTML(meta.alleleRecName)}` : '',
+  ].filter(Boolean).join('<br>');
+  if (alleleText) metaItems.push(`<div class="student-meta-item"><strong>Alelos</strong><br>${alleleText}</div>`);
+  document.getElementById('studentCaseMeta').innerHTML = metaItems.join('');
+
+  const tbody = document.getElementById('studentGenotypeTableBody');
+  tbody.innerHTML = '';
+  const individuals = [...assignment.exercise.individuals].sort((a, b) => a.id - b.id);
+  for (const ind of individuals) {
+    tbody.innerHTML += `<tr>
+      <td><strong>${escapeHTML(ind.label)}</strong></td>
+      <td>${sexLabel(ind.sex, labels)}</td>
+      <td>${studentObservedStatus(ind)}</td>
+      <td><input class="student-answer-input" id="studentGeno-${ind.id}" type="text" placeholder="Ej: Aa" oninput="updateStudentGenotype(${ind.id})"></td>
+      <td><input id="studentNote-${ind.id}" type="text" placeholder="Duda o justificación breve" oninput="updateStudentResponsePreview()"></td>
+    </tr>`;
+  }
+
+  document.getElementById('studentName').value = '';
+  document.getElementById('studentPattern').value = '';
+  document.getElementById('studentJustification').value = '';
+  document.getElementById('studentFeedback').classList.remove('visible');
+  document.getElementById('studentFeedback').innerHTML = '';
+  setStudentAnswerReadonly(false);
+
+  const allowCheck = !!assignment.assignment?.allowAutoCheck && !!assignment.solution;
+  const checkBtn = document.getElementById('studentCheckBtn');
+  checkBtn.disabled = !allowCheck;
+  document.getElementById('studentAutoCheckNote').textContent = allowCheck
+    ? 'El profesor ha activado la autocorrección para esta actividad.'
+    : 'El profesor no ha activado la autocorrección. Completa la respuesta y envíala.';
+}
+
+function setStudentAnswerReadonly(readonly) {
+  ['studentName', 'studentJustification'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.readOnly = readonly;
+  });
+  const pattern = document.getElementById('studentPattern');
+  if (pattern) pattern.disabled = readonly;
+  document.querySelectorAll('#studentGenotypeTableBody input').forEach(input => {
+    input.readOnly = readonly;
+  });
+}
+
+function updateStudentGenotype(id) {
+  const input = document.getElementById(`studentGeno-${id}`);
+  const ind = studentEngine.individuals.get(id);
+  if (!input || !ind) return;
+  ind.genotype = input.value.trim();
+  studentEngine.render();
+  updateStudentResponsePreview();
+}
+
+function updateStudentResponsePreview() {
+  // Reserved hook: keeps response collection live while the graph updates from genotype inputs.
+}
+
+function collectStudentAnswers() {
+  const assignment = currentStudentAssignment;
+  const individuals = assignment ? [...assignment.exercise.individuals].sort((a, b) => a.id - b.id) : [];
+  const genotypes = {};
+  const notes = {};
+  for (const ind of individuals) {
+    genotypes[ind.id] = document.getElementById(`studentGeno-${ind.id}`)?.value.trim() || '';
+    notes[ind.id] = document.getElementById(`studentNote-${ind.id}`)?.value.trim() || '';
+  }
+  return {
+    type: 'mendelsim-pedigree-answer',
+    version: 1,
+    caseTitle: assignment?.metadata?.title || 'Actividad de pedigrí',
+    metadata: assignment?.metadata || {},
+    assignment: assignment?.assignment || {},
+    solution: assignment?.solution || null,
+    exercise: assignment ? {
+      title: assignment.metadata?.title || assignment.exercise?.title || 'Actividad de pedigrí',
+      individuals: assignment.exercise.individuals.map(ind => ({
+        id: ind.id,
+        sex: ind.sex,
+        affected: !!ind.affected,
+        carrier: !!ind.carrier,
+        x: ind.x,
+        y: ind.y,
+        label: ind.label,
+      })),
+      couples: assignment.exercise.couples.map(c => ({
+        id: c.id,
+        p1: c.p1,
+        p2: c.p2,
+        children: [...c.children],
+      })),
+    } : null,
+    studentName: document.getElementById('studentName').value.trim(),
+    pattern: document.getElementById('studentPattern').value,
+    patternLabel: RANDOM_PATTERN_NAMES[document.getElementById('studentPattern').value] || document.getElementById('studentPattern').value,
+    justification: document.getElementById('studentJustification').value.trim(),
+    genotypes,
+    notes,
+    sentAt: new Date().toISOString(),
+  };
+}
+
+function formatStudentAnswersText(answer = collectStudentAnswers()) {
+  const assignment = currentStudentAssignment;
+  const individuals = assignment ? [...assignment.exercise.individuals].sort((a, b) => a.id - b.id) : [];
+  const lines = [
+    `Caso: ${answer.caseTitle}`,
+    `Alumno/a: ${answer.studentName || '(sin nombre)'}`,
+    `Patrón propuesto: ${answer.patternLabel || '(sin responder)'}`,
+    '',
+    'Justificación:',
+    answer.justification || '(sin responder)',
+    '',
+    'Genotipos propuestos:',
+  ];
+  for (const ind of individuals) {
+    const note = answer.notes[ind.id] ? ` | Nota: ${answer.notes[ind.id]}` : '';
+    lines.push(`- ${ind.label}: ${answer.genotypes[ind.id] || '(sin responder)'}${note}`);
+  }
+  return lines.join('\n');
+}
+
+function downloadStudentAnswers() {
+  const answer = collectStudentAnswers();
+  answer.text = formatStudentAnswersText(answer);
+  const filename = `${safeFilename(answer.studentName, 'respuesta-alumno')}.respuesta-mendelsim.json`;
+  downloadBlob(new Blob([JSON.stringify(answer, null, 2)], { type: 'application/json;charset=utf-8' }), filename);
+}
+
+async function copyStudentAnswers() {
+  const text = formatStudentAnswersText();
+  try {
+    await navigator.clipboard.writeText(text);
+    showStudentFeedback('Respuestas copiadas al portapapeles.', 'success');
+  } catch (err) {
+    prompt('Copia estas respuestas:', text);
+  }
+}
+
+function emailStudentAnswers() {
+  const assignment = currentStudentAssignment;
+  const email = assignment?.assignment?.teacherEmail || assignment?.metadata?.teacherEmail || '';
+  const subject = encodeURIComponent(`Respuesta MendelSim - ${assignment?.metadata?.title || 'Pedigrí'}`);
+  const body = encodeURIComponent(formatStudentAnswersText());
+  location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+}
+
+function normalizeGenotypeForCheck(value) {
+  return String(value || '')
+    .replace(/[ᴬᵃᴮᵇᶜᴰᵈᴴʰᴿʳ]/g, ch => ({
+      'ᴬ':'^A','ᵃ':'^a','ᴮ':'^B','ᵇ':'^b','ᶜ':'^c','ᴰ':'^D','ᵈ':'^d','ᴴ':'^H','ʰ':'^h','ᴿ':'^R','ʳ':'^r'
+    }[ch] || ch))
+    .replace(/\([^)]*\)/g, '')
+    .replace(/\s+/g, '')
+    .toLowerCase();
+}
+
+function genotypeAccepted(studentValue, referenceValue) {
+  const student = normalizeGenotypeForCheck(studentValue);
+  if (!student) return false;
+  const alternatives = String(referenceValue || '').split(/\s+o\s+/i).map(normalizeGenotypeForCheck);
+  return alternatives.includes(student);
+}
+
+function showStudentFeedback(message, type = 'info') {
+  const box = document.getElementById('studentFeedback');
+  box.className = `alert student-feedback visible alert-${type}`;
+  box.innerHTML = message;
+}
+
+function checkStudentAnswers() {
+  const assignment = currentStudentAssignment;
+  if (!assignment?.solution) return;
+  const answer = collectStudentAnswers();
+  const solution = assignment.solution;
+  const rows = [];
+
+  const patternOk = answer.pattern && answer.pattern === solution.pattern;
+  rows.push(`<p><span class="${patternOk ? 'check-ok' : 'check-error'}">${patternOk ? '✓' : '✗'}</span> Patrón de herencia: ${patternOk ? 'correcto' : `revisa tu respuesta. Referencia: ${RANDOM_PATTERN_NAMES[solution.pattern] || solution.pattern}`}</p>`);
+
+  const individuals = [...assignment.exercise.individuals].sort((a, b) => a.id - b.id);
+  for (const ind of individuals) {
+    const reference = solution.genotypes?.[ind.id];
+    if (!reference) continue;
+    const value = answer.genotypes[ind.id];
+    const ok = genotypeAccepted(value, reference);
+    rows.push(`<p><span class="${ok ? 'check-ok' : 'check-warn'}">${ok ? '✓' : '!'}</span> ${escapeHTML(ind.label)}: ${ok ? 'genotipo compatible' : `referencia compatible: <code>${formatGenotypeHTML(reference)}</code>`}</p>`);
+  }
+
+  showStudentFeedback(rows.join(''), patternOk ? 'success' : 'warning');
+}
+
+function cssVar(name, fallback) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+}
+
+function exportedBuilderSVG() {
+  const svg = document.getElementById('builderSvg');
+  const clone = svg.cloneNode(true);
+  const viewBox = svg.viewBox.baseVal;
+  const width = viewBox?.width || parseFloat(svg.getAttribute('width')) || 700;
+  const height = viewBox?.height || parseFloat(svg.getAttribute('height')) || 450;
+  const affected = cssVar('--affected', '#c0392b');
+  const carrier = cssVar('--carrier', '#e67e22');
+  const text = cssVar('--text', '#2c3e50');
+  const primary = cssVar('--primary', '#1a7431');
+
+  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  clone.setAttribute('width', width);
+  clone.setAttribute('height', height);
+  clone.removeAttribute('style');
+
+  clone.querySelectorAll('*').forEach(el => {
+    for (const attr of ['fill', 'stroke']) {
+      const value = el.getAttribute(attr);
+      if (!value || !value.includes('var(')) continue;
+      el.setAttribute(attr, value
+        .replace(/var\(--affected\)/g, affected)
+        .replace(/var\(--carrier\)/g, carrier)
+        .replace(/var\(--primary-light\)/g, primary)
+        .replace(/var\(--primary\)/g, primary)
+        .replace(/var\(--text\)/g, text));
+    }
+  });
+
+  const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+  style.textContent = `
+    .ped-line { stroke: ${text}; stroke-width: 1.8; fill: none; }
+    .ped-label { font-family: Inter, Arial, sans-serif; font-size: 11px; fill: #555; text-anchor: middle; }
+    .ped-genotype { font-family: Consolas, monospace; font-size: 10px; fill: ${primary}; text-anchor: middle; font-weight: 600; }
+  `;
+  clone.insertBefore(style, clone.firstChild);
+
+  const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  bg.setAttribute('x', 0);
+  bg.setAttribute('y', 0);
+  bg.setAttribute('width', width);
+  bg.setAttribute('height', height);
+  bg.setAttribute('fill', '#fafffe');
+  clone.insertBefore(bg, style.nextSibling);
+
+  return { text: new XMLSerializer().serializeToString(clone), width, height };
+}
+
+function wrapCanvasText(ctx, text, maxWidth, maxLines = 4) {
+  const words = String(text || '').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+  const lines = [];
+  let line = '';
+  let truncated = false;
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i];
+    const test = line ? `${line} ${word}` : word;
+    if (ctx.measureText(test).width <= maxWidth) {
+      line = test;
+    } else {
+      if (line) lines.push(line);
+      line = word;
+    }
+    if (lines.length === maxLines) {
+      truncated = i < words.length - 1 || !!line;
+      break;
+    }
+  }
+  if (line && lines.length < maxLines) lines.push(line);
+  if (truncated && lines.length === maxLines) {
+    const last = lines[lines.length - 1];
+    lines[lines.length - 1] = last.length > 3 ? `${last.replace(/\s+\S*$/, '')}...` : `${last}...`;
+  }
+  return lines;
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+async function downloadBuilderPNG() {
+  const meta = getBuilderMetadata();
+  const svg = exportedBuilderSVG();
+  const svgBlob = new Blob([svg.text], { type: 'image/svg+xml;charset=utf-8' });
+  const svgUrl = URL.createObjectURL(svgBlob);
+
+  try {
+    const img = await loadImage(svgUrl);
+    const scale = 2;
+    const logicalWidth = Math.max(svg.width + 64, 860);
+    const padding = 32;
+    const temp = document.createElement('canvas').getContext('2d');
+    temp.font = '14px Arial';
+    const promptLines = wrapCanvasText(temp, meta.prompt, logicalWidth - padding * 2, 4);
+    const metaLines = [];
+    metaLines.push(`Organismo: ${meta.organismType === 'other' ? 'otros organismos (macho/hembra)' : 'personas (hombre/mujer)'}`);
+    if (meta.trait) metaLines.push(`Rasgo: ${meta.trait}`);
+    const alleleParts = [];
+    if (meta.alleleDomName) alleleParts.push(`${meta.alleleDom} = ${meta.alleleDomName}`);
+    if (meta.alleleRecName) alleleParts.push(`${meta.alleleRec} = ${meta.alleleRecName}`);
+    if (alleleParts.length) metaLines.push(`Alelos: ${alleleParts.join('; ')}`);
+    if (meta.expectedPattern) metaLines.push(`Patrón esperado: ${RANDOM_PATTERN_NAMES[meta.expectedPattern] || meta.expectedPattern}`);
+
+    const headerHeight = padding + 30 + metaLines.length * 20 + promptLines.length * 18 + 22;
+    const logicalHeight = headerHeight + svg.height + padding;
+    const canvas = document.createElement('canvas');
+    canvas.width = logicalWidth * scale;
+    canvas.height = logicalHeight * scale;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(scale, scale);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, logicalWidth, logicalHeight);
+
+    let y = padding;
+    ctx.fillStyle = cssVar('--primary', '#1a7431');
+    ctx.font = '700 22px Arial';
+    ctx.fillText(meta.title || 'Pedigrí construido', padding, y);
+    y += 28;
+
+    ctx.fillStyle = '#374151';
+    ctx.font = '13px Arial';
+    for (const line of metaLines) {
+      ctx.fillText(line, padding, y);
+      y += 20;
+    }
+    if (promptLines.length) {
+      ctx.fillStyle = '#4b5563';
+      ctx.font = '13px Arial';
+      for (const line of promptLines) {
+        ctx.fillText(line, padding, y);
+        y += 18;
+      }
+    }
+    y += 12;
+    ctx.drawImage(img, (logicalWidth - svg.width) / 2, y, svg.width, svg.height);
+
+    canvas.toBlob(blob => {
+      if (!blob) {
+        alert('No se pudo generar el PNG.');
+        return;
+      }
+      downloadBlob(blob, `${safeFilename(meta.title || meta.trait)}.png`);
+      setBuilderStatus('PNG descargado.');
+    }, 'image/png');
+  } finally {
+    URL.revokeObjectURL(svgUrl);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// ANALYSIS TAB
+// ══════════════════════════════════════════════════════
+function loadAnalysisExercise() {
+  const id = parseInt(document.getElementById('exerciseSelect').value);
+  const ex = EXERCISES.find(e => e.id === id);
+  if (!ex) return;
+  setAnalysisExercise(ex);
+}
+
+function loadRandomAnalysisExercise() {
+  setAnalysisExercise(createRandomPedigreeExercise());
+}
+
+function setAnalysisExercise(ex) {
+  currentAnalysisExercise = ex;
+  currentClueIndex = 0;
+  solutionVisible  = false;
+
+  // Sync selector
+  const sel = document.getElementById('exerciseSelect');
+  const opt = sel.querySelector(`option[value="${ex.id}"]`);
+  if (opt) {
+    sel.value = ex.id;
+  } else {
+    let generated = sel.querySelector('option[value="__generated__"]');
+    if (!generated) {
+      generated = document.createElement('option');
+      generated.value = '__generated__';
+      sel.appendChild(generated);
+    }
+    generated.textContent = `🎲 ${ex.title}`;
+    sel.value = '__generated__';
+  }
+
+  // Apply sex labels for organism type
+  const aLabels = labelsForOrganism(ex.organismType || 'human');
+  analysisEngine.setSexLabels(aLabels);
+  updateLegendSexLabels(aLabels);
+
+  // Load pedigree
+  analysisEngine.loadExercise(ex);
+
+  // Update UI
+  document.getElementById('exerciseDescText').innerHTML = formatGenotypeHTML(ex.description);
+  document.getElementById('exerciseDescription').style.display = '';
+  document.getElementById('exerciseQuestionText').innerHTML = '<strong>Pregunta:</strong> ' + formatGenotypeHTML(ex.question);
+  document.getElementById('exerciseQuestion').style.display = '';
+  document.getElementById('analysisSvgTitle').textContent = '— ' + ex.title;
+
+  // Reset clues
+  document.getElementById('clueList').innerHTML = '';
+  document.getElementById('clueBtn').textContent = `💡 Ver pista (0/${ex.answer.clues.length})`;
+  document.getElementById('clueBtn').disabled = false;
+  document.getElementById('solutionBox').classList.remove('visible');
+  document.getElementById('solutionBtn').textContent = '✅ Ver solución';
+
+  // Clear genotype display
+  analysisEngine.hideSolution();
+}
+
+function revealNextClue() {
+  const ex = currentAnalysisExercise;
+  if (!ex) return;
+  if (currentClueIndex >= ex.answer.clues.length) return;
+  const clue = ex.answer.clues[currentClueIndex];
+  currentClueIndex++;
+
+  const li = document.createElement('div');
+  li.className = 'clue-item';
+  li.innerHTML = `<div class="clue-num">${currentClueIndex}</div><div>${formatGenotypeHTML(clue)}</div>`;
+  document.getElementById('clueList').appendChild(li);
+
+  document.getElementById('clueBtn').textContent =
+    `💡 Ver pista (${currentClueIndex}/${ex.answer.clues.length})`;
+
+  if (currentClueIndex >= ex.answer.clues.length) {
+    document.getElementById('clueBtn').disabled = true;
+  }
+}
+
+function toggleSolution() {
+  const ex = currentAnalysisExercise;
+  if (!ex) return;
+  solutionVisible = !solutionVisible;
+  const box = document.getElementById('solutionBox');
+
+  if (solutionVisible) {
+    box.classList.add('visible');
+    document.getElementById('solutionBtn').textContent = '🙈 Ocultar solución';
+
+    // Show genotypes on pedigree
+    analysisEngine.showSolution(ex.answer);
+
+    // Pattern display
+    const patternInfo = analysisEngine.getPatternInfo(ex.answer.pattern);
+    document.getElementById('patternDisplay').innerHTML =
+      `<div class="pattern-result ${patternInfo.class}">
+        🧬 Patrón de herencia: <strong>${patternInfo.name}</strong>
+      </div>`;
+    document.getElementById('patternDesc').innerHTML = formatGenotypeHTML(patternInfo.description);
+
+    // Genotype table
+    const tbody = document.getElementById('genotypeTableBody');
+    tbody.innerHTML = '';
+    for (const [idStr, geno] of Object.entries(ex.answer.genotypes)) {
+      const id  = parseInt(idStr);
+      const ind = ex.individuals.find(i => i.id === id);
+      if (!ind) continue;
+      const statusLabel = genderedStatusLabel(ex.answer.genotypeLabels?.[id] || (ind.affected ? 'Afectado/a' : 'No afectado/a'), ind.sex);
+      tbody.innerHTML += `<tr>
+        <td><strong>${ind.label}</strong> (${sexLabel(ind.sex, labelsForOrganism(ex.organismType || 'human'))})</td>
+        <td><code>${formatGenotypeHTML(geno)}</code></td>
+        <td>${statusLabel}</td>
+      </tr>`;
+    }
+    if (ex.answer.probability) {
+      document.getElementById('patternDesc').innerHTML +=
+        `<br><br><strong>Probabilidad de descendiente afectado:</strong> <span style="color:var(--affected);font-weight:700;">${ex.answer.probability}</span>`;
+    }
+  } else {
+    box.classList.remove('visible');
+    document.getElementById('solutionBtn').textContent = '✅ Ver solución';
+    analysisEngine.hideSolution();
+  }
+}
+
+function resetExercise() {
+  currentClueIndex = 0;
+  solutionVisible  = false;
+  document.getElementById('clueList').innerHTML  = '';
+  document.getElementById('solutionBox').classList.remove('visible');
+  document.getElementById('solutionBtn').textContent = '✅ Ver solución';
+  if (currentAnalysisExercise) {
+    document.getElementById('clueBtn').textContent =
+      `💡 Ver pista (0/${currentAnalysisExercise.answer.clues.length})`;
+    document.getElementById('clueBtn').disabled = false;
+    analysisEngine.hideSolution();
+    analysisEngine.loadExercise(currentAnalysisExercise);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// PRACTICE TAB
+// ══════════════════════════════════════════════════════
+function loadPracticeExercise() {
+  const id = parseInt(document.getElementById('practiceExerciseSelect').value);
+  const ex = EXERCISES.find(e => e.id === id);
+  if (!ex) return;
+  setPracticeExercise(ex);
+}
+
+function loadRandomPracticeExercise() {
+  setPracticeExercise(createRandomPedigreeExercise());
+}
+
+function setPracticeExercise(ex) {
+  currentPracticeExercise = ex;
+
+  // Sync selector
+  const sel = document.getElementById('practiceExerciseSelect');
+  const opt = sel.querySelector(`option[value="${ex.id}"]`);
+  if (opt) {
+    sel.value = ex.id;
+  } else {
+    let generated = sel.querySelector('option[value="__generated__"]');
+    if (!generated) {
+      generated = document.createElement('option');
+      generated.value = '__generated__';
+      sel.appendChild(generated);
+    }
+    generated.textContent = `🎲 ${ex.title}`;
+    sel.value = '__generated__';
+  }
+
+  const pLabels = labelsForOrganism(ex.organismType || 'human');
+  practiceEngine.setSexLabels(pLabels);
+  practiceEngine.loadExercise(ex);
+  document.getElementById('practiceQuestionText').innerHTML = '<strong>Pregunta:</strong> ' + formatGenotypeHTML(ex.question);
+  document.getElementById('practiceQuestion').style.display = '';
+  document.getElementById('feedbackBox').style.display = 'none';
+  document.getElementById('justification').value = '';
+  document.querySelectorAll('.practice-mc label').forEach(l => {
+    l.classList.remove('correct','wrong','selected');
+  });
+  document.querySelectorAll('.practice-mc input').forEach(i => { i.checked = false; });
+}
+
+function checkAnswer() {
+  const ex = currentPracticeExercise;
+  if (!ex) return;
+  const chosen = document.querySelector('input[name="pattern"]:checked');
+  if (!chosen) {
+    alert('Por favor, selecciona un patrón de herencia antes de comprobar.');
+    return;
+  }
+
+  scoreTot++;
+  document.getElementById('scoreTot').textContent = scoreTot;
+
+  const isCorrect = chosen.value === ex.answer.pattern;
+  const feedbackBox = document.getElementById('feedbackBox');
+  feedbackBox.style.display = '';
+
+  // Color the labels
+  document.querySelectorAll('.practice-mc label').forEach(label => {
+    const input = label.querySelector('input');
+    label.classList.remove('correct','wrong','selected');
+    if (input.value === ex.answer.pattern) {
+      label.classList.add('correct');
+    } else if (input.checked) {
+      label.classList.add('wrong');
+    }
+  });
+
+  if (isCorrect) {
+    score++;
+    document.getElementById('scoreNum').textContent = score;
+    feedbackBox.className = 'alert alert-success';
+    feedbackBox.innerHTML = `<span class="alert-icon">✅</span>
+      <div><strong>¡Correcto!</strong> El patrón es <strong>${ex.answer.patternName}</strong>.
+      ${formatGenotypeHTML(analysisEngine.getPatternInfo(ex.answer.pattern).description)}</div>`;
+  } else {
+    feedbackBox.className = 'alert alert-error';
+    feedbackBox.innerHTML = `<span class="alert-icon">❌</span>
+      <div><strong>Incorrecto.</strong> El patrón correcto es <strong>${ex.answer.patternName}</strong>.
+      Pista: ${formatGenotypeHTML(ex.answer.clues[0])}</div>`;
+  }
+}
+
+function resetScore() {
+  score = 0; scoreTot = 0;
+  document.getElementById('scoreNum').textContent = 0;
+  document.getElementById('scoreTot').textContent = 0;
+}
+
+// ══════════════════════════════════════════════════════
+// BUILDER TAB
+// ══════════════════════════════════════════════════════
+function setBuilderTool(tool) {
+  builderEngine.setTool(tool);
+  document.querySelectorAll('#builderToolbar .tool-btn').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById('tool-' + tool);
+  if (activeBtn) activeBtn.classList.add('active');
+}
+
+function setBuilderChildSex(sex) {
+  builderEngine.setChildSex(sex || null);
+  document.querySelectorAll('#builderToolbar .sex-option').forEach(btn => btn.classList.remove('active'));
+  const activeId = sex === 'M' ? 'child-sex-male' : sex === 'F' ? 'child-sex-female' : 'child-sex-random';
+  document.getElementById(activeId).classList.add('active');
+}
+
+function getBuilderAlleles() {
+  const meta = getBuilderMetadata();
+  return {
+    dom: meta.alleleDom,
+    rec: meta.alleleRec,
+    domName: meta.alleleDomName,
+    recName: meta.alleleRecName,
+    trait: meta.trait,
+  };
+}
+
+function builderAlleleSummaryHTML(alleles) {
+  const parts = [];
+  if (alleles.trait) parts.push(`<strong>Rasgo:</strong> ${escapeHTML(alleles.trait)}`);
+  if (alleles.domName) parts.push(`<strong>${formatGenotypeHTML(alleles.dom)}:</strong> ${escapeHTML(alleles.domName)}`);
+  if (alleles.recName) parts.push(`<strong>${formatGenotypeHTML(alleles.rec)}:</strong> ${escapeHTML(alleles.recName)}`);
+  return parts.length ? `<div style="margin-top:0.5rem;">${parts.join(' · ')}</div>` : '';
+}
+
+function autoGeno(a1, a2) {
+  return `${a1}${a2}`;
+}
+
+function xGeno(a1, a2) {
+  if (a2 === 'Y') return `X^${a1} Y`;
+  return `X^${a1} X^${a2}`;
+}
+
+function genderedStatusLabel(label, sex) {
+  const isFemale = sex === 'F';
+  return String(label || '')
+    .replace(/Portador\/a/g, isFemale ? 'Portadora' : 'Portador')
+    .replace(/portador\/a/g, isFemale ? 'portadora' : 'portador')
+    .replace(/Afectado\/a/g, isFemale ? 'Afectada' : 'Afectado')
+    .replace(/afectado\/a/g, isFemale ? 'afectada' : 'afectado')
+    .replace(/Heterocigoto\/a/g, isFemale ? 'Heterocigota' : 'Heterocigoto')
+    .replace(/heterocigoto\/a/g, isFemale ? 'heterocigota' : 'heterocigoto')
+    .replace(/Marcado\/a/g, isFemale ? 'Marcada' : 'Marcado')
+    .replace(/marcado\/a/g, isFemale ? 'marcada' : 'marcado');
+}
+
+function inferBuilderGenotypes(pattern, alleles) {
+  const D = alleles.dom;
+  const r = alleles.rec;
+  const sexLabels = getBuilderSexLabels();
+  const individuals = Array.from(builderEngine.individuals.values());
+  const genotypes = {};
+  const genotypeLabels = {};
+  const notes = [];
+
+  if (pattern === 'unknown') {
+    notes.push('No hay datos suficientes para proponer genotipos.');
+    return { genotypes, genotypeLabels, notes };
+  }
+
+  if (pattern === 'AD') {
+    for (const ind of individuals) {
+      if (ind.affected) {
+        genotypes[ind.id] = `${D}_`;
+        genotypeLabels[ind.id] = 'Afectado/a';
+      } else if (ind.carrier) {
+        genotypes[ind.id] = autoGeno(D, r);
+        genotypeLabels[ind.id] = 'Portador/a marcado/a';
+      } else {
+        genotypes[ind.id] = autoGeno(r, r);
+        genotypeLabels[ind.id] = 'No afectado/a';
+      }
+    }
+    for (const couple of builderEngine.couples) {
+      const parents = [builderEngine.individuals.get(couple.p1), builderEngine.individuals.get(couple.p2)].filter(Boolean);
+      const children = couple.children.map(id => builderEngine.individuals.get(id)).filter(Boolean);
+      const hasUnaffectedChild = children.some(child => !child.affected);
+      for (const parent of parents) {
+        if (parent.affected && hasUnaffectedChild) {
+          genotypes[parent.id] = autoGeno(D, r);
+          genotypeLabels[parent.id] = 'Afectado/a heterocigoto/a';
+        }
+      }
+      const hasUnaffectedParent = parents.some(parent => !parent.affected);
+      for (const child of children) {
+        if (child.affected && hasUnaffectedParent) {
+          genotypes[child.id] = autoGeno(D, r);
+          genotypeLabels[child.id] = 'Afectado/a heterocigoto/a';
+        }
+      }
+    }
+    notes.push(`En herencia dominante, la descendencia no afectada se representa como ${autoGeno(r, r)}. Los afectados pueden ser ${autoGeno(D, r)} o ${autoGeno(D, D)} si el árbol no permite distinguirlo.`);
+  } else if (pattern === 'AR') {
+    for (const ind of individuals) {
+      if (ind.affected) {
+        genotypes[ind.id] = autoGeno(r, r);
+        genotypeLabels[ind.id] = 'Afectado/a';
+      } else if (ind.carrier) {
+        genotypes[ind.id] = autoGeno(D, r);
+        genotypeLabels[ind.id] = 'Portador/a';
+      } else {
+        genotypes[ind.id] = `${D}_`;
+        genotypeLabels[ind.id] = 'No afectado/a';
+      }
+    }
+    for (const couple of builderEngine.couples) {
+      const parents = [builderEngine.individuals.get(couple.p1), builderEngine.individuals.get(couple.p2)].filter(Boolean);
+      const children = couple.children.map(id => builderEngine.individuals.get(id)).filter(Boolean);
+      const hasAffectedChild = children.some(child => child.affected);
+      if (hasAffectedChild) {
+        for (const parent of parents) {
+          if (!parent.affected) {
+            genotypes[parent.id] = autoGeno(D, r);
+            genotypeLabels[parent.id] = 'Portador/a';
+          }
+        }
+      }
+      const hasAffectedParent = parents.some(parent => parent.affected);
+      if (hasAffectedParent) {
+        for (const child of children) {
+          if (!child.affected) {
+            genotypes[child.id] = autoGeno(D, r);
+            genotypeLabels[child.id] = 'Portador/a';
+          }
+        }
+      }
+    }
+    notes.push(`En herencia recesiva, los afectados son ${autoGeno(r, r)}. Los no afectados pueden ser ${autoGeno(D, D)} o ${autoGeno(D, r)} si no hay más información.`);
+  } else if (pattern === 'XR') {
+    for (const ind of individuals) {
+      if (ind.sex === 'M') {
+        genotypes[ind.id] = ind.affected ? xGeno(r, 'Y') : xGeno(D, 'Y');
+        genotypeLabels[ind.id] = ind.affected ? 'Afectado' : 'No afectado';
+      } else if (ind.affected) {
+        genotypes[ind.id] = xGeno(r, r);
+        genotypeLabels[ind.id] = 'Afectada';
+      } else if (ind.carrier) {
+        genotypes[ind.id] = xGeno(D, r);
+        genotypeLabels[ind.id] = 'Portadora';
+      } else {
+        genotypes[ind.id] = `${xGeno(D, D)} o ${xGeno(D, r)}`;
+        genotypeLabels[ind.id] = 'No afectada';
+      }
+    }
+    for (const couple of builderEngine.couples) {
+      const p1 = builderEngine.individuals.get(couple.p1);
+      const p2 = builderEngine.individuals.get(couple.p2);
+      const parents = [p1, p2].filter(Boolean);
+      const father = parents.find(parent => parent.sex === 'M');
+      const mother = parents.find(parent => parent.sex === 'F');
+      const children = couple.children.map(id => builderEngine.individuals.get(id)).filter(Boolean);
+      if (mother && children.some(child => child.sex === 'M' && child.affected) && !mother.affected) {
+        genotypes[mother.id] = xGeno(D, r);
+        genotypeLabels[mother.id] = 'Portadora';
+      }
+      if (father && father.affected) {
+        for (const daughter of children.filter(child => child.sex === 'F' && !child.affected)) {
+          genotypes[daughter.id] = xGeno(D, r);
+          genotypeLabels[daughter.id] = 'Portadora';
+        }
+      }
+    }
+    notes.push(`En herencia recesiva ligada al X, los ${sexLabels.malePlural} no son portadores: o están afectados o no lo están. Las ${sexLabels.femalePlural} no afectadas pueden ser portadoras.`);
+  } else if (pattern === 'XD') {
+    for (const ind of individuals) {
+      if (ind.sex === 'M') {
+        genotypes[ind.id] = ind.affected ? xGeno(D, 'Y') : xGeno(r, 'Y');
+      } else {
+        genotypes[ind.id] = ind.affected ? `${xGeno(D, r)} o ${xGeno(D, D)}` : xGeno(r, r);
+      }
+      genotypeLabels[ind.id] = ind.affected ? 'Afectado/a' : 'No afectado/a';
+    }
+    for (const couple of builderEngine.couples) {
+      const parents = [builderEngine.individuals.get(couple.p1), builderEngine.individuals.get(couple.p2)].filter(Boolean);
+      const father = parents.find(parent => parent.sex === 'M');
+      const mother = parents.find(parent => parent.sex === 'F');
+      const children = couple.children.map(id => builderEngine.individuals.get(id)).filter(Boolean);
+      if (father && father.affected && mother && !mother.affected) {
+        for (const daughter of children.filter(child => child.sex === 'F' && child.affected)) {
+          genotypes[daughter.id] = xGeno(D, r);
+          genotypeLabels[daughter.id] = 'Afectada heterocigota';
+        }
+      }
+    }
+    notes.push(sexLabels.maleLower === 'macho'
+      ? 'En herencia dominante ligada al X, un progenitor macho afectado transmite su X afectado a toda su descendencia hembra y su Y a toda su descendencia macho.'
+      : 'En herencia dominante ligada al X, un padre afectado transmite su X afectado a todas sus hijas y su Y a todos sus hijos.');
+  }
+
+  return { genotypes, genotypeLabels, notes };
+}
+
+function renderBuilderGenotypeTable(solution) {
+  const tbody = document.getElementById('builderGenotypeTableBody');
+  const note = document.getElementById('builderGenotypeNote');
+  tbody.innerHTML = '';
+
+  const individuals = Array.from(builderEngine.individuals.values()).sort((a, b) => a.id - b.id);
+  if (individuals.length === 0 || Object.keys(solution.genotypes).length === 0) {
+    tbody.innerHTML = '<tr><td colspan="3">Sin genotipos para mostrar.</td></tr>';
+    note.innerHTML = formatGenotypeHTML(solution.notes.join(' '));
+    return;
+  }
+
+  const labels = getBuilderSexLabels();
+  for (const ind of individuals) {
+    const sexLabelText = sexLabel(ind.sex, labels);
+    const statusLabel = genderedStatusLabel(solution.genotypeLabels[ind.id] || (ind.affected ? 'Afectado/a' : 'No afectado/a'), ind.sex);
+    tbody.innerHTML += `<tr>
+      <td><strong>${ind.label}</strong> (${sexLabelText})</td>
+      <td><code>${formatGenotypeHTML(solution.genotypes[ind.id] || '—')}</code></td>
+      <td>${statusLabel}</td>
+    </tr>`;
+  }
+  note.innerHTML = formatGenotypeHTML(solution.notes.join(' '));
+}
+
+function analyzeBuilderTree() {
+  const pattern = builderEngine.analyzePattern();
+  const info    = builderEngine.getPatternInfo(pattern);
+  const alleles = getBuilderAlleles();
+  const meta = getBuilderMetadata();
+  const solution = inferBuilderGenotypes(pattern, alleles);
+
+  builderEngine.hideSolution();
+  if (Object.keys(solution.genotypes).length > 0) {
+    builderEngine.showSolution(solution);
+  }
+
+  const result  = document.getElementById('builderAnalysisResult');
+  result.classList.add('visible');
+  document.getElementById('builderPatternDisplay').innerHTML =
+    `<div class="pattern-result ${info.class || 'alert alert-info'}">
+      🔍 Patrón más probable: <strong>${info.name}</strong>
+    </div>`;
+  const expectedNote = meta.expectedPattern
+    ? `<div style="margin-top:0.5rem;"><strong>Patrón esperado por el profesor:</strong> ${RANDOM_PATTERN_NAMES[meta.expectedPattern] || meta.expectedPattern}${meta.expectedPattern !== pattern ? ' <span style="color:#b45309;">(revisa si el árbol lo justifica de forma inequívoca)</span>' : ''}</div>`
+    : '';
+  document.getElementById('builderPatternDesc').innerHTML =
+    formatGenotypeHTML(info.description) + builderAlleleSummaryHTML(alleles) + expectedNote;
+  renderBuilderGenotypeTable(solution);
+}
+
+function clearBuilderTree() {
+  builderEngine.clear();
+  builderEngine._updateInfo();
+  resetBuilderAnalysisPanel();
+  resetBuilderMetadata();
+  setBuilderSource(null);
+  setBuilderStatus('');
+  if (location.hash.startsWith('#caso=')) history.replaceState(null, '', location.pathname);
+}
+
+function loadBuilderExample() {
+  copyExerciseToBuilder(EXERCISES[0]);
+}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', initEngines);
+</script>
+</body>
+</html>
