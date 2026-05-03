@@ -4,8 +4,25 @@
  */
 (function (global) {
   const DEFAULT_LOCALE = 'es';
+  const STORAGE_KEY = 'mendelsim.locale';
   const messages = global.MendelSimMessages || {};
-  let currentLocale = global.MendelSimLocale || DEFAULT_LOCALE;
+
+  function detectLocale() {
+    try {
+      const queryLocale = new URLSearchParams(global.location.search).get('lang');
+      if (queryLocale) {
+        global.localStorage?.setItem(STORAGE_KEY, queryLocale);
+        return queryLocale;
+      }
+      const storedLocale = global.localStorage?.getItem(STORAGE_KEY);
+      if (storedLocale) return storedLocale;
+    } catch (err) {
+      // Keep the helper usable in restricted browser contexts.
+    }
+    return global.MendelSimLocale || DEFAULT_LOCALE;
+  }
+
+  let currentLocale = detectLocale();
 
   function format(template, params) {
     if (!params) return String(template);
@@ -20,6 +37,11 @@
 
   function setLocale(locale) {
     currentLocale = locale || DEFAULT_LOCALE;
+    try {
+      global.localStorage?.setItem(STORAGE_KEY, currentLocale);
+    } catch (err) {
+      // Ignore persistence failures; translations still work for this page load.
+    }
   }
 
   function getLocale() {

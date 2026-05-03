@@ -51,7 +51,139 @@ const SEX_LABELS = {
   },
 };
 
+function applyLocaleToStaticPage() {
+  if (MendelSimI18n.getLocale() !== 'ca') return;
+  document.documentElement.lang = 'ca';
+  document.title = 'Pedigrís interactius — MendelSim';
+
+  const setText = (selector, text) => {
+    const el = document.querySelector(selector);
+    if (el) el.textContent = text;
+  };
+  const setLeadingText = (selector, text) => {
+    const el = document.querySelector(selector);
+    if (!el) return;
+    if (el.firstChild?.nodeType === Node.TEXT_NODE) {
+      el.firstChild.nodeValue = text;
+    } else {
+      el.prepend(document.createTextNode(text));
+    }
+  };
+  const setHTML = (selector, html) => {
+    const el = document.querySelector(selector);
+    if (el) el.innerHTML = html;
+  };
+  const setAttr = (selector, attr, value) => {
+    const el = document.querySelector(selector);
+    if (el) el.setAttribute(attr, value);
+  };
+
+  setText('.back-btn', '← Inici');
+  setText('.header h1', 'Pedigrís interactius');
+  setText('.header p', 'Analitza arbres genealògics i identifica patrons hereditaris');
+  setAttr('#darkToggle', 'title', 'Mode fosc');
+  setText('.law-title', '📜 Principis de l’anàlisi de pedigrís');
+  setHTML('.law-box p', 'Un pedigrí permet identificar el patró d’herència observant qui està afectat i en quines generacions. Les quatre claus diagnòstiques són: <strong>autosòmica recessiva</strong> (apareix en germans, pares sans, tots dos sexes per igual); <strong>autosòmica dominant</strong> (almenys un progenitor afectat en cada generació, tots dos sexes); <strong>recessiva lligada a l’X</strong> (més freqüent en homes, transmesa per dones portadores sanes); <strong>dominant lligada a l’X</strong> (pare afectat transmet a totes les filles, mai als fills).');
+  setText('.legend-pedigree strong', 'Llegenda:');
+  setText('[data-tab="analizar"]', '🔍 Analitzar exercicis');
+  setText('[data-tab="practicar"]', '📝 Practicar');
+  setText('[data-tab="constructor"]', '🔨 Constructor');
+  setText('[data-tab="alumno"]', '📥 Resposta');
+
+  setText('#tab-analizar .card-title', '📋 Seleccionar exercici');
+  setText('label[for="exerciseSelect"]', 'Exercici:');
+  setText('#tab-analizar .exercise-selector .btn-secondary', '🎲 Generar cas');
+  setText('#tab-analizar .exercise-selector .btn-outline', '✏️ Editar còpia');
+  setLeadingText('#tab-analizar .tree-title', '🌳 Arbre genealògic ');
+  setAttr('#tab-analizar .tree-controls', 'aria-label', 'Controls de l’arbre d’anàlisi');
+  setAttr('#analysisSvgZoom + .tree-control-btn', 'title', 'Apropar');
+  setText('#clueBtn', '💡 Veure pista (0/0)');
+  setText('#solutionBtn', '✅ Veure solució');
+  setText('#solutionBtn + .btn-outline', '↺ Reiniciar');
+  setText('#solutionBox .section-title', '🧬 Genotips dels individus:');
+  setHTML('#genotypeTable thead tr', '<th>Individu</th><th>Genotip</th><th>Estat</th>');
+
+  setHTML('#scoreDisplay', '🏆 Puntuació: <span id="scoreNum">0</span> / <span id="scoreTot">0</span>');
+  setText('#tab-practicar .btn-sm', 'Reiniciar puntuació');
+  setText('#tab-practicar label', 'Selecciona un exercici per practicar:');
+  setText('#tab-practicar .exercise-selector .btn-secondary', '🎲 Generar cas');
+  setText('#tab-practicar .exercise-selector .btn-outline', '✏️ Editar còpia');
+  setText('#tab-practicar .tree-title', '🌳 Arbre genealògic (sense solució)');
+  setText('#practiceAnswerCard .card-title', '📝 Identifica el patró d’herència');
+  document.querySelectorAll('#patternChoices label').forEach((label, index) => {
+    const texts = ['AR — Autosòmica recessiva', 'AD — Autosòmica dominant', 'XR — Recessiva lligada a l’X', 'XD — Dominant lligada a l’X'];
+    const input = label.querySelector('input');
+    label.textContent = ' ' + texts[index];
+    if (input) label.prepend(input);
+  });
+  setText('label[for="justification"]', 'Justificació (opcional):');
+  setAttr('#justification', 'placeholder', 'Explica per què has triat aquest patró...');
+  setText('#practiceAnswerCard .btn-primary', 'Comprovar resposta');
+
+  setText('#builderWorkspace > .card-title', '🔨 Constructor de pedigrís');
+  setText('label[for="builderCaseTitle"]', 'Títol del cas');
+  setAttr('#builderCaseTitle', 'placeholder', 'Ex.: Albinisme en tres generacions');
+  setText('label[for="builderTraitName"]', 'Tret o malaltia');
+  setAttr('#builderTraitName', 'placeholder', 'Ex.: albinisme');
+  setText('label[for="builderOrganismType"]', 'Organisme');
+  setText('#builderOrganismType option[value="human"]', 'Persones');
+  setText('#builderOrganismType option[value="other"]', 'Altres organismes');
+  setText('label[for="builderExpectedPattern"]', 'Patró esperat');
+  setText('#builderExpectedPattern option[value=""]', 'Sense fixar');
+  setText('#builderExpectedPattern option[value="AR"]', 'Autosòmica recessiva');
+  setText('#builderExpectedPattern option[value="AD"]', 'Autosòmica dominant');
+  setText('#builderExpectedPattern option[value="XR"]', 'Recessiva lligada a l’X');
+  setText('#builderExpectedPattern option[value="XD"]', 'Dominant lligada a l’X');
+  setText('label[for="builderAlleleDom"]', 'Símbol dominant');
+  setText('label[for="builderAlleleDomName"]', 'Significat de l’al·lel dominant');
+  setAttr('#builderAlleleDomName', 'placeholder', 'Ex.: pigmentació normal');
+  setText('label[for="builderAlleleRec"]', 'Símbol recessiu');
+  setText('label[for="builderAlleleRecName"]', 'Significat de l’al·lel recessiu');
+  setAttr('#builderAlleleRecName', 'placeholder', 'Ex.: albinisme');
+  setText('label[for="builderCasePrompt"]', 'Enunciat per a l’alumnat');
+  setAttr('#builderCasePrompt', 'placeholder', 'Descriu el cas, què han d’observar o què han de deduir...');
+  setText('label[for="builderTeacherEmail"]', 'Correu del professor (opcional)');
+  setText('#builderAllowAutoCheck + span', 'Permetre l’autocorrecció a l’alumnat');
+  setText('#tool-select', '✥ Moure');
+  setText('#tool-couple', '💑 Crear parella');
+  setText('#tool-child', '👶 Descendent');
+  setText('#tool-toggleAffected', '● Afectat');
+  setText('#tool-toggleCarrier', '◉ Portador');
+  setText('#tool-delete', '🗑 Eliminar');
+  setText('#builderToolbar .tool-btn:last-of-type', '↺ Netejar');
+  setLeadingText('#builderWorkspace .builder-section .tree-title', '🌳 Arbre del constructor ');
+  setText('#builderActions .btn-primary', '🔍 Analitzar arbre');
+  ['📋 Carregar exemple', '💾 Desar editable', '🎓 Desar alumne', '📂 Carregar cas', '📥 Revisar resposta', '🔗 Compartir amb l’alumnat', '🖼 Descarregar PNG', '🖨 Imprimir'].forEach((text, index) => {
+    const btn = document.querySelectorAll('#builderActions .btn-outline')[index];
+    if (btn) btn.textContent = text;
+  });
+  setText('#builderAnalysisResult .section-title', '🧬 Genotips compatibles');
+  setHTML('#builderAnalysisResult thead tr', '<th>Individu</th><th>Genotip</th><th>Estat</th>');
+
+  setText('#studentCaseTitle', 'Activitat de pedigrí');
+  setLeadingText('#tab-alumno .tree-title', '🌳 Arbre genealògic ');
+  setText('#tab-alumno .card-title:last-of-type', '✍️ Resposta de l’alumne');
+  setText('label[for="studentName"]', 'Nom');
+  setAttr('#studentName', 'placeholder', 'Nom i cognoms');
+  setText('label[for="studentPattern"]', 'Patró d’herència proposat');
+  setText('#studentPattern option[value=""]', 'Selecciona un patró');
+  setText('#studentPattern option[value="AR"]', 'Autosòmica recessiva');
+  setText('#studentPattern option[value="AD"]', 'Autosòmica dominant');
+  setText('#studentPattern option[value="XR"]', 'Recessiva lligada a l’X');
+  setText('#studentPattern option[value="XD"]', 'Dominant lligada a l’X');
+  setText('#studentPattern option[value="unknown"]', 'No es pot determinar');
+  setText('label[for="studentJustification"]', 'Justificació');
+  setAttr('#studentJustification', 'placeholder', 'Explica quines dades de l’arbre justifiquen la teva resposta...');
+  setText('#tab-alumno .section-title', '🧬 Genotips proposats');
+  setHTML('#tab-alumno thead tr', '<th>Individu</th><th>Sexe</th><th>Estat observat</th><th>Genotip</th><th>Notes</th>');
+  ['✅ Comprovar', '💾 Descarregar respostes', '📋 Copiar respostes', '✉️ Preparar correu'].forEach((text, index) => {
+    const btn = document.querySelectorAll('#tab-alumno .btn-group .btn')[index];
+    if (btn) btn.textContent = text;
+  });
+}
+
 function initEngines() {
+  applyLocaleToStaticPage();
   analysisEngine = new PedigreeEngine('analysisSvg', null);
   analysisEngine.readOnly = true;
   practiceEngine = new PedigreeEngine('practiceSvg', null);
@@ -253,7 +385,9 @@ function printTree(svgId, title) {
 
   const printWindow = window.open('', '_blank');
   if (!printWindow) {
-    alert('No se pudo abrir la ventana de impresión. Revisa si el navegador ha bloqueado las ventanas emergentes.');
+    alert(MendelSimI18n.getLocale() === 'ca'
+      ? 'No s’ha pogut obrir la finestra d’impressió. Revisa si el navegador ha bloquejat les finestres emergents.'
+      : 'No se pudo abrir la ventana de impresión. Revisa si el navegador ha bloqueado las ventanas emergentes.');
     return;
   }
 
@@ -658,7 +792,7 @@ function loadBuilderCaseFromFile(event) {
         loadBuilderCaseData(data, file.name);
       }
     } catch (err) {
-      alert(err.message || 'No se pudo cargar el caso.');
+      alert(err.message || (MendelSimI18n.getLocale() === 'ca' ? 'No s’ha pogut carregar el cas.' : 'No se pudo cargar el caso.'));
     }
   };
   reader.readAsText(file);
@@ -674,7 +808,7 @@ function loadStudentAnswerFromFile(event) {
       const data = JSON.parse(reader.result);
       loadStudentSubmissionData(data, file.name);
     } catch (err) {
-      alert(err.message || 'No se pudo cargar la respuesta del alumno.');
+      alert(err.message || (MendelSimI18n.getLocale() === 'ca' ? 'No s’ha pogut carregar la resposta de l’alumne.' : 'No se pudo cargar la respuesta del alumno.'));
     }
   };
   reader.readAsText(file);
@@ -699,9 +833,9 @@ async function copyBuilderShareURL() {
   const url = `${location.origin}${location.pathname}#alumno=${encoded}`;
   try {
     await navigator.clipboard.writeText(url);
-    setBuilderStatus('URL de alumno copiada al portapapeles.');
+    setBuilderStatus(MendelSimI18n.getLocale() === 'ca' ? 'URL d’alumne copiada al porta-retalls.' : 'URL de alumno copiada al portapapeles.');
   } catch (err) {
-    prompt('Copia esta URL para compartirla con el alumnado:', url);
+    prompt(MendelSimI18n.getLocale() === 'ca' ? 'Copia aquest URL per compartir-lo amb l’alumnat:' : 'Copia esta URL para compartirla con el alumnado:', url);
     setBuilderStatus('URL generada.');
   }
 }
@@ -720,7 +854,7 @@ function loadBuilderCaseFromURL() {
     }
   } catch (err) {
     console.error(err);
-    alert('No se pudo leer el caso desde la URL.');
+    alert(MendelSimI18n.getLocale() === 'ca' ? 'No s’ha pogut llegir el cas des de l’URL.' : 'No se pudo leer el caso desde la URL.');
   }
 }
 
@@ -1189,7 +1323,7 @@ async function downloadBuilderPNG() {
 
     canvas.toBlob(blob => {
       if (!blob) {
-        alert('No se pudo generar el PNG.');
+        alert(MendelSimI18n.getLocale() === 'ca' ? 'No s’ha pogut generar el PNG.' : 'No se pudo generar el PNG.');
         return;
       }
       downloadBlob(blob, `${safeFilename(meta.title || meta.trait)}.png`);
@@ -1393,7 +1527,9 @@ function checkAnswer() {
   if (!ex) return;
   const chosen = document.querySelector('input[name="pattern"]:checked');
   if (!chosen) {
-    alert('Por favor, selecciona un patrón de herencia antes de comprobar.');
+    alert(MendelSimI18n.getLocale() === 'ca'
+      ? 'Selecciona un patró d’herència abans de comprovar.'
+      : 'Por favor, selecciona un patrón de herencia antes de comprobar.');
     return;
   }
 
@@ -1539,7 +1675,9 @@ function inferBuilderGenotypes(pattern, alleles) {
         }
       }
     }
-    notes.push(`En herencia dominante, la descendencia no afectada se representa como ${autoGeno(r, r)}. Los afectados pueden ser ${autoGeno(D, r)} o ${autoGeno(D, D)} si el árbol no permite distinguirlo.`);
+    notes.push(MendelSimI18n.getLocale() === 'ca'
+      ? `En l’herència dominant, la descendència no afectada es representa com ${autoGeno(r, r)}. Els afectats poden ser ${autoGeno(D, r)} o ${autoGeno(D, D)} si l’arbre no permet distingir-ho.`
+      : `En herencia dominante, la descendencia no afectada se representa como ${autoGeno(r, r)}. Los afectados pueden ser ${autoGeno(D, r)} o ${autoGeno(D, D)} si el árbol no permite distinguirlo.`);
   } else if (pattern === 'AR') {
     for (const ind of individuals) {
       if (ind.affected) {
@@ -1575,7 +1713,9 @@ function inferBuilderGenotypes(pattern, alleles) {
         }
       }
     }
-    notes.push(`En herencia recesiva, los afectados son ${autoGeno(r, r)}. Los no afectados pueden ser ${autoGeno(D, D)} o ${autoGeno(D, r)} si no hay más información.`);
+    notes.push(MendelSimI18n.getLocale() === 'ca'
+      ? `En l’herència recessiva, els afectats són ${autoGeno(r, r)}. Els no afectats poden ser ${autoGeno(D, D)} o ${autoGeno(D, r)} si no hi ha més informació.`
+      : `En herencia recesiva, los afectados son ${autoGeno(r, r)}. Los no afectados pueden ser ${autoGeno(D, D)} o ${autoGeno(D, r)} si no hay más información.`);
   } else if (pattern === 'XR') {
     for (const ind of individuals) {
       if (ind.sex === 'M') {
@@ -1610,7 +1750,9 @@ function inferBuilderGenotypes(pattern, alleles) {
         }
       }
     }
-    notes.push(`En herencia recesiva ligada al X, los ${sexLabels.malePlural} no son portadores: o están afectados o no lo están. Las ${sexLabels.femalePlural} no afectadas pueden ser portadoras.`);
+    notes.push(MendelSimI18n.getLocale() === 'ca'
+      ? `En l’herència recessiva lligada a l’X, els ${sexLabels.malePlural} no són portadors: o estan afectats o no ho estan. Les ${sexLabels.femalePlural} no afectades poden ser portadores.`
+      : `En herencia recesiva ligada al X, los ${sexLabels.malePlural} no son portadores: o están afectados o no lo están. Las ${sexLabels.femalePlural} no afectadas pueden ser portadoras.`);
   } else if (pattern === 'XD') {
     for (const ind of individuals) {
       if (ind.sex === 'M') {
@@ -1632,9 +1774,13 @@ function inferBuilderGenotypes(pattern, alleles) {
         }
       }
     }
-    notes.push(sexLabels.maleLower === 'macho'
-      ? 'En herencia dominante ligada al X, un progenitor macho afectado transmite su X afectado a toda su descendencia hembra y su Y a toda su descendencia macho.'
-      : 'En herencia dominante ligada al X, un padre afectado transmite su X afectado a todas sus hijas y su Y a todos sus hijos.');
+    notes.push(sexLabels.maleLower === 'mascle'
+      ? 'En l’herència dominant lligada a l’X, un progenitor mascle afectat transmet el seu X afectat a tota la descendència femella i el seu Y a tota la descendència mascle.'
+      : sexLabels.maleLower === 'macho'
+        ? 'En herencia dominante ligada al X, un progenitor macho afectado transmite su X afectado a toda su descendencia hembra y su Y a toda su descendencia macho.'
+        : MendelSimI18n.getLocale() === 'ca'
+          ? 'En l’herència dominant lligada a l’X, un pare afectat transmet el seu X afectat a totes les filles i el seu Y a tots els fills.'
+          : 'En herencia dominante ligada al X, un padre afectado transmite su X afectado a todas sus hijas y su Y a todos sus hijos.');
   }
 
   return { genotypes, genotypeLabels, notes };
