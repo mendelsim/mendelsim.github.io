@@ -111,6 +111,16 @@
     [data-theme="dark"] .sex-female { background: #2e0d1e; border-color: #6a1e4a; color: #f9a8d4; }
     [data-theme="dark"] .preset-btn { background: #1e301e; border-color: #2a4a2a; color: var(--text, #dce8dc); }
     [data-theme="dark"] .preset-btn:hover { background: #1a361a; border-color: var(--primary-light, #5fdb8b); }
+    .law-box {
+      background: linear-gradient(135deg, #f0fdf4, #e8f5e9);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      margin: 1rem 0;
+    }
+    .law-title { font-weight: 700; color: var(--primary); font-size: 1rem; margin-bottom: 0.5rem; }
+    .law-box p { font-size: 0.9rem; margin: 0.3rem 0 0; }
+    [data-theme="dark"] .law-box { background: linear-gradient(135deg, #0d2e1a, #0a2216); }
   </style>
 </head>
 <body>
@@ -126,6 +136,13 @@
 </header>
 
 <div class="container">
+
+  <!-- Principio de Morgan -->
+  <div class="law-box">
+    <div class="law-title">📜 Herencia ligada al sexo — Principio de Morgan (1910)</div>
+    <p>Thomas Hunt Morgan descubrió que ciertos genes se encuentran en los cromosomas sexuales (X e Y) y no se heredan como los genes autosómicos. Los genes ligados al X siguen un patrón cruzado: <strong>el padre transmite su X a todas sus hijas</strong> y su Y a todos sus hijos.</p>
+    <p>En rasgos <strong>recesivos ligados al X</strong>, los hombres hemicigotos (X<sup>a</sup>Y) expresan el rasgo con un solo alelo, mientras que las mujeres necesitan dos copias (X<sup>a</sup>X<sup>a</sup>). Las portadoras (X<sup>A</sup>X<sup>a</sup>) no están afectadas pero pueden transmitir el alelo.</p>
+  </div>
 
   <!-- Notación -->
   <div class="card">

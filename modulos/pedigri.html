@@ -289,6 +289,16 @@
     [data-theme="dark"] .leg-carrier-sq,
     [data-theme="dark"] .leg-carrier-ci { background: #2a3e2a; border-color: var(--text, #dce8dc); }
     [data-theme="dark"] #feedbackBox { color: var(--text, #dce8dc); }
+    .law-box {
+      background: linear-gradient(135deg, #f0fdf4, #e8f5e9);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      margin: 1rem 0;
+    }
+    .law-title { font-weight: 700; color: var(--primary); font-size: 1rem; margin-bottom: 0.5rem; }
+    .law-box p { font-size: 0.9rem; margin: 0.3rem 0 0; }
+    [data-theme="dark"] .law-box { background: linear-gradient(135deg, #0d2e1a, #0a2216); }
   </style>
 </head>
 <body>
@@ -304,6 +314,12 @@
 </header>
 
 <div class="container">
+
+  <!-- Principios del análisis de pedigrís -->
+  <div class="law-box">
+    <div class="law-title">📜 Principios del análisis de pedigrís</div>
+    <p>Un pedigrí permite identificar el patrón de herencia observando quiénes están afectados y en qué generaciones. Las cuatro claves diagnósticas son: <strong>autosómica recesiva</strong> (aparece en hermanos, padres sanos, ambos sexos por igual); <strong>autosómica dominante</strong> (al menos un progenitor afectado en cada generación, ambos sexos); <strong>recesiva ligada al X</strong> (más frecuente en hombres, transmitida por mujeres portadoras sanas); <strong>dominante ligada al X</strong> (padre afectado transmite a todas sus hijas, nunca a sus hijos).</p>
+  </div>
 
   <!-- Leyenda global -->
   <div class="card" style="padding:0.85rem 1.2rem;">
