@@ -228,59 +228,20 @@
 </footer>
 
 <script src="../js/genetics.js"></script>
+<script src="../js/dihibrido-content-es.js"></script>
 <script>
 // ── Presets ──────────────────────────────────────────────────
-const PRESETS = {
-  clasico:    { p1A:'Aa', p1B:'Bb', p2A:'Aa', p2B:'Bb', ta:'Amarillo', tr:'Verde', tb:'Liso', tbr:'Rugoso', description:'Cruce dihíbrido clásico con dos genes independientes y doble heterocigosis en ambos progenitores.' },
-  testcross:  { p1A:'Aa', p1B:'Bb', p2A:'aa', p2B:'bb', ta:'Amarillo', tr:'Verde', tb:'Liso', tbr:'Rugoso', description:'Cruce de prueba: el doble heterocigoto se cruza con un doble homocigoto recesivo.' },
-  guisantes:  { p1A:'Aa', p1B:'Bb', p2A:'Aa', p2B:'Bb', ta:'Semilla amarilla', tr:'Semilla verde', tb:'Forma lisa', tbr:'Forma rugosa', description:'Caso mendeliano clásico con color y forma de la semilla de guisante.' },
-  AAbb:       { p1A:'AA', p1B:'Bb', p2A:'Aa', p2B:'Bb', ta:'Amarillo', tr:'Verde', tb:'Liso', tbr:'Rugoso', description:'Cruce con homocigosis dominante en el primer gen y segregación en el segundo.' },
-};
+const DIHYBRID_CONTENT = window.DIHYBRID_CONTENT || {};
+const PRESETS = DIHYBRID_CONTENT.presets || {};
+const RANDOM_TRAIT_PAIRS = DIHYBRID_CONTENT.randomTraitPairs || [];
+const RANDOM_DIHYBRID_CROSSES = DIHYBRID_CONTENT.randomCrosses || [];
+const DIHYBRID_MESSAGES = DIHYBRID_CONTENT.messages || {};
 
-const RANDOM_TRAIT_PAIRS = [
-  {
-    context: 'guisantes',
-    ta: 'Semilla amarilla',
-    tr: 'Semilla verde',
-    tb: 'Semilla lisa',
-    tbr: 'Semilla rugosa',
-    description: 'Dos caracteres mendelianos clásicos de guisante, tratados como genes independientes.'
-  },
-  {
-    context: 'Drosophila',
-    ta: 'Cuerpo gris',
-    tr: 'Cuerpo negro',
-    tb: 'Alas normales',
-    tbr: 'Alas vestigiales',
-    description: 'Dos rasgos autosómicos de Drosophila usados habitualmente como modelo escolar de segregación independiente.'
-  },
-  {
-    context: 'maíz',
-    ta: 'Grano pigmentado',
-    tr: 'Grano sin pigmento',
-    tb: 'Grano liso',
-    tbr: 'Grano rugoso',
-    description: 'Rasgos de grano de maíz modelados como dos loci con dominancia completa.'
-  },
-  {
-    context: 'tomate',
-    ta: 'Tallo alto',
-    tr: 'Tallo enano',
-    tb: 'Fruto rojo',
-    tbr: 'Fruto amarillo',
-    description: 'Ejemplo didáctico de dos caracteres vegetales independientes con dominancia completa.'
-  }
-];
-
-const RANDOM_DIHYBRID_CROSSES = [
-  { p1A:'Aa', p1B:'Bb', p2A:'Aa', p2B:'Bb', label:'AaBb × AaBb' },
-  { p1A:'Aa', p1B:'Bb', p2A:'aa', p2B:'bb', label:'AaBb × aabb' },
-  { p1A:'Aa', p1B:'Bb', p2A:'Aa', p2B:'bb', label:'AaBb × Aabb' },
-  { p1A:'Aa', p1B:'bb', p2A:'Aa', p2B:'Bb', label:'Aabb × AaBb' },
-  { p1A:'AA', p1B:'Bb', p2A:'Aa', p2B:'Bb', label:'AABb × AaBb' },
-  { p1A:'Aa', p1B:'BB', p2A:'Aa', p2B:'Bb', label:'AaBB × AaBb' },
-  { p1A:'aa', p1B:'Bb', p2A:'Aa', p2B:'Bb', label:'aaBb × AaBb' }
-];
+function formatContentText(template, params = {}) {
+  return String(template || '').replace(/\{([A-Za-z0-9_]+)\}/g, (match, key) => (
+    Object.prototype.hasOwnProperty.call(params, key) ? params[key] : match
+  ));
+}
 
 function pickRandom(items) {
   return items[Math.floor(Math.random() * items.length)];
@@ -325,7 +286,11 @@ function loadRandomExample() {
   document.getElementById('traitArec').value = traits.tr;
   document.getElementById('traitBdom').value = traits.tb;
   document.getElementById('traitBrec').value = traits.tbr;
-  setExampleInfo(`Ejemplo generado (${traits.context}): ${traits.description} Cruce: ${cross.label}.`);
+  setExampleInfo(formatContentText(DIHYBRID_MESSAGES.generatedExample, {
+    context: traits.context,
+    description: traits.description,
+    cross: cross.label
+  }));
   realizarCruce();
 }
 

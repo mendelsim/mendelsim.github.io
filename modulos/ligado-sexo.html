@@ -300,6 +300,7 @@
 </footer>
 
 <script src="../js/genetics.js"></script>
+<script src="../js/ligado-sexo-content-es.js"></script>
 <script>
 // ── UI helpers ───────────────────────────────────────────────
 function onMotherChange(radio) {
@@ -312,43 +313,17 @@ function onFatherChange(radio) {
 }
 
 // ── Presets ──────────────────────────────────────────────────
-const PRESETS = {
-  hemofilia: { trait:'Hemofilia A', allA:'H', allA2:'h', description:'Rasgo recesivo ligado al X: el alelo h se expresa en hombres hemicigotos y en mujeres homocigotas recesivas.' },
-  daltonismo:{ trait:'Daltonismo rojo-verde', allA:'C', allA2:'c', description:'Rasgo recesivo ligado al X usado como ejemplo clásico de mayor frecuencia en hombres.' },
-  duchenne:  { trait:'Distrofia Muscular Duchenne', allA:'D', allA2:'d', description:'Enfermedad recesiva ligada al X: las madres portadoras pueden tener hijos hombres afectados.' },
-};
+const X_LINKED_CONTENT = window.X_LINKED_CONTENT || {};
+const PRESETS = X_LINKED_CONTENT.presets || {};
+const RANDOM_X_TRAITS = X_LINKED_CONTENT.randomTraits || [];
+const RANDOM_X_CROSSES = X_LINKED_CONTENT.randomCrosses || [];
+const X_LINKED_MESSAGES = X_LINKED_CONTENT.messages || {};
 
-const RANDOM_X_TRAITS = [
-  { trait:'Hemofilia A', allA:'H', allA2:'h' },
-  { trait:'Daltonismo rojo-verde', allA:'C', allA2:'c' },
-  { trait:'Distrofia Muscular Duchenne', allA:'D', allA2:'d' },
-  { trait:'Deficiencia de G6PD', allA:'G', allA2:'g' },
-  { trait:'Ictiosis ligada al X', allA:'I', allA2:'i' },
-  { trait:'Adrenoleucodistrofia ligada al X', allA:'L', allA2:'l' }
-];
-
-const RANDOM_X_CROSSES = [
-  {
-    mother:'X^AX^a',
-    father:'X^AY',
-    label:'madre portadora × padre normal'
-  },
-  {
-    mother:'X^AX^a',
-    father:'X^aY',
-    label:'madre portadora × padre afectado'
-  },
-  {
-    mother:'X^aX^a',
-    father:'X^AY',
-    label:'madre afectada × padre normal'
-  },
-  {
-    mother:'X^AX^A',
-    father:'X^aY',
-    label:'madre normal homocigota × padre afectado'
-  }
-];
+function formatContentText(template, params = {}) {
+  return String(template || '').replace(/\{([A-Za-z0-9_]+)\}/g, (match, key) => (
+    Object.prototype.hasOwnProperty.call(params, key) ? params[key] : match
+  ));
+}
 
 function pickRandom(items) {
   return items[Math.floor(Math.random() * items.length)];
@@ -389,7 +364,10 @@ function loadRandomExample() {
   document.getElementById('alleleA').value = trait.allA;
   document.getElementById('alleleA2').value = trait.allA2;
   selectParents(cross.mother, cross.father);
-  setExampleInfo(`Ejemplo generado: ${trait.trait}, ${cross.label}. El caso usa herencia recesiva ligada al X con genotipos parentales resolubles.`);
+  setExampleInfo(formatContentText(X_LINKED_MESSAGES.generatedExample, {
+    trait: trait.trait,
+    cross: cross.label
+  }));
   realizarCruce();
 }
 
