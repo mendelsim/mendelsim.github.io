@@ -857,7 +857,7 @@ async function copyBuilderShareURL() {
     setBuilderStatus(MendelSimI18n.getLocale() === 'ca' ? 'URL d’alumne copiada al porta-retalls.' : 'URL de alumno copiada al portapapeles.');
   } catch (err) {
     prompt(MendelSimI18n.getLocale() === 'ca' ? 'Copia aquest URL per compartir-lo amb l’alumnat:' : 'Copia esta URL para compartirla con el alumnado:', url);
-    setBuilderStatus('URL generada.');
+    setBuilderStatus(t('pedigree.feedback.generatedUrl', 'URL generada.'));
   }
 }
 
@@ -1020,7 +1020,7 @@ function renderStudentCase() {
       <td>${sexLabel(ind.sex, labels)}</td>
       <td>${studentObservedStatus(ind)}</td>
       <td><input class="student-answer-input" id="studentGeno-${ind.id}" type="text" placeholder="Ej: Aa" oninput="updateStudentGenotype(${ind.id})"></td>
-      <td><input id="studentNote-${ind.id}" type="text" placeholder="Duda o justificación breve" oninput="updateStudentResponsePreview()"></td>
+      <td><input id="studentNote-${ind.id}" type="text" placeholder="${t('pedigree.placeholder.studentNote', 'Duda o justificación breve')}" oninput="updateStudentResponsePreview()"></td>
     </tr>`;
   }
 
@@ -1148,7 +1148,7 @@ async function copyStudentAnswers() {
 function emailStudentAnswers() {
   const assignment = currentStudentAssignment;
   const email = assignment?.assignment?.teacherEmail || assignment?.metadata?.teacherEmail || '';
-  const subject = encodeURIComponent(`Respuesta MendelSim - ${assignment?.metadata?.title || t('pedigree.title.pedigree', 'Pedigrí')}`);
+  const subject = encodeURIComponent(`${t('pedigree.email.subject', 'Respuesta MendelSim')} - ${assignment?.metadata?.title || t('pedigree.title.pedigree', 'Pedigrí')}`);
   const body = encodeURIComponent(formatStudentAnswersText());
   location.href = `mailto:${email}?subject=${subject}&body=${body}`;
 }
@@ -1407,7 +1407,7 @@ function setAnalysisExercise(ex) {
 
   // Reset clues
   document.getElementById('clueList').innerHTML = '';
-  document.getElementById('clueBtn').textContent = `💡 Ver pista (0/${ex.answer.clues.length})`;
+  document.getElementById('clueBtn').textContent = `💡 ${t('pedigree.feedback.clue', 'Pista')} (0/${ex.answer.clues.length})`;
   document.getElementById('clueBtn').disabled = false;
   document.getElementById('solutionBox').classList.remove('visible');
   document.getElementById('solutionBtn').textContent = t('pedigree.button.showSolution', '✅ Ver solución');
@@ -1429,7 +1429,7 @@ function revealNextClue() {
   document.getElementById('clueList').appendChild(li);
 
   document.getElementById('clueBtn').textContent =
-    `💡 Ver pista (${currentClueIndex}/${ex.answer.clues.length})`;
+    `💡 ${t('pedigree.feedback.clue', 'Pista')} (${currentClueIndex}/${ex.answer.clues.length})`;
 
   if (currentClueIndex >= ex.answer.clues.length) {
     document.getElementById('clueBtn').disabled = true;
@@ -1490,7 +1490,7 @@ function resetExercise() {
   document.getElementById('solutionBtn').textContent = t('pedigree.button.showSolution', '✅ Ver solución');
   if (currentAnalysisExercise) {
     document.getElementById('clueBtn').textContent =
-      `💡 Ver pista (0/${currentAnalysisExercise.answer.clues.length})`;
+      `💡 ${t('pedigree.feedback.clue', 'Pista')} (0/${currentAnalysisExercise.answer.clues.length})`;
     document.getElementById('clueBtn').disabled = false;
     analysisEngine.hideSolution();
     analysisEngine.loadExercise(currentAnalysisExercise);
