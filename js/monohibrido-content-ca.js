@@ -1,0 +1,136 @@
+if (window.MendelSimI18n?.getLocale() === 'ca') {
+  window.MONOHYBRID_CONTENT = {
+    dominanceLabels: {
+      complete: 'dominància completa',
+      incomplete: 'dominància incompleta',
+      codominance: 'codominància',
+    },
+    presets: {
+      guisantes: {
+        p1: 'Aa', p2: 'Aa', dominance: 'complete',
+        dom: 'Groc', rec: 'Verd', inter: '',
+        description: 'Mendel va creuar pèsols grocs (AA i Aa) amb pèsols verds (aa). El color groc (A) és dominant sobre el verd (a).'
+      },
+      sangre: {
+        p1: 'Aa', p2: 'Aa', dominance: 'codominance',
+        dom: 'Grup sanguini M', rec: 'Grup sanguini N', inter: 'Grup sanguini MN',
+        description: 'El sistema sanguini MN presenta codominància. En l’heterozigot s’expressen simultàniament els al·lels M i N.'
+      },
+      boca: {
+        p1: 'Aa', p2: 'Aa', dominance: 'incomplete',
+        dom: 'Vermella', rec: 'Blanca', inter: 'Rosa',
+        description: 'La flor de boca de drac mostra dominància incompleta. La combinació dels al·lels vermell (A) i blanc (a) produeix flors roses (Aa).'
+      },
+      pelaje: {
+        p1: 'Aa', p2: 'aa', dominance: 'complete',
+        dom: 'Negre', rec: 'Taronja', inter: '',
+        description: 'En el pelatge del gat, l’al·lel negre (A) és dominant sobre el taronja (a) en herència autosòmica.'
+      }
+    },
+    randomTraits: {
+      complete: [
+        { dom: 'Llavors grogues', rec: 'Llavors verdes', description: 'Cas mendelià clàssic en pèsols: l’al·lel del color groc es modelitza com a dominant sobre el verd.' },
+        { dom: 'Llavors llises', rec: 'Llavors rugoses', description: 'Tret clàssic dels pèsols de Mendel: la forma llisa es modelitza com a dominant sobre la rugosa.' },
+        { dom: 'Ales normals', rec: 'Ales vestigials', description: 'Exemple didàctic en Drosophila: les ales vestigials es tracten com a fenotip recessiu davant les ales normals.' },
+        { dom: 'Pigmentació normal', rec: 'Albinisme', description: 'Model autosòmic recessiu freqüent en genètica humana escolar: l’albinisme apareix en homozigosi recessiva.' }
+      ],
+      incomplete: [
+        { dom: 'Flors vermelles', rec: 'Flors blanques', inter: 'Flors roses', description: 'Dominància incompleta en boca de drac o flor de nit: l’heterozigot presenta un fenotip intermedi.' },
+        { dom: 'Plomatge negre', rec: 'Plomatge blanc', inter: 'Plomatge blau', description: 'Model clàssic de dominància incompleta en gallines andaluses: l’heterozigot presenta plomatge blau.' },
+        { dom: 'Fruits vermells', rec: 'Fruits blancs', inter: 'Fruits rosats', description: 'Exemple escolar de dominància incompleta: l’heterozigot mostra una intensitat intermèdia del color.' }
+      ],
+      codominance: [
+        { dom: 'Grup sanguini M', rec: 'Grup sanguini N', inter: 'Grup sanguini MN', description: 'Sistema sanguini MN: els al·lels M i N s’expressen simultàniament en l’heterozigot.' },
+        { dom: 'Pelatge vermell', rec: 'Pelatge blanc', inter: 'Pelatge ruà', description: 'Codominància en bestiar ruà: en l’heterozigot s’observen pèls vermells i blancs alhora.' }
+      ]
+    },
+    randomCrosses: [
+      ['Aa', 'Aa'],
+      ['Aa', 'aa'],
+      ['aa', 'Aa'],
+      ['AA', 'aa'],
+      ['aa', 'AA'],
+      ['AA', 'Aa'],
+      ['Aa', 'AA']
+    ],
+    messages: {
+      customMode: 'Mode personalitzat: tria genotips, fenotips i tipus de dominància. Els exemples guiats fixen el tipus per evitar combinacions incoherents.',
+      presetLocked: 'Tipus fixat per aquest exemple: {dominance}. Fes servir “Personalitzat” si vols canviar-lo.',
+      randomLocked: 'Tipus fixat per l’exemple aleatori: {dominance}. Fes servir “Personalitzat” si vols canviar-lo.',
+      generatedExample: 'Exemple generat: {description} Encreuament: {p1} × {p2}.'
+    },
+    ui: {
+      pageTitle: 'Encreuament monohíbrid — MendelSim',
+      back: '← Inici',
+      heading: 'Encreuament monohíbrid',
+      subtitle: 'Herència d’un sol caràcter — Quadre de Punnett 2×2',
+      lawTitle: '📜 1a i 2a lleis de Mendel',
+      lawUniformity: '<strong>Llei de la uniformitat (1a llei):</strong> En creuar dos individus homozigots per a caràcters contraris, tota la descendència F1 és idèntica i expressa el caràcter dominant.',
+      lawSegregation: '<strong>Llei de la segregació (2a llei):</strong> Els dos al·lels d’un gen se separen durant la formació de gàmetes; cada gàmeta rep només un al·lel. En creuar heterozigots F1 es recuperen tots dos fenotips en proporció 3:1.',
+      configTitle: '1 Configuració de l’encreuament',
+      configTitleText: 'Configuració de l’encreuament',
+      configHint: 'Selecciona exemples predefinits o configura el teu propi encreuament:',
+      presetPeas: '🟡 Pèsols (color)',
+      presetBlood: '🩸 Sistema MN',
+      presetSnapdragon: '🌸 Boca de drac',
+      presetCoat: '🐱 Pelatge de gat',
+      randomExample: '🎲 Nou exemple',
+      custom: '⚙️ Personalitzat',
+      p1: 'Genotip progenitor P1',
+      p2: 'Genotip progenitor P2',
+      heterozygous: 'Aa (heterozigot)',
+      homoDom: 'AA (homozigot dominant)',
+      homoRec: 'aa (homozigot recessiu)',
+      dominanceType: 'Tipus de dominància',
+      complete: 'Dominància completa',
+      incomplete: 'Dominància incompleta',
+      codominance: 'Codominància',
+      alleleDom: 'Fenotip al·lel dominant (A)',
+      alleleRec: 'Fenotip al·lel recessiu (a)',
+      inter: 'Fenotip intermedi (Aa)',
+      homoAA: 'Fenotip homozigot AA',
+      homoaa: 'Fenotip homozigot aa',
+      heteroAa: 'Fenotip heterozigot Aa',
+      run: '▶ Fer l’encreuament',
+      clear: '↺ Netejar',
+      punnettTitle: '2 Quadre de Punnett',
+      punnettTitleText: 'Quadre de Punnett',
+      punnettHint: 'Cada cel·la mostra el genotip d’un possible descendent. Les cel·les apareixen una per una perquè puguis seguir el procés.',
+      resultsTitle: '3 Resultats',
+      resultsTitleText: 'Resultats',
+      genoRatios: '📊 Proporcions genotípiques',
+      phenoRatios: '🎨 Proporcions fenotípiques',
+      probabilityTitle: '🎯 Calculadora de probabilitats',
+      probabilityQuestion: 'Quina és la probabilitat d’obtenir...?',
+      probabilityPlaceholder: '— Selecciona un fenotip —',
+      understandingTitle: '4 Comprensió i autoavaluació',
+      understandingTitleText: 'Comprensió i autoavaluació',
+      reviewQuestions: '❓ Preguntes de repàs',
+      legend: 'Llegenda:',
+      proportion: 'Proporció',
+      customUnlocked: 'Mode personalitzat: pots triar lliurement el tipus de dominància.',
+      dominantFallback: 'Dominant',
+      recessiveFallback: 'Recessiu',
+      intermediateFallback: 'Intermedi',
+      interPlaceholder: 'Ex.: Rosa',
+      codominancePlaceholder: 'Ex.: Grup AB',
+      explanationStart: 'L’encreuament <strong>{p1} × {p2}</strong> amb <strong>{dominance}</strong> produeix els resultats mostrats. ',
+      explanationOne: 'Tots els descendents presenten el mateix fenotip: <strong>{label}</strong>.',
+      explanationTwo: 'S’obtenen dos fenotips diferents en proporció <strong>{a}:{b}</strong> ({labelA} : {labelB}).',
+      explanationMany: 'S’obtenen <strong>{count} fenotips</strong> diferents en les proporcions indicades.',
+      incompleteExplanation: ' La dominància incompleta produeix un fenotip intermedi en els heterozigots, ja que cap al·lel “domina” completament l’altre.',
+      codominanceExplanation: ' En la codominància, tots dos al·lels s’expressen simultàniament i de forma independent en el fenotip de l’heterozigot.',
+      qDominant: 'Què significa que un al·lel sigui dominant?',
+      aDominant: 'Un al·lel és dominant quan s’expressa en el fenotip encara que només estigui present en una còpia (heterozigot). L’al·lel recessiu només s’expressa quan és en doble còpia (homozigot recessiu).',
+      qProportion: 'Per què s’obté la proporció {ratio}?',
+      aProportion: 'En l’encreuament {p1} × {p2}, els gàmetes possibles es combinen a l’atzar. Cada quadrícula del quadre de Punnett representa una combinació igualment probable. Les {cells} caselles representen el total de combinacions possibles.',
+      qPredict: 'És possible predir exactament quins fills tindrà una parella?',
+      aPredict: 'No. Les proporcions són probabilitats estadístiques que es compleixen aproximadament en nombres grans de descendents. Cada fill individual és producte de l’atzar.',
+      showAnswer: '▼ Veure resposta',
+      hideAnswer: '▲ Amagar',
+      footerCode: 'Codi',
+      footerContent: 'Continguts',
+      footerIssues: 'Suggeriments i errors',
+    }
+  };
+}
