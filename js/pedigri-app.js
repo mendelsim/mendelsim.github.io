@@ -82,6 +82,8 @@ function applyLocaleToStaticPage() {
   setText('.header h1', 'Pedigrís interactius');
   setText('.header p', 'Analitza arbres genealògics i identifica patrons hereditaris');
   setAttr('#darkToggle', 'title', 'Mode fosc');
+  setText('#languageLabel', 'Idioma');
+  setAttr('#languageSelect', 'aria-label', 'Idioma');
   setText('.law-title', '📜 Principis de l’anàlisi de pedigrís');
   setHTML('.law-box p', 'Un pedigrí permet identificar el patró d’herència observant qui està afectat i en quines generacions. Les quatre claus diagnòstiques són: <strong>autosòmica recessiva</strong> (apareix en germans, pares sans, tots dos sexes per igual); <strong>autosòmica dominant</strong> (almenys un progenitor afectat en cada generació, tots dos sexes); <strong>recessiva lligada a l’X</strong> (més freqüent en homes, transmesa per dones portadores sanes); <strong>dominant lligada a l’X</strong> (pare afectat transmet a totes les filles, mai als fills).');
   setText('.legend-pedigree strong', 'Llegenda:');
@@ -182,7 +184,26 @@ function applyLocaleToStaticPage() {
   });
 }
 
+function initLanguageSelector() {
+  const select = document.getElementById('languageSelect');
+  if (!select) return;
+  const locale = MendelSimI18n.getLocale();
+  select.value = locale === 'ca' ? 'ca' : 'es';
+  select.addEventListener('change', () => {
+    const nextLocale = select.value === 'ca' ? 'ca' : 'es';
+    MendelSimI18n.setLocale(nextLocale);
+    const url = new URL(window.location.href);
+    if (nextLocale === 'ca') {
+      url.searchParams.set('lang', 'ca');
+    } else {
+      url.searchParams.delete('lang');
+    }
+    window.location.href = `${url.pathname}${url.search}${url.hash}`;
+  });
+}
+
 function initEngines() {
+  initLanguageSelector();
   applyLocaleToStaticPage();
   analysisEngine = new PedigreeEngine('analysisSvg', null);
   analysisEngine.readOnly = true;
