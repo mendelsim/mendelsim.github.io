@@ -375,10 +375,10 @@ const RANDOM_PEDIGREE_TRAITS = {
 };
 
 const RANDOM_PATTERN_NAMES = {
-  AR: 'Autosómica Recesiva',
-  AD: 'Autosómica Dominante',
-  XR: 'Recesiva ligada al cromosoma X',
-  XD: 'Dominante ligada al cromosoma X'
+  AR: t('pedigree.pattern.AR', 'Autosómica Recesiva'),
+  AD: t('pedigree.pattern.AD', 'Autosómica Dominante'),
+  XR: t('pedigree.pattern.XR', 'Recesiva ligada al cromosoma X'),
+  XD: t('pedigree.pattern.XD', 'Dominante ligada al cromosoma X')
 };
 
 function randomChoice(items) {

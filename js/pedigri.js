@@ -3,6 +3,10 @@
  * Interactive pedigree engine using SVG
  */
 
+function msT(key, fallback, params) {
+  return window.t ? window.t(key, fallback, params) : fallback;
+}
+
 class PedigreeEngine {
   constructor(svgId, infoId) {
     this.svg = document.getElementById(svgId);
@@ -18,12 +22,12 @@ class PedigreeEngine {
     this._nextCoupleId = 1;
     this.readOnly = false;
     this.sexLabels = {
-      male: 'Hombre',
-      female: 'Mujer',
-      maleLower: 'hombre',
-      femaleLower: 'mujer',
-      malePlural: 'hombres',
-      femalePlural: 'mujeres',
+      male: msT('pedigree.sex.human.male', 'Hombre'),
+      female: msT('pedigree.sex.human.female', 'Mujer'),
+      maleLower: msT('pedigree.sex.human.maleLower', 'hombre'),
+      femaleLower: msT('pedigree.sex.human.femaleLower', 'mujer'),
+      malePlural: msT('pedigree.sex.human.malePlural', 'hombres'),
+      femalePlural: msT('pedigree.sex.human.femalePlural', 'mujeres'),
     };
 
     // Sizes
@@ -75,7 +79,7 @@ class PedigreeEngine {
   _childSexLabel() {
     if (this.childSex === 'M') return this.sexLabels.maleLower;
     if (this.childSex === 'F') return this.sexLabels.femaleLower;
-    return 'aleatorio';
+    return msT('pedigree.tool.random', 'aleatorio');
   }
 
   _toSuperscript(text) {
@@ -97,18 +101,18 @@ class PedigreeEngine {
 
   _toolInstructions() {
     const map = {
-      'select':        'Arrastra un individuo para moverlo.',
-      'addMale':       `Haz clic en el lienzo para añadir un ${this.sexLabels.maleLower}.`,
-      'addFemale':     `Haz clic en el lienzo para añadir una ${this.sexLabels.femaleLower}.`,
-      'toggleAffected':'Haz clic en un individuo para cambiar su estado (afectado/normal).',
-      'toggleCarrier': 'Haz clic en un individuo para cambiar su estado de portador.',
+      'select':        msT('pedigree.tool.instructions.select', 'Arrastra un individuo para moverlo.'),
+      'addMale':       msT('pedigree.tool.instructions.addMale', 'Haz clic en el lienzo para añadir un {maleLower}.', this.sexLabels),
+      'addFemale':     msT('pedigree.tool.instructions.addFemale', 'Haz clic en el lienzo para añadir una {femaleLower}.', this.sexLabels),
+      'toggleAffected': msT('pedigree.tool.instructions.toggleAffected', 'Haz clic en un individuo para cambiar su estado (afectado/normal).'),
+      'toggleCarrier': msT('pedigree.tool.instructions.toggleCarrier', 'Haz clic en un individuo para cambiar su estado de portador.'),
       'couple':        this.selectedIds.length === 0
-                         ? 'Haz clic en el PRIMER individuo de la pareja.'
-                         : 'Haz clic en el SEGUNDO individuo para unirlos.',
+                         ? msT('pedigree.tool.instructions.couple.first', 'Haz clic en el PRIMER individuo de la pareja.')
+                         : msT('pedigree.tool.instructions.couple.second', 'Haz clic en el SEGUNDO individuo para unirlos.'),
       'child':         this.selectedIds.length === 0
-                         ? 'Haz clic en un individuo de la pareja progenitora.'
-                         : `Haz clic en otro individuo de la pareja, o en el lienzo para añadir un descendiente (${this._childSexLabel()}).`,
-      'delete':        'Haz clic en un individuo para eliminarlo.',
+                         ? msT('pedigree.tool.instructions.child.first', 'Haz clic en un individuo de la pareja progenitora.')
+                         : msT('pedigree.tool.instructions.child.second', 'Haz clic en otro individuo de la pareja, o en el lienzo para añadir un descendiente ({childSex}).', { childSex: this._childSexLabel() }),
+      'delete':        msT('pedigree.tool.instructions.delete', 'Haz clic en un individuo para eliminarlo.'),
     };
     return map[this.currentTool] || '';
   }
@@ -116,11 +120,19 @@ class PedigreeEngine {
   _updateInfo() {
     if (this.infoEl) {
       const names = {
-        select: 'Mover', addMale: `Añadir ${this.sexLabels.maleLower}`, addFemale: `Añadir ${this.sexLabels.femaleLower}`,
-        toggleAffected: 'Marcar afectado', toggleCarrier: 'Marcar portador', couple: 'Crear pareja',
-        child: `Añadir descendiente (${this._childSexLabel()})`, delete: 'Eliminar'
+        select: msT('pedigree.tool.select', 'Mover'),
+        addMale: msT('pedigree.tool.addMale', 'Añadir {maleLower}', this.sexLabels),
+        addFemale: msT('pedigree.tool.addFemale', 'Añadir {femaleLower}', this.sexLabels),
+        toggleAffected: msT('pedigree.tool.markAffected', 'Marcar afectado'),
+        toggleCarrier: msT('pedigree.tool.markCarrier', 'Marcar portador'),
+        couple: msT('pedigree.tool.couple', 'Crear pareja'),
+        child: msT('pedigree.tool.child', 'Añadir descendiente ({childSex})', { childSex: this._childSexLabel() }),
+        delete: msT('pedigree.tool.delete', 'Eliminar')
       };
-      this.infoEl.textContent = `🔧 Herramienta: ${names[this.currentTool] || this.currentTool} — ${this._toolInstructions()}`;
+      this.infoEl.textContent = msT('pedigree.tool.info', '🔧 Herramienta: {tool} — {instructions}', {
+        tool: names[this.currentTool] || this.currentTool,
+        instructions: this._toolInstructions()
+      });
     }
   }
 
@@ -728,9 +740,9 @@ class PedigreeEngine {
     // Tooltip via SVG title
     const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
     let ttText = `${ind.label} — ${this._sexLabel(ind.sex)}`;
-    if (ind.affected) ttText += ' (Afectado/a)';
-    if (ind.carrier)  ttText += ' (Portador/a)';
-    if (ind.genotype) ttText += `\nGenotipo: ${this._formatPlainGenotype(ind.genotype)}`;
+    if (ind.affected) ttText += ` (${msT('pedigree.status.affectedNeutral', 'Afectado/a')})`;
+    if (ind.carrier)  ttText += ` (${msT('pedigree.status.carrierNeutral', 'Portador/a')})`;
+    if (ind.genotype) ttText += `\n${msT('pedigree.tooltip.genotype', 'Genotipo')}: ${this._formatPlainGenotype(ind.genotype)}`;
     title.textContent = ttText;
     g.appendChild(title);
 
@@ -812,13 +824,33 @@ class PedigreeEngine {
    */
   getPatternInfo(pattern) {
     const map = {
-      AR: { name: 'Autosómica Recesiva', class: 'pattern-AR', description: 'El alelo causante es recesivo y está en un autosoma. Dos progenitores portadores (Aa) pueden tener descendencia afectada (aa) sin estar afectados ellos mismos.' },
-      AD: { name: 'Autosómica Dominante', class: 'pattern-AD', description: 'El alelo causante es dominante y está en un autosoma. Basta un alelo para expresar el rasgo. Un progenitor afectado transmite el rasgo a ~50% de su descendencia.' },
-      XR: { name: 'Recesiva ligada al X', class: 'pattern-XR', description: `El gen está en el cromosoma X. Los ${this.sexLabels.malePlural} hemicigotos solo necesitan un alelo recesivo para estar afectados. Las ${this.sexLabels.femalePlural} portadoras (Xᴬ Xᵃ) no están afectadas pero transmiten el alelo.` },
-      XD: { name: 'Dominante ligada al X', class: 'pattern-XD', description: this.sexLabels.maleLower === 'macho'
-        ? 'El gen dominante está en el cromosoma X. Un progenitor macho afectado transmite el Xᴬ a toda su descendencia hembra, pero ningún alelo X a su descendencia macho.'
-        : 'El gen dominante está en el cromosoma X. Un padre afectado transmite el Xᴬ a todas sus hijas (que serán afectadas) pero ningún alelo X a sus hijos (que no serán afectados).' },
-      unknown: { name: 'Patrón no determinado', class: '', description: 'No hay suficientes datos para determinar el patrón de herencia.' },
+      AR: {
+        name: msT('pedigree.pattern.AR', 'Autosómica Recesiva'),
+        class: 'pattern-AR',
+        description: msT('pedigree.pattern.AR.description', 'El alelo causante es recesivo y está en un autosoma. Dos progenitores portadores (Aa) pueden tener descendencia afectada (aa) sin estar afectados ellos mismos.')
+      },
+      AD: {
+        name: msT('pedigree.pattern.AD', 'Autosómica Dominante'),
+        class: 'pattern-AD',
+        description: msT('pedigree.pattern.AD.description', 'El alelo causante es dominante y está en un autosoma. Basta un alelo para expresar el rasgo. Un progenitor afectado transmite el rasgo a ~50% de su descendencia.')
+      },
+      XR: {
+        name: msT('pedigree.pattern.XR.short', 'Recesiva ligada al X'),
+        class: 'pattern-XR',
+        description: msT('pedigree.pattern.XR.description', 'El gen está en el cromosoma X. Los {malePlural} hemicigotos solo necesitan un alelo recesivo para estar afectados. Las {femalePlural} portadoras (Xᴬ Xᵃ) no están afectadas pero transmiten el alelo.', this.sexLabels)
+      },
+      XD: {
+        name: msT('pedigree.pattern.XD.short', 'Dominante ligada al X'),
+        class: 'pattern-XD',
+        description: this.sexLabels.maleLower === 'macho'
+          ? msT('pedigree.pattern.XD.description.other', 'El gen dominante está en el cromosoma X. Un progenitor macho afectado transmite el Xᴬ a toda su descendencia hembra, pero ningún alelo X a su descendencia macho.')
+          : msT('pedigree.pattern.XD.description.human', 'El gen dominante está en el cromosoma X. Un padre afectado transmite el Xᴬ a todas sus hijas (que serán afectadas) pero ningún alelo X a sus hijos (que no serán afectados).')
+      },
+      unknown: {
+        name: msT('pedigree.pattern.unknown', 'Patrón no determinado'),
+        class: '',
+        description: msT('pedigree.pattern.unknown.description', 'No hay suficientes datos para determinar el patrón de herencia.')
+      },
     };
     return map[pattern] || map['unknown'];
   }

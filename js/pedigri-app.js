@@ -26,28 +26,28 @@ let solutionVisible = false;
 let currentPracticeExercise = null;
 let currentStudentAssignment = null;
 let score = 0, scoreTot = 0;
-let builderPrintTitle = 'Pedigrí construido';
+let builderPrintTitle = t('pedigree.title.builtPedigree', 'Pedigrí construido');
 const TREE_ZOOM = { analysisSvg: 1, practiceSvg: 1, builderSvg: 1, studentSvg: 1 };
 const SEX_LABELS = {
   human: {
-    male: 'Hombre',
-    female: 'Mujer',
-    maleLower: 'hombre',
-    femaleLower: 'mujer',
-    malePlural: 'hombres',
-    femalePlural: 'mujeres',
-    femaleCarrier: 'Mujer portadora (heterocigota)',
-    maleCarrier: 'Hombre portador (heterocigoto)',
+    male: t('pedigree.sex.human.male', 'Hombre'),
+    female: t('pedigree.sex.human.female', 'Mujer'),
+    maleLower: t('pedigree.sex.human.maleLower', 'hombre'),
+    femaleLower: t('pedigree.sex.human.femaleLower', 'mujer'),
+    malePlural: t('pedigree.sex.human.malePlural', 'hombres'),
+    femalePlural: t('pedigree.sex.human.femalePlural', 'mujeres'),
+    femaleCarrier: t('pedigree.sex.human.femaleCarrier', 'Mujer portadora (heterocigota)'),
+    maleCarrier: t('pedigree.sex.human.maleCarrier', 'Hombre portador (heterocigoto)'),
   },
   other: {
-    male: 'Macho',
-    female: 'Hembra',
-    maleLower: 'macho',
-    femaleLower: 'hembra',
-    malePlural: 'machos',
-    femalePlural: 'hembras',
-    femaleCarrier: 'Hembra portadora (heterocigota)',
-    maleCarrier: 'Macho portador (heterocigoto)',
+    male: t('pedigree.sex.other.male', 'Macho'),
+    female: t('pedigree.sex.other.female', 'Hembra'),
+    maleLower: t('pedigree.sex.other.maleLower', 'macho'),
+    femaleLower: t('pedigree.sex.other.femaleLower', 'hembra'),
+    malePlural: t('pedigree.sex.other.malePlural', 'machos'),
+    femalePlural: t('pedigree.sex.other.femalePlural', 'hembras'),
+    femaleCarrier: t('pedigree.sex.other.femaleCarrier', 'Hembra portadora (heterocigota)'),
+    maleCarrier: t('pedigree.sex.other.maleCarrier', 'Macho portador (heterocigoto)'),
   },
 };
 
@@ -138,53 +138,53 @@ function updateLegendSexLabels(labels = SEX_LABELS.human) {
     const el = document.getElementById(id);
     if (el) el.textContent = text;
   };
-  set('legendMaleUnaffected', `${labels.male} no afectado`);
-  set('legendFemaleUnaffected', `${labels.female} no afectada`);
-  set('legendMaleAffected', `${labels.male} afectado`);
-  set('legendFemaleAffected', `${labels.female} afectada`);
+  set('legendMaleUnaffected', t('pedigree.legend.maleUnaffected', '{male} no afectado', labels));
+  set('legendFemaleUnaffected', t('pedigree.legend.femaleUnaffected', '{female} no afectada', labels));
+  set('legendMaleAffected', t('pedigree.legend.maleAffected', '{male} afectado', labels));
+  set('legendFemaleAffected', t('pedigree.legend.femaleAffected', '{female} afectada', labels));
   set('legendFemaleCarrier', labels.femaleCarrier);
   set('legendMaleCarrier', labels.maleCarrier);
 }
 
 function getAnalysisPrintTitle() {
-  return currentAnalysisExercise ? currentAnalysisExercise.title : 'Árbol genealógico';
+  return currentAnalysisExercise ? currentAnalysisExercise.title : t('pedigree.title.familyTree', 'Árbol genealógico');
 }
 
 function getPracticePrintTitle() {
-  return currentPracticeExercise ? currentPracticeExercise.title : 'Árbol genealógico';
+  return currentPracticeExercise ? currentPracticeExercise.title : t('pedigree.title.familyTree', 'Árbol genealógico');
 }
 
 function getBuilderPrintTitle() {
-  return builderPrintTitle || 'Pedigrí construido';
+  return builderPrintTitle || t('pedigree.title.builtPedigree', 'Pedigrí construido');
 }
 
 function getStudentPrintTitle() {
-  return currentStudentAssignment?.metadata?.title || 'Actividad de pedigrí';
+  return currentStudentAssignment?.metadata?.title || t('pedigree.title.studentActivity', 'Actividad de pedigrí');
 }
 
 function getBuilderCasePrintHTML() {
   const meta = getBuilderMetadata();
   const rows = [];
-  rows.push(`<p><strong>Organismo:</strong> ${meta.organismType === 'other' ? 'otros organismos (macho/hembra)' : 'personas (hombre/mujer)'}</p>`);
-  if (meta.trait) rows.push(`<p><strong>Rasgo:</strong> ${escapeHTML(meta.trait)}</p>`);
+  rows.push(`<p><strong>${t('pedigree.print.organism', 'Organismo')}:</strong> ${meta.organismType === 'other' ? t('pedigree.print.otherOrganisms', 'otros organismos (macho/hembra)') : t('pedigree.print.people', 'personas (hombre/mujer)')}</p>`);
+  if (meta.trait) rows.push(`<p><strong>${t('pedigree.print.trait', 'Rasgo')}:</strong> ${escapeHTML(meta.trait)}</p>`);
   const alleles = [];
   if (meta.alleleDomName) alleles.push(`${formatGenotypeHTML(meta.alleleDom)} = ${escapeHTML(meta.alleleDomName)}`);
   if (meta.alleleRecName) alleles.push(`${formatGenotypeHTML(meta.alleleRec)} = ${escapeHTML(meta.alleleRecName)}`);
-  if (alleles.length) rows.push(`<p><strong>Alelos:</strong> ${alleles.join('; ')}</p>`);
-  if (meta.expectedPattern) rows.push(`<p><strong>Patrón esperado:</strong> ${RANDOM_PATTERN_NAMES[meta.expectedPattern] || meta.expectedPattern}</p>`);
-  if (meta.prompt) rows.push(`<p><strong>Enunciado:</strong> ${formatGenotypeHTML(meta.prompt).replace(/\n/g, '<br>')}</p>`);
+  if (alleles.length) rows.push(`<p><strong>${t('pedigree.print.alleles', 'Alelos')}:</strong> ${alleles.join('; ')}</p>`);
+  if (meta.expectedPattern) rows.push(`<p><strong>${t('pedigree.label.expectedPattern', 'Patrón esperado')}:</strong> ${RANDOM_PATTERN_NAMES[meta.expectedPattern] || meta.expectedPattern}</p>`);
+  if (meta.prompt) rows.push(`<p><strong>${t('pedigree.print.prompt', 'Enunciado')}:</strong> ${formatGenotypeHTML(meta.prompt).replace(/\n/g, '<br>')}</p>`);
   return rows.length ? `<div class="case-meta">${rows.join('')}</div>` : '';
 }
 
 function caseMetaRowsHTML(meta) {
   const rows = [];
-  rows.push(`<p><strong>Organismo:</strong> ${meta.organismType === 'other' ? 'otros organismos (macho/hembra)' : 'personas (hombre/mujer)'}</p>`);
-  if (meta.trait) rows.push(`<p><strong>Rasgo:</strong> ${escapeHTML(meta.trait)}</p>`);
+  rows.push(`<p><strong>${t('pedigree.print.organism', 'Organismo')}:</strong> ${meta.organismType === 'other' ? t('pedigree.print.otherOrganisms', 'otros organismos (macho/hembra)') : t('pedigree.print.people', 'personas (hombre/mujer)')}</p>`);
+  if (meta.trait) rows.push(`<p><strong>${t('pedigree.print.trait', 'Rasgo')}:</strong> ${escapeHTML(meta.trait)}</p>`);
   const alleles = [];
   if (meta.alleleDomName) alleles.push(`${formatGenotypeHTML(meta.alleleDom || 'A')} = ${escapeHTML(meta.alleleDomName)}`);
   if (meta.alleleRecName) alleles.push(`${formatGenotypeHTML(meta.alleleRec || 'a')} = ${escapeHTML(meta.alleleRecName)}`);
-  if (alleles.length) rows.push(`<p><strong>Alelos:</strong> ${alleles.join('; ')}</p>`);
-  if (meta.prompt) rows.push(`<p><strong>Enunciado:</strong> ${formatGenotypeHTML(meta.prompt).replace(/\n/g, '<br>')}</p>`);
+  if (alleles.length) rows.push(`<p><strong>${t('pedigree.print.alleles', 'Alelos')}:</strong> ${alleles.join('; ')}</p>`);
+  if (meta.prompt) rows.push(`<p><strong>${t('pedigree.print.prompt', 'Enunciado')}:</strong> ${formatGenotypeHTML(meta.prompt).replace(/\n/g, '<br>')}</p>`);
   return rows;
 }
 
@@ -206,19 +206,19 @@ function getStudentAnswerPrintHTML() {
       <td><strong>${escapeHTML(ind.label)}</strong></td>
       <td>${sexLabel(ind.sex, labels)}</td>
       <td>${studentObservedStatus(ind)}</td>
-      <td><code>${genotype ? formatGenotypeHTML(genotype) : '(sin responder)'}</code></td>
+      <td><code>${genotype ? formatGenotypeHTML(genotype) : t('pedigree.label.unspecifiedAnswer', '(sin responder)')}</code></td>
       <td>${note ? escapeHTML(note) : ''}</td>
     </tr>`;
   }).join('');
 
   return `
     <div class="student-print-answer">
-      <div class="section-title">Respuesta del alumno</div>
-      <p><strong>Nombre:</strong> ${escapeHTML(answer.studentName || '(sin nombre)')}</p>
-      <p><strong>Patrón propuesto:</strong> ${escapeHTML(answer.patternLabel || '(sin responder)')}</p>
-      <p><strong>Justificación:</strong><br>${escapeHTML(answer.justification || '(sin responder)').replace(/\n/g, '<br>')}</p>
+      <div class="section-title">${t('pedigree.label.studentAnswer', 'Respuesta del alumno')}</div>
+      <p><strong>${t('pedigree.label.name', 'Nombre')}:</strong> ${escapeHTML(answer.studentName || t('pedigree.label.unknownName', '(sin nombre)'))}</p>
+      <p><strong>${t('pedigree.label.proposedPattern', 'Patrón propuesto')}:</strong> ${escapeHTML(answer.patternLabel || t('pedigree.label.unspecifiedAnswer', '(sin responder)'))}</p>
+      <p><strong>${t('pedigree.label.justification', 'Justificación')}:</strong><br>${escapeHTML(answer.justification || t('pedigree.label.unspecifiedAnswer', '(sin responder)')).replace(/\n/g, '<br>')}</p>
       <table class="genotype-table">
-        <thead><tr><th>Individuo</th><th>Sexo</th><th>Estado observado</th><th>Genotipo propuesto</th><th>Notas</th></tr></thead>
+        <thead><tr><th>${t('pedigree.label.individual', 'Individuo')}</th><th>${t('pedigree.label.sex', 'Sexo')}</th><th>${t('pedigree.label.observedStatus', 'Estado observado')}</th><th>${t('pedigree.label.proposedGenotype', 'Genotipo propuesto')}</th><th>${t('pedigree.label.notes', 'Notas')}</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>`;
@@ -303,7 +303,7 @@ function printTree(svgId, title) {
   </style>
 </head>
 <body>
-  <h1>${escapeHTML(title || 'Árbol genealógico')}</h1>
+  <h1>${escapeHTML(title || t('pedigree.title.familyTree', 'Árbol genealógico'))}</h1>
   ${legend}
   <div class="print-tree">${clone.outerHTML}</div>
   ${extra}
@@ -367,8 +367,9 @@ function setBuilderMetadata(metadata = {}) {
 
 function updateBuilderMetadata() {
   const meta = getBuilderMetadata();
-  const title = meta.title || meta.trait || 'Pedigrí construido';
-  document.getElementById('builderSvgTitle').textContent = title === 'Pedigrí construido' ? '' : `— ${title}`;
+  const defaultTitle = t('pedigree.title.builtPedigree', 'Pedigrí construido');
+  const title = meta.title || meta.trait || defaultTitle;
+  document.getElementById('builderSvgTitle').textContent = title === defaultTitle ? '' : `— ${title}`;
   builderPrintTitle = title;
   updateBuilderOrganismLabels();
 }
@@ -463,7 +464,7 @@ function metadataFromExercise(exercise) {
 
 function copyExerciseToBuilder(exercise) {
   if (!exercise) {
-    alert('No hay ningún ejercicio cargado para copiar.');
+    alert(t('pedigree.alert.noExerciseToCopy', 'No hay ningún ejercicio cargado para copiar.'));
     return;
   }
 
@@ -553,7 +554,7 @@ function serializeBuilderCase(mode = 'teacher') {
 
 function normalizeBuilderCase(data) {
   if (!data || !Array.isArray(data.individuals) || !Array.isArray(data.couples)) {
-    throw new Error('El archivo no contiene un caso de pedigrí válido.');
+    throw new Error(t('pedigree.error.invalidPedigreeCase', 'El archivo no contiene un caso de pedigrí válido.'));
   }
   const metadata = { ...(data.metadata || {}) };
   if (!metadata.title && data.title) metadata.title = data.title;
@@ -570,7 +571,7 @@ function normalizeBuilderCase(data) {
     solution: data.solution || null,
     exercise: {
       id: data.id || Date.now(),
-      title: metadata.title || data.title || 'Pedigrí construido',
+      title: metadata.title || data.title || t('pedigree.title.builtPedigree', 'Pedigrí construido'),
       description: metadata.prompt || data.description || '',
       question: data.question || '',
       individuals: data.individuals.map(ind => ({
@@ -605,7 +606,9 @@ function loadBuilderCaseData(data, sourceLabel = 'caso cargado') {
   resetBuilderAnalysisPanel();
   setBuilderSource(sourceLabel);
   switchTab('constructor');
-  setBuilderStatus(`Caso cargado: ${normalized.metadata.title || normalized.exercise.title}.`);
+  setBuilderStatus(t('pedigree.save.caseLoaded', 'Caso cargado: {title}.', {
+    title: normalized.metadata.title || normalized.exercise.title
+  }));
 }
 
 function safeFilename(text, fallback = 'pedigri-mendelsim') {
@@ -635,8 +638,8 @@ function saveBuilderCaseToDisk(mode = 'teacher') {
   const filename = `${safeFilename(data.metadata.title || data.metadata.trait)}.${suffix}.mendelsim-pedigri.json`;
   downloadBlob(new Blob([json], { type: 'application/json;charset=utf-8' }), filename);
   setBuilderStatus(mode === 'student'
-    ? 'Actividad guardada en modo alumno. Al cargarla se abrirá lista para resolver.'
-    : 'Caso editable guardado para modificarlo más tarde.');
+    ? t('pedigree.save.studentSaved', 'Actividad guardada en modo alumno. Al cargarla se abrirá lista para resolver.')
+    : t('pedigree.save.teacherSaved', 'Caso editable guardado para modificarlo más tarde.'));
 }
 
 function loadBuilderCaseFromFile(event) {
@@ -736,9 +739,15 @@ function showStudentReviewTab() {
 }
 
 function studentObservedStatus(ind) {
-  if (ind.affected) return ind.sex === 'F' ? 'Afectada' : 'Afectado';
-  if (ind.carrier) return ind.sex === 'F' ? 'Portadora' : 'Portador';
-  return ind.sex === 'F' ? 'No afectada' : 'No afectado';
+  if (ind.affected) return ind.sex === 'F'
+    ? t('pedigree.status.affectedFemale', 'Afectada')
+    : t('pedigree.status.affectedMale', 'Afectado');
+  if (ind.carrier) return ind.sex === 'F'
+    ? t('pedigree.status.carrierFemale', 'Portadora')
+    : t('pedigree.status.carrierMale', 'Portador');
+  return ind.sex === 'F'
+    ? t('pedigree.status.unaffectedFemale', 'No afectada')
+    : t('pedigree.status.unaffectedMale', 'No afectado');
 }
 
 function loadStudentAssignmentData(data, sourceLabel = 'actividad') {
@@ -770,10 +779,10 @@ function loadStudentAssignmentData(data, sourceLabel = 'actividad') {
 
 function loadStudentSubmissionData(answer, sourceLabel = 'respuesta') {
   if (!answer || answer.type !== 'mendelsim-pedigree-answer') {
-    throw new Error('El archivo no parece una respuesta de alumno de MendelSim.');
+    throw new Error(t('pedigree.error.invalidStudentAnswer', 'El archivo no parece una respuesta de alumno de MendelSim.'));
   }
   if (!answer.exercise || !Array.isArray(answer.exercise.individuals) || !Array.isArray(answer.exercise.couples)) {
-    throw new Error('La respuesta no incluye el árbol original. Pide al alumno que descargue de nuevo sus respuestas desde esta versión de MendelSim.');
+    throw new Error(t('pedigree.error.missingOriginalTree', 'La respuesta no incluye el árbol original. Pide al alumno que descargue de nuevo sus respuestas desde esta versión de MendelSim.'));
   }
 
   const data = {
@@ -782,7 +791,7 @@ function loadStudentSubmissionData(answer, sourceLabel = 'respuesta') {
     launchMode: 'student',
     metadata: {
       ...(answer.metadata || {}),
-      title: answer.metadata?.title || answer.caseTitle || answer.exercise.title || 'Actividad de pedigrí',
+      title: answer.metadata?.title || answer.caseTitle || answer.exercise.title || t('pedigree.title.studentActivity', 'Actividad de pedigrí'),
     },
     assignment: answer.assignment || {},
     solution: answer.solution || null,
@@ -811,7 +820,9 @@ function loadStudentSubmissionData(answer, sourceLabel = 'respuesta') {
 
   setStudentAnswerReadonly(true);
   showStudentFeedback(
-    `Respuesta cargada para revisión: <strong>${escapeHTML(answer.studentName || '(sin nombre)')}</strong>.`,
+    t('pedigree.feedback.loadedForReview', 'Respuesta cargada para revisión: <strong>{name}</strong>.', {
+      name: escapeHTML(answer.studentName || t('pedigree.label.unknownName', '(sin nombre)'))
+    }),
     'info'
   );
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -823,7 +834,7 @@ function renderStudentCase() {
   const meta = assignment.metadata;
   const labels = labelsForOrganism(meta.organismType);
 
-  document.getElementById('studentCaseTitle').textContent = meta.title || 'Actividad de pedigrí';
+  document.getElementById('studentCaseTitle').textContent = meta.title || t('pedigree.title.studentActivity', 'Actividad de pedigrí');
   document.getElementById('studentSvgTitle').textContent = meta.title ? `— ${meta.title}` : '';
 
   const promptBox = document.getElementById('studentCasePrompt');
@@ -836,13 +847,13 @@ function renderStudentCase() {
   }
 
   const metaItems = [];
-  metaItems.push(`<div class="student-meta-item"><strong>Organismo</strong><br>${meta.organismType === 'other' ? 'Otros organismos: macho/hembra' : 'Personas: hombre/mujer'}</div>`);
-  if (meta.trait) metaItems.push(`<div class="student-meta-item"><strong>Rasgo</strong><br>${escapeHTML(meta.trait)}</div>`);
+  metaItems.push(`<div class="student-meta-item"><strong>${t('pedigree.print.organism', 'Organismo')}</strong><br>${meta.organismType === 'other' ? t('pedigree.print.otherOrganisms', 'otros organismos (macho/hembra)') : t('pedigree.print.people', 'personas (hombre/mujer)')}</div>`);
+  if (meta.trait) metaItems.push(`<div class="student-meta-item"><strong>${t('pedigree.print.trait', 'Rasgo')}</strong><br>${escapeHTML(meta.trait)}</div>`);
   const alleleText = [
     meta.alleleDomName ? `${formatGenotypeHTML(meta.alleleDom || 'A')} = ${escapeHTML(meta.alleleDomName)}` : '',
     meta.alleleRecName ? `${formatGenotypeHTML(meta.alleleRec || 'a')} = ${escapeHTML(meta.alleleRecName)}` : '',
   ].filter(Boolean).join('<br>');
-  if (alleleText) metaItems.push(`<div class="student-meta-item"><strong>Alelos</strong><br>${alleleText}</div>`);
+  if (alleleText) metaItems.push(`<div class="student-meta-item"><strong>${t('pedigree.print.alleles', 'Alelos')}</strong><br>${alleleText}</div>`);
   document.getElementById('studentCaseMeta').innerHTML = metaItems.join('');
 
   const tbody = document.getElementById('studentGenotypeTableBody');
@@ -869,8 +880,8 @@ function renderStudentCase() {
   const checkBtn = document.getElementById('studentCheckBtn');
   checkBtn.disabled = !allowCheck;
   document.getElementById('studentAutoCheckNote').textContent = allowCheck
-    ? 'El profesor ha activado la autocorrección para esta actividad.'
-    : 'El profesor no ha activado la autocorrección. Completa la respuesta y envíala.';
+    ? t('pedigree.feedback.autoCheckEnabled', 'El profesor ha activado la autocorrección para esta actividad.')
+    : t('pedigree.feedback.autoCheckDisabled', 'El profesor no ha activado la autocorrección. Completa la respuesta y envíala.');
 }
 
 function setStudentAnswerReadonly(readonly) {
@@ -910,12 +921,12 @@ function collectStudentAnswers() {
   return {
     type: 'mendelsim-pedigree-answer',
     version: 1,
-    caseTitle: assignment?.metadata?.title || 'Actividad de pedigrí',
+    caseTitle: assignment?.metadata?.title || t('pedigree.title.studentActivity', 'Actividad de pedigrí'),
     metadata: assignment?.metadata || {},
     assignment: assignment?.assignment || {},
     solution: assignment?.solution || null,
     exercise: assignment ? {
-      title: assignment.metadata?.title || assignment.exercise?.title || 'Actividad de pedigrí',
+      title: assignment.metadata?.title || assignment.exercise?.title || t('pedigree.title.studentActivity', 'Actividad de pedigrí'),
       individuals: assignment.exercise.individuals.map(ind => ({
         id: ind.id,
         sex: ind.sex,
@@ -946,18 +957,18 @@ function formatStudentAnswersText(answer = collectStudentAnswers()) {
   const assignment = currentStudentAssignment;
   const individuals = assignment ? [...assignment.exercise.individuals].sort((a, b) => a.id - b.id) : [];
   const lines = [
-    `Caso: ${answer.caseTitle}`,
-    `Alumno/a: ${answer.studentName || '(sin nombre)'}`,
-    `Patrón propuesto: ${answer.patternLabel || '(sin responder)'}`,
+    `${t('pedigree.print.case', 'Caso')}: ${answer.caseTitle}`,
+    `${t('pedigree.print.student', 'Alumno/a')}: ${answer.studentName || t('pedigree.label.unknownName', '(sin nombre)')}`,
+    `${t('pedigree.label.proposedPattern', 'Patrón propuesto')}: ${answer.patternLabel || t('pedigree.label.unspecifiedAnswer', '(sin responder)')}`,
     '',
-    'Justificación:',
-    answer.justification || '(sin responder)',
+    `${t('pedigree.label.justification', 'Justificación')}:`,
+    answer.justification || t('pedigree.label.unspecifiedAnswer', '(sin responder)'),
     '',
-    'Genotipos propuestos:',
+    `${t('pedigree.print.genotypes', 'Genotipos propuestos')}:`,
   ];
   for (const ind of individuals) {
-    const note = answer.notes[ind.id] ? ` | Nota: ${answer.notes[ind.id]}` : '';
-    lines.push(`- ${ind.label}: ${answer.genotypes[ind.id] || '(sin responder)'}${note}`);
+    const note = answer.notes[ind.id] ? ` | ${t('pedigree.print.note', 'Nota')}: ${answer.notes[ind.id]}` : '';
+    lines.push(`- ${ind.label}: ${answer.genotypes[ind.id] || t('pedigree.label.unspecifiedAnswer', '(sin responder)')}${note}`);
   }
   return lines.join('\n');
 }
@@ -973,16 +984,16 @@ async function copyStudentAnswers() {
   const text = formatStudentAnswersText();
   try {
     await navigator.clipboard.writeText(text);
-    showStudentFeedback('Respuestas copiadas al portapapeles.', 'success');
+    showStudentFeedback(t('pedigree.feedback.clipboardCopied', 'Respuestas copiadas al portapapeles.'), 'success');
   } catch (err) {
-    prompt('Copia estas respuestas:', text);
+    prompt(t('pedigree.alert.copyPrompt', 'Copia estas respuestas:'), text);
   }
 }
 
 function emailStudentAnswers() {
   const assignment = currentStudentAssignment;
   const email = assignment?.assignment?.teacherEmail || assignment?.metadata?.teacherEmail || '';
-  const subject = encodeURIComponent(`Respuesta MendelSim - ${assignment?.metadata?.title || 'Pedigrí'}`);
+  const subject = encodeURIComponent(`Respuesta MendelSim - ${assignment?.metadata?.title || t('pedigree.title.pedigree', 'Pedigrí')}`);
   const body = encodeURIComponent(formatStudentAnswersText());
   location.href = `mailto:${email}?subject=${subject}&body=${body}`;
 }
@@ -1018,7 +1029,7 @@ function checkStudentAnswers() {
   const rows = [];
 
   const patternOk = answer.pattern && answer.pattern === solution.pattern;
-  rows.push(`<p><span class="${patternOk ? 'check-ok' : 'check-error'}">${patternOk ? '✓' : '✗'}</span> Patrón de herencia: ${patternOk ? 'correcto' : `revisa tu respuesta. Referencia: ${RANDOM_PATTERN_NAMES[solution.pattern] || solution.pattern}`}</p>`);
+  rows.push(`<p><span class="${patternOk ? 'check-ok' : 'check-error'}">${patternOk ? '✓' : '✗'}</span> ${t('pedigree.label.inheritancePattern', 'Patrón de herencia')}: ${patternOk ? t('pedigree.feedback.correct', 'correcto') : `${t('pedigree.feedback.reviewAnswer', 'revisa tu respuesta')}. ${t('pedigree.feedback.reference', 'Referencia')}: ${RANDOM_PATTERN_NAMES[solution.pattern] || solution.pattern}`}</p>`);
 
   const individuals = [...assignment.exercise.individuals].sort((a, b) => a.id - b.id);
   for (const ind of individuals) {
@@ -1026,7 +1037,7 @@ function checkStudentAnswers() {
     if (!reference) continue;
     const value = answer.genotypes[ind.id];
     const ok = genotypeAccepted(value, reference);
-    rows.push(`<p><span class="${ok ? 'check-ok' : 'check-warn'}">${ok ? '✓' : '!'}</span> ${escapeHTML(ind.label)}: ${ok ? 'genotipo compatible' : `referencia compatible: <code>${formatGenotypeHTML(reference)}</code>`}</p>`);
+    rows.push(`<p><span class="${ok ? 'check-ok' : 'check-warn'}">${ok ? '✓' : '!'}</span> ${escapeHTML(ind.label)}: ${ok ? t('pedigree.feedback.compatibleGenotype', 'genotipo compatible') : `${t('pedigree.feedback.compatibleReference', 'referencia compatible')}: <code>${formatGenotypeHTML(reference)}</code>`}</p>`);
   }
 
   showStudentFeedback(rows.join(''), patternOk ? 'success' : 'warning');
@@ -1135,13 +1146,13 @@ async function downloadBuilderPNG() {
     temp.font = '14px Arial';
     const promptLines = wrapCanvasText(temp, meta.prompt, logicalWidth - padding * 2, 4);
     const metaLines = [];
-    metaLines.push(`Organismo: ${meta.organismType === 'other' ? 'otros organismos (macho/hembra)' : 'personas (hombre/mujer)'}`);
-    if (meta.trait) metaLines.push(`Rasgo: ${meta.trait}`);
+    metaLines.push(`${t('pedigree.print.organism', 'Organismo')}: ${meta.organismType === 'other' ? t('pedigree.print.otherOrganisms', 'otros organismos (macho/hembra)') : t('pedigree.print.people', 'personas (hombre/mujer)')}`);
+    if (meta.trait) metaLines.push(`${t('pedigree.print.trait', 'Rasgo')}: ${meta.trait}`);
     const alleleParts = [];
     if (meta.alleleDomName) alleleParts.push(`${meta.alleleDom} = ${meta.alleleDomName}`);
     if (meta.alleleRecName) alleleParts.push(`${meta.alleleRec} = ${meta.alleleRecName}`);
-    if (alleleParts.length) metaLines.push(`Alelos: ${alleleParts.join('; ')}`);
-    if (meta.expectedPattern) metaLines.push(`Patrón esperado: ${RANDOM_PATTERN_NAMES[meta.expectedPattern] || meta.expectedPattern}`);
+    if (alleleParts.length) metaLines.push(`${t('pedigree.print.alleles', 'Alelos')}: ${alleleParts.join('; ')}`);
+    if (meta.expectedPattern) metaLines.push(`${t('pedigree.label.expectedPattern', 'Patrón esperado')}: ${RANDOM_PATTERN_NAMES[meta.expectedPattern] || meta.expectedPattern}`);
 
     const headerHeight = padding + 30 + metaLines.length * 20 + promptLines.length * 18 + 22;
     const logicalHeight = headerHeight + svg.height + padding;
@@ -1156,7 +1167,7 @@ async function downloadBuilderPNG() {
     let y = padding;
     ctx.fillStyle = cssVar('--primary', '#1a7431');
     ctx.font = '700 22px Arial';
-    ctx.fillText(meta.title || 'Pedigrí construido', padding, y);
+    ctx.fillText(meta.title || t('pedigree.title.builtPedigree', 'Pedigrí construido'), padding, y);
     y += 28;
 
     ctx.fillStyle = '#374151';
@@ -1244,7 +1255,7 @@ function setAnalysisExercise(ex) {
   document.getElementById('clueBtn').textContent = `💡 Ver pista (0/${ex.answer.clues.length})`;
   document.getElementById('clueBtn').disabled = false;
   document.getElementById('solutionBox').classList.remove('visible');
-  document.getElementById('solutionBtn').textContent = '✅ Ver solución';
+  document.getElementById('solutionBtn').textContent = t('pedigree.button.showSolution', '✅ Ver solución');
 
   // Clear genotype display
   analysisEngine.hideSolution();
@@ -1278,7 +1289,7 @@ function toggleSolution() {
 
   if (solutionVisible) {
     box.classList.add('visible');
-    document.getElementById('solutionBtn').textContent = '🙈 Ocultar solución';
+    document.getElementById('solutionBtn').textContent = t('pedigree.button.hideSolution', '🙈 Ocultar solución');
 
     // Show genotypes on pedigree
     analysisEngine.showSolution(ex.answer);
@@ -1287,7 +1298,7 @@ function toggleSolution() {
     const patternInfo = analysisEngine.getPatternInfo(ex.answer.pattern);
     document.getElementById('patternDisplay').innerHTML =
       `<div class="pattern-result ${patternInfo.class}">
-        🧬 Patrón de herencia: <strong>${patternInfo.name}</strong>
+        🧬 ${t('pedigree.label.inheritancePattern', 'Patrón de herencia')}: <strong>${patternInfo.name}</strong>
       </div>`;
     document.getElementById('patternDesc').innerHTML = formatGenotypeHTML(patternInfo.description);
 
@@ -1298,7 +1309,7 @@ function toggleSolution() {
       const id  = parseInt(idStr);
       const ind = ex.individuals.find(i => i.id === id);
       if (!ind) continue;
-      const statusLabel = genderedStatusLabel(ex.answer.genotypeLabels?.[id] || (ind.affected ? 'Afectado/a' : 'No afectado/a'), ind.sex);
+      const statusLabel = genderedStatusLabel(ex.answer.genotypeLabels?.[id] || (ind.affected ? t('pedigree.status.affectedNeutral', 'Afectado/a') : t('pedigree.status.unaffectedNeutral', 'No afectado/a')), ind.sex);
       tbody.innerHTML += `<tr>
         <td><strong>${ind.label}</strong> (${sexLabel(ind.sex, labelsForOrganism(ex.organismType || 'human'))})</td>
         <td><code>${formatGenotypeHTML(geno)}</code></td>
@@ -1307,11 +1318,11 @@ function toggleSolution() {
     }
     if (ex.answer.probability) {
       document.getElementById('patternDesc').innerHTML +=
-        `<br><br><strong>Probabilidad de descendiente afectado:</strong> <span style="color:var(--affected);font-weight:700;">${ex.answer.probability}</span>`;
+        `<br><br><strong>${t('pedigree.feedback.probabilityAffected', 'Probabilidad de descendiente afectado')}:</strong> <span style="color:var(--affected);font-weight:700;">${ex.answer.probability}</span>`;
     }
   } else {
     box.classList.remove('visible');
-    document.getElementById('solutionBtn').textContent = '✅ Ver solución';
+    document.getElementById('solutionBtn').textContent = t('pedigree.button.showSolution', '✅ Ver solución');
     analysisEngine.hideSolution();
   }
 }
@@ -1321,7 +1332,7 @@ function resetExercise() {
   solutionVisible  = false;
   document.getElementById('clueList').innerHTML  = '';
   document.getElementById('solutionBox').classList.remove('visible');
-  document.getElementById('solutionBtn').textContent = '✅ Ver solución';
+  document.getElementById('solutionBtn').textContent = t('pedigree.button.showSolution', '✅ Ver solución');
   if (currentAnalysisExercise) {
     document.getElementById('clueBtn').textContent =
       `💡 Ver pista (0/${currentAnalysisExercise.answer.clues.length})`;
@@ -1409,13 +1420,13 @@ function checkAnswer() {
     document.getElementById('scoreNum').textContent = score;
     feedbackBox.className = 'alert alert-success';
     feedbackBox.innerHTML = `<span class="alert-icon">✅</span>
-      <div><strong>¡Correcto!</strong> El patrón es <strong>${ex.answer.patternName}</strong>.
+      <div><strong>${t('pedigree.feedback.correctAnswer', '¡Correcto!')}</strong> ${t('pedigree.feedback.correctPattern', 'El patrón es')} <strong>${ex.answer.patternName}</strong>.
       ${formatGenotypeHTML(analysisEngine.getPatternInfo(ex.answer.pattern).description)}</div>`;
   } else {
     feedbackBox.className = 'alert alert-error';
     feedbackBox.innerHTML = `<span class="alert-icon">❌</span>
-      <div><strong>Incorrecto.</strong> El patrón correcto es <strong>${ex.answer.patternName}</strong>.
-      Pista: ${formatGenotypeHTML(ex.answer.clues[0])}</div>`;
+      <div><strong>${t('pedigree.feedback.incorrectAnswer', 'Incorrecto.')}</strong> ${t('pedigree.feedback.referencePattern', 'El patrón correcto es')} <strong>${ex.answer.patternName}</strong>.
+      ${t('pedigree.feedback.clue', 'Pista')}: ${formatGenotypeHTML(ex.answer.clues[0])}</div>`;
   }
 }
 
@@ -1455,7 +1466,7 @@ function getBuilderAlleles() {
 
 function builderAlleleSummaryHTML(alleles) {
   const parts = [];
-  if (alleles.trait) parts.push(`<strong>Rasgo:</strong> ${escapeHTML(alleles.trait)}`);
+  if (alleles.trait) parts.push(`<strong>${t('pedigree.print.trait', 'Rasgo')}:</strong> ${escapeHTML(alleles.trait)}`);
   if (alleles.domName) parts.push(`<strong>${formatGenotypeHTML(alleles.dom)}:</strong> ${escapeHTML(alleles.domName)}`);
   if (alleles.recName) parts.push(`<strong>${formatGenotypeHTML(alleles.rec)}:</strong> ${escapeHTML(alleles.recName)}`);
   return parts.length ? `<div style="margin-top:0.5rem;">${parts.join(' · ')}</div>` : '';
@@ -1493,7 +1504,7 @@ function inferBuilderGenotypes(pattern, alleles) {
   const notes = [];
 
   if (pattern === 'unknown') {
-    notes.push('No hay datos suficientes para proponer genotipos.');
+    notes.push(t('pedigree.pattern.unknown.description', 'No hay suficientes datos para determinar el patrón de herencia.'));
     return { genotypes, genotypeLabels, notes };
   }
 
@@ -1501,13 +1512,13 @@ function inferBuilderGenotypes(pattern, alleles) {
     for (const ind of individuals) {
       if (ind.affected) {
         genotypes[ind.id] = `${D}_`;
-        genotypeLabels[ind.id] = 'Afectado/a';
+        genotypeLabels[ind.id] = t('pedigree.status.affectedNeutral', 'Afectado/a');
       } else if (ind.carrier) {
         genotypes[ind.id] = autoGeno(D, r);
-        genotypeLabels[ind.id] = 'Portador/a marcado/a';
+        genotypeLabels[ind.id] = t('pedigree.status.markedCarrierNeutral', 'Portador/a marcado/a');
       } else {
         genotypes[ind.id] = autoGeno(r, r);
-        genotypeLabels[ind.id] = 'No afectado/a';
+        genotypeLabels[ind.id] = t('pedigree.status.unaffectedNeutral', 'No afectado/a');
       }
     }
     for (const couple of builderEngine.couples) {
@@ -1517,14 +1528,14 @@ function inferBuilderGenotypes(pattern, alleles) {
       for (const parent of parents) {
         if (parent.affected && hasUnaffectedChild) {
           genotypes[parent.id] = autoGeno(D, r);
-          genotypeLabels[parent.id] = 'Afectado/a heterocigoto/a';
+          genotypeLabels[parent.id] = t('pedigree.status.heterozygousAffectedNeutral', 'Afectado/a heterocigoto/a');
         }
       }
       const hasUnaffectedParent = parents.some(parent => !parent.affected);
       for (const child of children) {
         if (child.affected && hasUnaffectedParent) {
           genotypes[child.id] = autoGeno(D, r);
-          genotypeLabels[child.id] = 'Afectado/a heterocigoto/a';
+          genotypeLabels[child.id] = t('pedigree.status.heterozygousAffectedNeutral', 'Afectado/a heterocigoto/a');
         }
       }
     }
@@ -1533,13 +1544,13 @@ function inferBuilderGenotypes(pattern, alleles) {
     for (const ind of individuals) {
       if (ind.affected) {
         genotypes[ind.id] = autoGeno(r, r);
-        genotypeLabels[ind.id] = 'Afectado/a';
+        genotypeLabels[ind.id] = t('pedigree.status.affectedNeutral', 'Afectado/a');
       } else if (ind.carrier) {
         genotypes[ind.id] = autoGeno(D, r);
-        genotypeLabels[ind.id] = 'Portador/a';
+        genotypeLabels[ind.id] = t('pedigree.status.carrierNeutral', 'Portador/a');
       } else {
         genotypes[ind.id] = `${D}_`;
-        genotypeLabels[ind.id] = 'No afectado/a';
+        genotypeLabels[ind.id] = t('pedigree.status.unaffectedNeutral', 'No afectado/a');
       }
     }
     for (const couple of builderEngine.couples) {
@@ -1550,7 +1561,7 @@ function inferBuilderGenotypes(pattern, alleles) {
         for (const parent of parents) {
           if (!parent.affected) {
             genotypes[parent.id] = autoGeno(D, r);
-            genotypeLabels[parent.id] = 'Portador/a';
+            genotypeLabels[parent.id] = t('pedigree.status.carrierNeutral', 'Portador/a');
           }
         }
       }
@@ -1559,7 +1570,7 @@ function inferBuilderGenotypes(pattern, alleles) {
         for (const child of children) {
           if (!child.affected) {
             genotypes[child.id] = autoGeno(D, r);
-            genotypeLabels[child.id] = 'Portador/a';
+            genotypeLabels[child.id] = t('pedigree.status.carrierNeutral', 'Portador/a');
           }
         }
       }
@@ -1569,16 +1580,16 @@ function inferBuilderGenotypes(pattern, alleles) {
     for (const ind of individuals) {
       if (ind.sex === 'M') {
         genotypes[ind.id] = ind.affected ? xGeno(r, 'Y') : xGeno(D, 'Y');
-        genotypeLabels[ind.id] = ind.affected ? 'Afectado' : 'No afectado';
+        genotypeLabels[ind.id] = ind.affected ? t('pedigree.status.affectedMale', 'Afectado') : t('pedigree.status.unaffectedMale', 'No afectado');
       } else if (ind.affected) {
         genotypes[ind.id] = xGeno(r, r);
-        genotypeLabels[ind.id] = 'Afectada';
+        genotypeLabels[ind.id] = t('pedigree.status.affectedFemale', 'Afectada');
       } else if (ind.carrier) {
         genotypes[ind.id] = xGeno(D, r);
-        genotypeLabels[ind.id] = 'Portadora';
+        genotypeLabels[ind.id] = t('pedigree.status.carrierFemale', 'Portadora');
       } else {
         genotypes[ind.id] = `${xGeno(D, D)} o ${xGeno(D, r)}`;
-        genotypeLabels[ind.id] = 'No afectada';
+        genotypeLabels[ind.id] = t('pedigree.status.unaffectedFemale', 'No afectada');
       }
     }
     for (const couple of builderEngine.couples) {
@@ -1590,12 +1601,12 @@ function inferBuilderGenotypes(pattern, alleles) {
       const children = couple.children.map(id => builderEngine.individuals.get(id)).filter(Boolean);
       if (mother && children.some(child => child.sex === 'M' && child.affected) && !mother.affected) {
         genotypes[mother.id] = xGeno(D, r);
-        genotypeLabels[mother.id] = 'Portadora';
+        genotypeLabels[mother.id] = t('pedigree.status.carrierFemale', 'Portadora');
       }
       if (father && father.affected) {
         for (const daughter of children.filter(child => child.sex === 'F' && !child.affected)) {
           genotypes[daughter.id] = xGeno(D, r);
-          genotypeLabels[daughter.id] = 'Portadora';
+          genotypeLabels[daughter.id] = t('pedigree.status.carrierFemale', 'Portadora');
         }
       }
     }
@@ -1607,7 +1618,7 @@ function inferBuilderGenotypes(pattern, alleles) {
       } else {
         genotypes[ind.id] = ind.affected ? `${xGeno(D, r)} o ${xGeno(D, D)}` : xGeno(r, r);
       }
-      genotypeLabels[ind.id] = ind.affected ? 'Afectado/a' : 'No afectado/a';
+      genotypeLabels[ind.id] = ind.affected ? t('pedigree.status.affectedNeutral', 'Afectado/a') : t('pedigree.status.unaffectedNeutral', 'No afectado/a');
     }
     for (const couple of builderEngine.couples) {
       const parents = [builderEngine.individuals.get(couple.p1), builderEngine.individuals.get(couple.p2)].filter(Boolean);
@@ -1617,7 +1628,7 @@ function inferBuilderGenotypes(pattern, alleles) {
       if (father && father.affected && mother && !mother.affected) {
         for (const daughter of children.filter(child => child.sex === 'F' && child.affected)) {
           genotypes[daughter.id] = xGeno(D, r);
-          genotypeLabels[daughter.id] = 'Afectada heterocigota';
+          genotypeLabels[daughter.id] = t('pedigree.status.heterozygousAffectedFemale', 'Afectada heterocigota');
         }
       }
     }
@@ -1636,7 +1647,7 @@ function renderBuilderGenotypeTable(solution) {
 
   const individuals = Array.from(builderEngine.individuals.values()).sort((a, b) => a.id - b.id);
   if (individuals.length === 0 || Object.keys(solution.genotypes).length === 0) {
-    tbody.innerHTML = '<tr><td colspan="3">Sin genotipos para mostrar.</td></tr>';
+    tbody.innerHTML = `<tr><td colspan="3">${t('pedigree.feedback.noGenotypes', 'Sin genotipos para mostrar.')}</td></tr>`;
     note.innerHTML = formatGenotypeHTML(solution.notes.join(' '));
     return;
   }
@@ -1644,7 +1655,7 @@ function renderBuilderGenotypeTable(solution) {
   const labels = getBuilderSexLabels();
   for (const ind of individuals) {
     const sexLabelText = sexLabel(ind.sex, labels);
-    const statusLabel = genderedStatusLabel(solution.genotypeLabels[ind.id] || (ind.affected ? 'Afectado/a' : 'No afectado/a'), ind.sex);
+    const statusLabel = genderedStatusLabel(solution.genotypeLabels[ind.id] || (ind.affected ? t('pedigree.status.affectedNeutral', 'Afectado/a') : t('pedigree.status.unaffectedNeutral', 'No afectado/a')), ind.sex);
     tbody.innerHTML += `<tr>
       <td><strong>${ind.label}</strong> (${sexLabelText})</td>
       <td><code>${formatGenotypeHTML(solution.genotypes[ind.id] || '—')}</code></td>
@@ -1670,10 +1681,10 @@ function analyzeBuilderTree() {
   result.classList.add('visible');
   document.getElementById('builderPatternDisplay').innerHTML =
     `<div class="pattern-result ${info.class || 'alert alert-info'}">
-      🔍 Patrón más probable: <strong>${info.name}</strong>
+      🔍 ${t('pedigree.analysis.mostLikelyPattern', 'Patrón más probable')}: <strong>${info.name}</strong>
     </div>`;
   const expectedNote = meta.expectedPattern
-    ? `<div style="margin-top:0.5rem;"><strong>Patrón esperado por el profesor:</strong> ${RANDOM_PATTERN_NAMES[meta.expectedPattern] || meta.expectedPattern}${meta.expectedPattern !== pattern ? ' <span style="color:#b45309;">(revisa si el árbol lo justifica de forma inequívoca)</span>' : ''}</div>`
+    ? `<div style="margin-top:0.5rem;"><strong>${t('pedigree.analysis.expectedTeacherPattern', 'Patrón esperado por el profesor')}:</strong> ${RANDOM_PATTERN_NAMES[meta.expectedPattern] || meta.expectedPattern}${meta.expectedPattern !== pattern ? ` <span style="color:#b45309;">(${t('pedigree.analysis.reviewTree', 'revisa si el árbol lo justifica de forma inequívoca')})</span>` : ''}</div>`
     : '';
   document.getElementById('builderPatternDesc').innerHTML =
     formatGenotypeHTML(info.description) + builderAlleleSummaryHTML(alleles) + expectedNote;
