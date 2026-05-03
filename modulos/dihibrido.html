@@ -73,7 +73,16 @@
     <h1>Cruce Dihíbrido</h1>
     <p>Herencia de dos caracteres independientes — Cuadro de Punnett 4×4</p>
   </div>
-  <button id="darkToggle" class="dark-toggle" title="Modo oscuro">🌙</button>
+  <div class="header-controls">
+    <label class="language-control" for="languageSelect">
+      <span id="languageLabel" class="sr-only">Idioma</span>
+      <select id="languageSelect" aria-label="Idioma">
+        <option value="es">ES</option>
+        <option value="ca">CA</option>
+      </select>
+    </label>
+    <button id="darkToggle" class="dark-toggle" title="Modo oscuro">🌙</button>
+  </div>
 </header>
 
 <div class="container">
@@ -86,9 +95,9 @@
 
   <!-- ── Sección 1: Configuración ── -->
   <div class="card">
-    <div class="card-title"><span class="step-number">1</span> Configuración del cruce dihíbrido</div>
+    <div class="card-title" id="configTitle"><span class="step-number">1</span> Configuración del cruce dihíbrido</div>
 
-    <div class="presets-row">
+    <div class="presets-row" id="presetsRow">
       <button class="preset-btn" onclick="loadPreset('clasico')">🟡 Clásico AaBb × AaBb</button>
       <button class="preset-btn" onclick="loadPreset('testcross')">🔬 Testcross (AaBb × aabb)</button>
       <button class="preset-btn" onclick="loadPreset('guisantes')">🌱 Guisantes (color × forma)</button>
@@ -103,7 +112,7 @@
 
     <div class="form-row">
       <div class="form-group">
-        <label>Genotipo Progenitor P1</label>
+        <label id="p1Label">Genotipo Progenitor P1</label>
         <select id="p1A">
           <option value="Aa">Aa</option>
           <option value="AA">AA</option>
@@ -120,7 +129,7 @@
       </div>
       <div style="display:flex;align-items:flex-end;padding-bottom:0.5rem;font-size:1.3rem;font-weight:700;color:var(--primary)">×</div>
       <div class="form-group">
-        <label>Genotipo Progenitor P2</label>
+        <label id="p2Label">Genotipo Progenitor P2</label>
         <select id="p2A">
           <option value="Aa">Aa</option>
           <option value="AA">AA</option>
@@ -139,22 +148,22 @@
 
     <hr class="divider" style="margin:0.75rem 0;">
 
-    <p style="font-size:0.85rem;font-weight:600;color:#374151;margin-bottom:0.5rem;">Nombres de los rasgos (dominancia completa en ambos genes):</p>
+    <p id="traitNamesLabel" style="font-size:0.85rem;font-weight:600;color:#374151;margin-bottom:0.5rem;">Nombres de los rasgos (dominancia completa en ambos genes):</p>
     <div class="form-row">
       <div class="form-group">
-        <label>Carácter A dominante (A_)</label>
+        <label id="traitADomLabel">Carácter A dominante (A_)</label>
         <input type="text" id="traitAdom" value="Amarillo" placeholder="Ej: Amarillo">
       </div>
       <div class="form-group">
-        <label>Carácter A recesivo (aa)</label>
+        <label id="traitARecLabel">Carácter A recesivo (aa)</label>
         <input type="text" id="traitArec" value="Verde" placeholder="Ej: Verde">
       </div>
       <div class="form-group">
-        <label>Carácter B dominante (B_)</label>
+        <label id="traitBDomLabel">Carácter B dominante (B_)</label>
         <input type="text" id="traitBdom" value="Liso" placeholder="Ej: Liso">
       </div>
       <div class="form-group">
-        <label>Carácter B recesivo (bb)</label>
+        <label id="traitBRecLabel">Carácter B recesivo (bb)</label>
         <input type="text" id="traitBrec" value="Rugoso" placeholder="Ej: Rugoso">
       </div>
     </div>
@@ -228,7 +237,9 @@
 </footer>
 
 <script src="../js/genetics.js"></script>
+<script src="../js/i18n.js"></script>
 <script src="../js/dihibrido-content-es.js"></script>
+<script src="../js/dihibrido-content-ca.js"></script>
 <script>
 // ── Presets ──────────────────────────────────────────────────
 const DIHYBRID_CONTENT = window.DIHYBRID_CONTENT || {};
@@ -236,11 +247,83 @@ const PRESETS = DIHYBRID_CONTENT.presets || {};
 const RANDOM_TRAIT_PAIRS = DIHYBRID_CONTENT.randomTraitPairs || [];
 const RANDOM_DIHYBRID_CROSSES = DIHYBRID_CONTENT.randomCrosses || [];
 const DIHYBRID_MESSAGES = DIHYBRID_CONTENT.messages || {};
+const DIHYBRID_UI = DIHYBRID_CONTENT.ui || {};
 
 function formatContentText(template, params = {}) {
   return String(template || '').replace(/\{([A-Za-z0-9_]+)\}/g, (match, key) => (
     Object.prototype.hasOwnProperty.call(params, key) ? params[key] : match
   ));
+}
+
+function uiText(key, fallback, params = {}) {
+  return formatContentText(DIHYBRID_UI[key] || fallback, params);
+}
+
+function setText(selector, text) {
+  const el = document.querySelector(selector);
+  if (el) el.textContent = text;
+}
+
+function setHTML(selector, html) {
+  const el = document.querySelector(selector);
+  if (el) el.innerHTML = html;
+}
+
+function setAttr(selector, attr, value) {
+  const el = document.querySelector(selector);
+  if (el) el.setAttribute(attr, value);
+}
+
+function initLanguageSelector() {
+  const select = document.getElementById('languageSelect');
+  if (!select || !window.MendelSimI18n) return;
+  const locale = MendelSimI18n.getLocale();
+  select.value = locale === 'ca' ? 'ca' : 'es';
+  select.addEventListener('change', () => {
+    const nextLocale = select.value === 'ca' ? 'ca' : 'es';
+    MendelSimI18n.setLocale(nextLocale);
+    const url = new URL(window.location.href);
+    if (nextLocale === 'ca') {
+      url.searchParams.set('lang', 'ca');
+    } else {
+      url.searchParams.delete('lang');
+    }
+    window.location.href = `${url.pathname}${url.search}${url.hash}`;
+  });
+}
+
+function applyLocaleToStaticPage() {
+  if (window.MendelSimI18n?.getLocale() !== 'ca') return;
+  document.documentElement.lang = 'ca';
+  document.title = uiText('pageTitle', document.title);
+  setText('.back-btn', uiText('back', '← Inici'));
+  setText('.header h1', uiText('heading', 'Encreuament dihíbrid'));
+  setText('.header p', uiText('subtitle', 'Herència de dos caràcters independents — Quadre de Punnett 4×4'));
+  setAttr('#darkToggle', 'title', 'Mode fosc');
+  setText('.law-title', uiText('lawTitle', '📜 Llei de la distribució independent'));
+  setText('.law-box p', uiText('lawText', 'Els al·lels de gens situats en cromosomes diferents es distribueixen de manera independent.'));
+  setHTML('#configTitle', `<span class="step-number">1</span> ${uiText('configTitle', 'Configuració de l’encreuament dihíbrid')}`);
+  const presetButtons = document.querySelectorAll('#presetsRow .preset-btn');
+  ['presetClassic', 'presetTestcross', 'presetPeas', null, 'randomExample'].forEach((key, index) => {
+    if (key && presetButtons[index]) presetButtons[index].textContent = uiText(key, presetButtons[index].textContent);
+  });
+  setText('#p1Label', uiText('p1', 'Genotip progenitor P1'));
+  setText('#p2Label', uiText('p2', 'Genotip progenitor P2'));
+  setText('#traitNamesLabel', uiText('traitNames', 'Noms dels trets (dominància completa en tots dos gens):'));
+  setText('#traitADomLabel', uiText('traitADom', 'Caràcter A dominant (A_)'));
+  setText('#traitARecLabel', uiText('traitARec', 'Caràcter A recessiu (aa)'));
+  setText('#traitBDomLabel', uiText('traitBDom', 'Caràcter B dominant (B_)'));
+  setText('#traitBRecLabel', uiText('traitBRec', 'Caràcter B recessiu (bb)'));
+  setText('.btn-group .btn-primary', uiText('run', '▶ Fer l’encreuament'));
+  setText('.btn-group .btn-outline', uiText('clear', '↺ Netejar'));
+  setHTML('#punnettSection .card-title', `<span class="step-number">2</span> ${uiText('punnettTitle', 'Quadre de Punnett 4×4 (16 combinacions)')}`);
+  setHTML('#resultsSection .card-title', `<span class="step-number">3</span> ${uiText('resultsTitle', 'Resultats')}`);
+  const resultTitles = document.querySelectorAll('#resultsSection .section-title');
+  if (resultTitles[0]) resultTitles[0].textContent = uiText('genoRatios', resultTitles[0].textContent);
+  if (resultTitles[1]) resultTitles[1].textContent = uiText('phenoRatios', resultTitles[1].textContent);
+  setHTML('#mendel93Alert div', uiText('mendel9331', document.querySelector('#mendel93Alert div')?.innerHTML || ''));
+  setHTML('#understandSection .card-title', `<span class="step-number">4</span> ${uiText('understandingTitle', 'Comprensió i autoavaluació')}`);
+  setText('#understandSection .section-title', uiText('reviewQuestions', '❓ Preguntes de repàs'));
 }
 
 function pickRandom(items) {
@@ -370,7 +453,7 @@ function renderPunnett(gametes1, gametes2, punnett) {
 
   // Legend
   const legend = document.getElementById('phenoLegend');
-  legend.innerHTML = '<strong style="font-size:0.85rem;color:#374151;margin-right:0.5rem;">Fenotipos:</strong>';
+  legend.innerHTML = `<strong style="font-size:0.85rem;color:#374151;margin-right:0.5rem;">${uiText('phenotypes', 'Fenotipos:')}</strong>`;
   const phenos = ['AB','Ab','aB','ab'];
   const labels = {
     AB: `${document.getElementById('traitAdom').value||'A_'} + ${document.getElementById('traitBdom').value||'B_'}`,
@@ -448,26 +531,30 @@ function renderResults(genoRatios, phenoRatios, traitNames, p1str, p2str) {
 
 // ── Understanding ────────────────────────────────────────────
 function renderUnderstanding(p1str, p2str, phenoRatios, traitNames) {
-  let expl = `El cruce <strong>${p1str} × ${p2str}</strong> produce ${phenoRatios.length} fenotipos distintos. `;
+  let expl = uiText('explanationStart', `El cruce <strong>${p1str} × ${p2str}</strong> produce ${phenoRatios.length} fenotipos distintos. `, {
+    p1: p1str,
+    p2: p2str,
+    count: phenoRatios.length
+  });
   if (phenoRatios.find(r=>r.count===9)) {
-    expl += 'La proporción 9:3:3:1 es la firma clásica del cruce dihíbrido de Mendel y confirma que los dos genes se encuentran en cromosomas diferentes (se heredan de forma independiente).';
+    expl += uiText('explanation9331', 'La proporción 9:3:3:1 es la firma clásica del cruce dihíbrido de Mendel y confirma que los dos genes se encuentran en cromosomas diferentes (se heredan de forma independiente).');
   } else {
-    expl += 'Al ser al menos uno de los progenitores homocigoto para algún gen, las proporciones difieren de la 9:3:3:1 clásica.';
+    expl += uiText('explanationOther', 'Al ser al menos uno de los progenitores homocigoto para algún gen, las proporciones difieren de la 9:3:3:1 clásica.');
   }
   document.getElementById('explanationContent').innerHTML = expl;
 
   const qa = [
     {
-      q: '¿Por qué el cruce AaBb × AaBb produce la proporción 9:3:3:1?',
-      a: 'Porque cada gen se hereda de forma independiente. El doble heterocigoto AaBb produce 4 tipos de gametos (AB, Ab, aB, ab) en proporciones iguales. Al cruzar 4 × 4 gametos obtenemos 16 combinaciones, de las cuales 9 tienen al menos un alelo A y un alelo B (A_B_), 3 tienen A_ con bb, 3 tienen aaB_, y 1 es aabb.'
+      q: uiText('q9331', '¿Por qué el cruce AaBb × AaBb produce la proporción 9:3:3:1?'),
+      a: uiText('a9331', 'Porque cada gen se hereda de forma independiente. El doble heterocigoto AaBb produce 4 tipos de gametos (AB, Ab, aB, ab) en proporciones iguales. Al cruzar 4 × 4 gametos obtenemos 16 combinaciones, de las cuales 9 tienen al menos un alelo A y un alelo B (A_B_), 3 tienen A_ con bb, 3 tienen aaB_, y 1 es aabb.')
     },
     {
-      q: '¿Qué es un cruce de prueba (testcross)?',
-      a: 'Es el cruce de un individuo con genotipo desconocido con un individuo homocigoto recesivo (aabb). Las proporciones de descendientes revelan el genotipo del progenitor desconocido. Si la progenie es 1:1:1:1, el progenitor era AaBb; si es 1:1, era homocigoto para un gen.'
+      q: uiText('qTestcross', '¿Qué es un cruce de prueba (testcross)?'),
+      a: uiText('aTestcross', 'Es el cruce de un individuo con genotipo desconocido con un individuo homocigoto recesivo (aabb). Las proporciones de descendientes revelan el genotipo del progenitor desconocido.')
     },
     {
-      q: '¿Qué ocurre si los dos genes están en el mismo cromosoma?',
-      a: 'Si los genes están ligados (en el mismo cromosoma), no se distribuyen de forma independiente y no se obtiene la proporción 9:3:3:1. Las combinaciones parentales son más frecuentes que las recombinantes. Esto se estudia en el concepto de ligamiento y recombinación.'
+      q: uiText('qLinked', '¿Qué ocurre si los dos genes están en el mismo cromosoma?'),
+      a: uiText('aLinked', 'Si los genes están ligados (en el mismo cromosoma), no se distribuyen de forma independiente y no se obtiene la proporción 9:3:3:1.')
     },
   ];
 
@@ -478,7 +565,7 @@ function renderUnderstanding(p1str, p2str, phenoRatios, traitNames) {
       <div class="qa-item">
         <div class="qa-question" onclick="toggleQA(this)">
           ${item.q}
-          <span style="font-size:0.9rem;color:var(--primary);">▼ Ver respuesta</span>
+          <span style="font-size:0.9rem;color:var(--primary);">${uiText('showAnswer', '▼ Ver respuesta')}</span>
         </div>
         <div class="qa-answer">${item.a}</div>
       </div>`;
@@ -488,7 +575,7 @@ function renderUnderstanding(p1str, p2str, phenoRatios, traitNames) {
 function toggleQA(el) {
   const a = el.nextElementSibling;
   a.classList.toggle('open');
-  el.querySelector('span').textContent = a.classList.contains('open') ? '▲ Ocultar' : '▼ Ver respuesta';
+  el.querySelector('span').textContent = a.classList.contains('open') ? uiText('hideAnswer', '▲ Ocultar') : uiText('showAnswer', '▼ Ver respuesta');
 }
 
 function limpiar() {
@@ -497,6 +584,9 @@ function limpiar() {
   });
   document.getElementById('punnettGrid').innerHTML = '';
 }
+
+initLanguageSelector();
+applyLocaleToStaticPage();
 </script>
 </body>
 </html>
