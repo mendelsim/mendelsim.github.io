@@ -132,7 +132,16 @@
     <h1>Herencia Ligada al Sexo</h1>
     <p>Genes en el cromosoma X — portadoras, hemicigotos, herencia recesiva y dominante</p>
   </div>
-  <button id="darkToggle" class="dark-toggle" title="Modo oscuro">🌙</button>
+  <div class="header-controls">
+    <label class="language-control" for="languageSelect">
+      <span id="languageLabel" class="sr-only">Idioma</span>
+      <select id="languageSelect" aria-label="Idioma">
+        <option value="es">ES</option>
+        <option value="ca">CA</option>
+      </select>
+    </label>
+    <button id="darkToggle" class="dark-toggle" title="Modo oscuro">🌙</button>
+  </div>
 </header>
 
 <div class="container">
@@ -146,7 +155,7 @@
 
   <!-- Notación -->
   <div class="card">
-    <div class="card-title">📌 Notación utilizada</div>
+    <div class="card-title" id="notationTitle">📌 Notación utilizada</div>
     <div class="xlinked-notation">
       <strong>X<sup>A</sup></strong> — alelo dominante en el cromosoma X &nbsp;|&nbsp;
       <strong>X<sup>a</sup></strong> — alelo recesivo en el cromosoma X &nbsp;|&nbsp;
@@ -158,9 +167,9 @@
 
   <!-- ── Sección 1: Configuración ── -->
   <div class="card">
-    <div class="card-title"><span class="step-number">1</span> Configuración del cruce</div>
+    <div class="card-title" id="configTitle"><span class="step-number">1</span> Configuración del cruce</div>
 
-    <div class="presets-row">
+    <div class="presets-row" id="presetsRow">
       <button class="preset-btn" onclick="loadPreset('hemofilia')">🩸 Hemofilia A</button>
       <button class="preset-btn" onclick="loadPreset('daltonismo')">🎨 Daltonismo</button>
       <button class="preset-btn" onclick="loadPreset('duchenne')">💪 Distrofia Duchenne</button>
@@ -174,7 +183,7 @@
 
     <div class="form-row">
       <div class="form-group">
-        <label>Genotipo de la madre</label>
+        <label id="motherLabel">Genotipo de la madre</label>
         <div>
           <label class="genotype-option selected" id="opt-fXAXA">
             <input type="radio" name="mother" value="X^AX^A" checked onchange="onMotherChange(this)">
@@ -191,7 +200,7 @@
         </div>
       </div>
       <div class="form-group">
-        <label>Genotipo del padre</label>
+        <label id="fatherLabel">Genotipo del padre</label>
         <div>
           <label class="genotype-option selected" id="opt-mXAY">
             <input type="radio" name="father" value="X^AY" checked onchange="onFatherChange(this)">
@@ -228,7 +237,7 @@
 
   <!-- ── Sección 2: Cuadro de Punnett X-linked ── -->
   <div class="card result-section" id="punnettSection">
-    <div class="card-title"><span class="step-number">2</span> Cuadro de Punnett (herencia ligada al X)</div>
+    <div class="card-title" id="punnettTitle"><span class="step-number">2</span> Cuadro de Punnett (herencia ligada al X)</div>
 
     <div class="alert alert-info">
       <span class="alert-icon">💡</span>
@@ -248,7 +257,7 @@
 
   <!-- ── Sección 3: Resultados ── -->
   <div class="card result-section" id="resultsSection">
-    <div class="card-title"><span class="step-number">3</span> Resultados por sexo</div>
+    <div class="card-title" id="resultsTitle"><span class="step-number">3</span> Resultados por sexo</div>
 
     <div class="sex-results" id="sexResults"></div>
 
@@ -260,7 +269,7 @@
 
   <!-- ── Sección 4: Explicación ── -->
   <div class="card result-section" id="explainSection">
-    <div class="card-title"><span class="step-number">4</span> ¿Por qué los rasgos X-recesivos afectan más a hombres?</div>
+    <div class="card-title" id="explainTitle"><span class="step-number">4</span> ¿Por qué los rasgos X-recesivos afectan más a hombres?</div>
 
     <div class="alert alert-warning" style="margin-bottom:1rem;">
       <span class="alert-icon">🔬</span>
@@ -300,7 +309,9 @@
 </footer>
 
 <script src="../js/genetics.js"></script>
+<script src="../js/i18n.js"></script>
 <script src="../js/ligado-sexo-content-es.js"></script>
+<script src="../js/ligado-sexo-content-ca.js"></script>
 <script>
 // ── UI helpers ───────────────────────────────────────────────
 function onMotherChange(radio) {
@@ -318,11 +329,101 @@ const PRESETS = X_LINKED_CONTENT.presets || {};
 const RANDOM_X_TRAITS = X_LINKED_CONTENT.randomTraits || [];
 const RANDOM_X_CROSSES = X_LINKED_CONTENT.randomCrosses || [];
 const X_LINKED_MESSAGES = X_LINKED_CONTENT.messages || {};
+const X_LINKED_UI = X_LINKED_CONTENT.ui || {};
 
 function formatContentText(template, params = {}) {
   return String(template || '').replace(/\{([A-Za-z0-9_]+)\}/g, (match, key) => (
     Object.prototype.hasOwnProperty.call(params, key) ? params[key] : match
   ));
+}
+
+function uiText(key, fallback, params = {}) {
+  return formatContentText(X_LINKED_UI[key] || fallback, params);
+}
+
+function uiOutcome(key, fallback, params = {}) {
+  return formatContentText(X_LINKED_UI.outcomes?.[key] || fallback, params);
+}
+
+function setText(selector, text) {
+  const el = document.querySelector(selector);
+  if (el) el.textContent = text;
+}
+
+function setHTML(selector, html) {
+  const el = document.querySelector(selector);
+  if (el) el.innerHTML = html;
+}
+
+function setAttr(selector, attr, value) {
+  const el = document.querySelector(selector);
+  if (el) el.setAttribute(attr, value);
+}
+
+function initLanguageSelector() {
+  const select = document.getElementById('languageSelect');
+  if (!select || !window.MendelSimI18n) return;
+  const locale = MendelSimI18n.getLocale();
+  select.value = locale === 'ca' ? 'ca' : 'es';
+  select.addEventListener('change', () => {
+    const nextLocale = select.value === 'ca' ? 'ca' : 'es';
+    MendelSimI18n.setLocale(nextLocale);
+    const url = new URL(window.location.href);
+    if (nextLocale === 'ca') {
+      url.searchParams.set('lang', 'ca');
+    } else {
+      url.searchParams.delete('lang');
+    }
+    window.location.href = `${url.pathname}${url.search}${url.hash}`;
+  });
+}
+
+function setGenotypeOptionHTML(id, name, value, checked, onchange, genotypeHTML, labelText) {
+  const label = document.getElementById(id);
+  if (!label) return;
+  label.innerHTML = `
+    <input type="radio" name="${name}" value="${value}" ${checked ? 'checked' : ''} onchange="${onchange}(this)">
+    ${genotypeHTML} — ${labelText}
+  `;
+}
+
+function applyLocaleToStaticPage() {
+  if (window.MendelSimI18n?.getLocale() !== 'ca') return;
+  document.documentElement.lang = 'ca';
+  document.title = uiText('pageTitle', document.title);
+  setText('.back-btn', uiText('back', '← Inici'));
+  setText('.header h1', uiText('heading', 'Herència lligada al sexe'));
+  setText('.header p', uiText('subtitle', 'Gens en el cromosoma X — portadores, hemizigots, herència recessiva i dominant'));
+  setAttr('#darkToggle', 'title', 'Mode fosc');
+  setText('.law-title', uiText('lawTitle', '📜 Herència lligada al sexe'));
+  const laws = document.querySelectorAll('.law-box p');
+  if (laws[0]) laws[0].innerHTML = uiText('law1', laws[0].innerHTML);
+  if (laws[1]) laws[1].innerHTML = uiText('law2', laws[1].innerHTML);
+  setText('#notationTitle', uiText('notationTitle', '📌 Notació utilitzada'));
+  setHTML('.xlinked-notation', uiText('notation', document.querySelector('.xlinked-notation')?.innerHTML || ''));
+  setHTML('#configTitle', `<span class="step-number">1</span> ${uiText('configTitle', 'Configuració de l’encreuament')}`);
+  const presetButtons = document.querySelectorAll('#presetsRow .preset-btn');
+  if (presetButtons[3]) presetButtons[3].textContent = uiText('randomExample', '🎲 Nou exemple');
+  setText('#motherLabel', uiText('mother', 'Genotip de la mare'));
+  setText('#fatherLabel', uiText('father', 'Genotip del pare'));
+  setGenotypeOptionHTML('opt-fXAXA', 'mother', 'X^AX^A', true, 'onMotherChange', 'X<sup>A</sup>X<sup>A</sup>', uiText('motherNormal', 'Normal (homozigota dominant)'));
+  setGenotypeOptionHTML('opt-fXAXa', 'mother', 'X^AX^a', false, 'onMotherChange', 'X<sup>A</sup>X<sup>a</sup>', uiText('motherCarrier', 'Portadora (heterozigota)'));
+  setGenotypeOptionHTML('opt-fXaXa', 'mother', 'X^aX^a', false, 'onMotherChange', 'X<sup>a</sup>X<sup>a</sup>', uiText('motherAffected', 'Afectada (homozigota recessiva)'));
+  setGenotypeOptionHTML('opt-mXAY', 'father', 'X^AY', true, 'onFatherChange', 'X<sup>A</sup>Y', uiText('fatherNormal', 'Normal'));
+  setGenotypeOptionHTML('opt-mXaY', 'father', 'X^aY', false, 'onFatherChange', 'X<sup>a</sup>Y', uiText('fatherAffected', 'Afectat'));
+  setText('label[for="traitName"]', uiText('traitName', 'Nom del tret / malaltia'));
+  setText('label[for="alleleA"]', uiText('domAllele', 'Al·lel dominant (A = normal)'));
+  setText('label[for="alleleA2"]', uiText('recAllele', 'Al·lel recessiu (a = afectat)'));
+  setText('.btn-group .btn-primary', uiText('run', '▶ Fer l’encreuament'));
+  setText('.btn-group .btn-outline', uiText('clear', '↺ Netejar'));
+  setHTML('#punnettTitle', `<span class="step-number">2</span> ${uiText('punnettTitle', 'Quadre de Punnett (herència lligada a l’X)')}`);
+  setHTML('#punnettSection .alert div', uiText('punnettHint', 'Els homes hereten el cromosoma X de la mare i el Y del pare.'));
+  setHTML('#punnettSection p strong', uiText('parents', 'Progenitors') + ':');
+  setHTML('#resultsTitle', `<span class="step-number">3</span> ${uiText('resultsTitle', 'Resultats per sexe')}`);
+  setText('#resultsSection .section-title', uiText('globalProb', '📊 Probabilitats globals'));
+  setHTML('#explainTitle', `<span class="step-number">4</span> ${uiText('explainTitle', 'Per què els trets X-recessius afecten més els homes?')}`);
+  setHTML('#explainSection .alert-warning div', uiText('hemizygousBox', document.querySelector('#explainSection .alert-warning div')?.innerHTML || ''));
+  setText('#explainSection .section-title', uiText('reviewQuestions', '❓ Preguntes de repàs'));
 }
 
 function pickRandom(items) {
@@ -383,7 +484,7 @@ function realizarCruce() {
   const motherDisp = motherGeno.replace(/A/g, domAllele).replace(/a/g, recAllele);
   const fatherDisp = fatherGeno.replace(/A/g, domAllele).replace(/a/g, recAllele);
   document.getElementById('parentDisplay').innerHTML =
-    `Madre: <strong>${formatXNotation(motherDisp)}</strong> &nbsp;×&nbsp; Padre: <strong>${formatXNotation(fatherDisp)}</strong>`;
+    `${uiText('motherLabel', 'Madre')}: <strong>${formatXNotation(motherDisp)}</strong> &nbsp;×&nbsp; ${uiText('fatherLabel', 'Padre')}: <strong>${formatXNotation(fatherDisp)}</strong>`;
 
   // Parse
   const mother = Genetics.parseXLinked(motherGeno);
@@ -498,32 +599,32 @@ function getXPhenoInfo(geno, domAllele, recAllele, traitName) {
     // Male
     const allele = geno.replace(/X\^/, '').replace('Y', '');
     if (allele === domAllele) {
-      return { cls:'ynorm', label:`Hombre normal` };
+      return { cls:'ynorm', label: uiText('maleNormal', 'Hombre normal') };
     } else {
-      return { cls:'yaff',  label:`Hombre afectado` };
+      return { cls:'yaff',  label: uiText('maleAffected', 'Hombre afectado') };
     }
   } else {
     // Female
     const match = geno.match(/X\^([A-Za-z\d]+)X\^([A-Za-z\d]+)/);
-    if (!match) return { cls:'xnorm', label:'Mujer normal' };
+    if (!match) return { cls:'xnorm', label: uiText('femaleNormal', 'Mujer normal') };
     const a1 = match[1], a2 = match[2];
-    if (a1 === domAllele && a2 === domAllele) return { cls:'xnorm', label:'Mujer normal' };
+    if (a1 === domAllele && a2 === domAllele) return { cls:'xnorm', label: uiText('femaleNormal', 'Mujer normal') };
     if ((a1 === domAllele && a2 === recAllele) || (a1 === recAllele && a2 === domAllele)) {
-      return { cls:'xcarr', label:'Mujer portadora' };
+      return { cls:'xcarr', label: uiText('femaleCarrier', 'Mujer portadora') };
     }
-    if (a1 === recAllele && a2 === recAllele) return { cls:'xaff', label:'Mujer afectada' };
-    return { cls:'xnorm', label:'Mujer normal' };
+    if (a1 === recAllele && a2 === recAllele) return { cls:'xaff', label: uiText('femaleAffected', 'Mujer afectada') };
+    return { cls:'xnorm', label: uiText('femaleNormal', 'Mujer normal') };
   }
 }
 
 function buildXLegend(domAllele, recAllele, traitName) {
   const legend = document.getElementById('xLegend');
-  legend.innerHTML = '<strong style="font-size:0.85rem;color:#374151;margin-right:0.5rem;">Leyenda:</strong>';
+  legend.innerHTML = `<strong style="font-size:0.85rem;color:#374151;margin-right:0.5rem;">${uiText('legend', 'Leyenda:')}</strong>`;
   const items = [
-    { color:'#dcfce7', border:'#86efac', label:'Mujer normal' },
-    { color:'#ffedd5', border:'#fdba74', label:'Mujer portadora' },
-    { color:'#fee2e2', border:'#fca5a5', label:'Mujer afectada / Hombre afectado' },
-    { color:'#f0f9ff', border:'#7dd3fc', label:'Hombre normal' },
+    { color:'#dcfce7', border:'#86efac', label: uiText('femaleNormal', 'Mujer normal') },
+    { color:'#ffedd5', border:'#fdba74', label: uiText('femaleCarrier', 'Mujer portadora') },
+    { color:'#fee2e2', border:'#fca5a5', label: uiText('affectedBoth', 'Mujer afectada / Hombre afectado') },
+    { color:'#f0f9ff', border:'#7dd3fc', label: uiText('maleNormal', 'Hombre normal') },
   ];
   for (const it of items) {
     legend.innerHTML += `<div style="display:flex;align-items:center;gap:0.4rem;">
@@ -560,9 +661,9 @@ function renderXResults(femGametes, malGametes, domAllele, recAllele, traitName,
     const affMales  = males.filter(g => getXPhenoInfo(g, domAllele, recAllele, traitName).cls === 'yaff');
     const normMales = males.filter(g => getXPhenoInfo(g, domAllele, recAllele, traitName).cls === 'ynorm');
     let maleHTML = `<div class="sex-card sex-male">
-      <h4>♂ Hijos hombres (${males.length}/4 combinaciones)</h4>`;
-    if (normMales.length > 0) maleHTML += `<div>✅ <strong>${Math.round(normMales.length/males.length*100)}%</strong> normales (${normMales.length}/${males.length})</div>`;
-    if (affMales.length > 0)  maleHTML += `<div>🔴 <strong>${Math.round(affMales.length/males.length*100)}%</strong> afectados (${affMales.length}/${males.length})</div>`;
+      <h4>${uiText('sons', '♂ Hijos hombres')} (${males.length}/4 ${uiText('combinations', 'combinaciones')})</h4>`;
+    if (normMales.length > 0) maleHTML += `<div>✅ <strong>${Math.round(normMales.length/males.length*100)}%</strong> ${uiText('normalPlural', 'normales')} (${normMales.length}/${males.length})</div>`;
+    if (affMales.length > 0)  maleHTML += `<div>🔴 <strong>${Math.round(affMales.length/males.length*100)}%</strong> ${uiText('affectedMalePlural', 'afectados')} (${affMales.length}/${males.length})</div>`;
     maleHTML += `</div>`;
     sexResults.innerHTML += maleHTML;
   }
@@ -573,10 +674,10 @@ function renderXResults(femGametes, malGametes, domAllele, recAllele, traitName,
     const carrF  = females.filter(g => getXPhenoInfo(g, domAllele, recAllele, traitName).cls === 'xcarr');
     const affF   = females.filter(g => getXPhenoInfo(g, domAllele, recAllele, traitName).cls === 'xaff');
     let femHTML = `<div class="sex-card sex-female">
-      <h4>♀ Hijas (${females.length}/4 combinaciones)</h4>`;
-    if (normF.length > 0) femHTML += `<div>✅ <strong>${Math.round(normF.length/females.length*100)}%</strong> normales (${normF.length}/${females.length})</div>`;
-    if (carrF.length > 0) femHTML += `<div>🟠 <strong>${Math.round(carrF.length/females.length*100)}%</strong> portadoras (${carrF.length}/${females.length})</div>`;
-    if (affF.length > 0)  femHTML += `<div>🔴 <strong>${Math.round(affF.length/females.length*100)}%</strong> afectadas (${affF.length}/${females.length})</div>`;
+      <h4>${uiText('daughters', '♀ Hijas')} (${females.length}/4 ${uiText('combinations', 'combinaciones')})</h4>`;
+    if (normF.length > 0) femHTML += `<div>✅ <strong>${Math.round(normF.length/females.length*100)}%</strong> ${uiText('normalPlural', 'normales')} (${normF.length}/${females.length})</div>`;
+    if (carrF.length > 0) femHTML += `<div>🟠 <strong>${Math.round(carrF.length/females.length*100)}%</strong> ${uiText('carrierPlural', 'portadoras')} (${carrF.length}/${females.length})</div>`;
+    if (affF.length > 0)  femHTML += `<div>🔴 <strong>${Math.round(affF.length/females.length*100)}%</strong> ${uiText('affectedFemalePlural', 'afectadas')} (${affF.length}/${females.length})</div>`;
     femHTML += `</div>`;
     sexResults.innerHTML += femHTML;
   }
@@ -593,14 +694,14 @@ function renderXResults(femGametes, malGametes, domAllele, recAllele, traitName,
   globalEl.innerHTML = `
     <div class="ratio-bar-wrap">
       <div class="ratio-bar-label">
-        <span>Descendientes afectados (cualquier sexo)</span>
+        <span>${uiText('affectedDescendants', 'Descendientes afectados (cualquier sexo)')}</span>
         <span>${Math.round(allAff.length/total*100)}%</span>
       </div>
       <div class="ratio-bar"><div class="ratio-bar-fill ratio-fill-4" style="width:${Math.round(allAff.length/total*100)}%">${Math.round(allAff.length/total*100)}%</div></div>
     </div>
     ${allCarr.length > 0 ? `<div class="ratio-bar-wrap">
       <div class="ratio-bar-label">
-        <span>Mujeres portadoras</span><span>${Math.round(allCarr.length/total*100)}%</span>
+        <span>${uiText('carrierWomen', 'Mujeres portadoras')}</span><span>${Math.round(allCarr.length/total*100)}%</span>
       </div>
       <div class="ratio-bar"><div class="ratio-bar-fill" style="width:${Math.round(allCarr.length/total*100)}%;background:var(--carrier);">${Math.round(allCarr.length/total*100)}%</div></div>
     </div>` : ''}
@@ -614,31 +715,34 @@ function renderExplanation(motherGeno, fatherGeno, traitName, domAllele, recAlle
 
   const key = `${motherGeno}|${fatherGeno}`;
   const outcomeText = {
-    'X^AX^A|X^AY': `La madre solo aporta X<sup>${domAllele}</sup> y el padre aporta X<sup>${domAllele}</sup> o Y. Toda la descendencia será normal para ${traitName}.`,
-    'X^AX^A|X^aY': `La madre solo aporta X<sup>${domAllele}</sup>. El padre afectado aporta X<sup>${recAllele}</sup> a todas sus hijas, que serán portadoras, y aporta Y a sus hijos, que serán normales.`,
-    'X^AX^a|X^AY': `La madre portadora aporta X<sup>${domAllele}</sup> o X<sup>${recAllele}</sup>. Cada hijo hombre tiene un 50% de probabilidad de estar afectado y cada hija tiene un 50% de probabilidad de ser portadora.`,
-    'X^AX^a|X^aY': `La madre portadora aporta X<sup>${domAllele}</sup> o X<sup>${recAllele}</sup>, y el padre afectado aporta X<sup>${recAllele}</sup> a sus hijas. La mitad de los hijos hombres estarán afectados; entre las hijas, la mitad serán portadoras y la mitad afectadas.`,
-    'X^aX^a|X^AY': `La madre afectada siempre aporta X<sup>${recAllele}</sup>. Todos los hijos hombres estarán afectados y todas las hijas serán portadoras.`,
-    'X^aX^a|X^aY': `Ambos progenitores aportan el alelo recesivo ligado al X cuando transmiten un cromosoma X. Todas las hijas estarán afectadas y todos los hijos hombres también estarán afectados.`
+    'X^AX^A|X^AY': uiOutcome('X^AX^A|X^AY', `La madre solo aporta X<sup>${domAllele}</sup> y el padre aporta X<sup>${domAllele}</sup> o Y. Toda la descendencia será normal para ${traitName}.`, { dom: domAllele, rec: recAllele, trait: traitName }),
+    'X^AX^A|X^aY': uiOutcome('X^AX^A|X^aY', `La madre solo aporta X<sup>${domAllele}</sup>. El padre afectado aporta X<sup>${recAllele}</sup> a todas sus hijas, que serán portadoras, y aporta Y a sus hijos, que serán normales.`, { dom: domAllele, rec: recAllele, trait: traitName }),
+    'X^AX^a|X^AY': uiOutcome('X^AX^a|X^AY', `La madre portadora aporta X<sup>${domAllele}</sup> o X<sup>${recAllele}</sup>. Cada hijo hombre tiene un 50% de probabilidad de estar afectado y cada hija tiene un 50% de probabilidad de ser portadora.`, { dom: domAllele, rec: recAllele, trait: traitName }),
+    'X^AX^a|X^aY': uiOutcome('X^AX^a|X^aY', `La madre portadora aporta X<sup>${domAllele}</sup> o X<sup>${recAllele}</sup>, y el padre afectado aporta X<sup>${recAllele}</sup> a sus hijas. La mitad de los hijos hombres estarán afectados; entre las hijas, la mitad serán portadoras y la mitad afectadas.`, { dom: domAllele, rec: recAllele, trait: traitName }),
+    'X^aX^a|X^AY': uiOutcome('X^aX^a|X^AY', `La madre afectada siempre aporta X<sup>${recAllele}</sup>. Todos los hijos hombres estarán afectados y todas las hijas serán portadoras.`, { dom: domAllele, rec: recAllele, trait: traitName }),
+    'X^aX^a|X^aY': uiOutcome('X^aX^a|X^aY', `Ambos progenitores aportan el alelo recesivo ligado al X cuando transmiten un cromosoma X. Todas las hijas estarán afectadas y todos los hijos hombres también estarán afectados.`, { dom: domAllele, rec: recAllele, trait: traitName })
   };
 
-  let text = `En este cruce, la madre (${formatXNotation(mGeno)}) y el padre (${formatXNotation(fGeno)}) siguen un modelo recesivo ligado al cromosoma X. `;
-  text += outcomeText[key] || `Los descendientes dependen de qué cromosoma X hereden de la madre y de si el padre aporta X o Y. Los hombres expresan el alelo recesivo si lo reciben en su único cromosoma X.`;
+  let text = uiText('caseIntro', `En este cruce, la madre ({mother}) y el padre ({father}) siguen un modelo recesivo ligado al cromosoma X. `, {
+    mother: formatXNotation(mGeno),
+    father: formatXNotation(fGeno)
+  });
+  text += outcomeText[key] || uiText('outcomeDefault', `Los descendientes dependen de qué cromosoma X hereden de la madre y de si el padre aporta X o Y. Los hombres expresan el alelo recesivo si lo reciben en su único cromosoma X.`);
 
   document.getElementById('caseExplanationContent').innerHTML = text;
 
   const qa = [
     {
-      q: `¿Por qué los hombres no pueden ser "portadores" de ${traitName}?`,
-      a: `Los hombres solo tienen un cromosoma X (hemicigotos). Si ese X lleva el alelo recesivo patológico, no tienen un segundo alelo X que lo "enmascare", por lo que el rasgo siempre se expresa. Las mujeres, con dos cromosomas X, pueden tener un alelo recesivo "oculto" por el dominante (portadoras).`
+      q: uiText('qCarrier', `¿Por qué los hombres no pueden ser "portadores" de ${traitName}?`, { trait: traitName }),
+      a: uiText('aCarrier', `Los hombres solo tienen un cromosoma X (hemicigotos). Si ese X lleva el alelo recesivo patológico, no tienen un segundo alelo X que lo "enmascare", por lo que el rasgo siempre se expresa. Las mujeres, con dos cromosomas X, pueden tener un alelo recesivo "oculto" por el dominante (portadoras).`, { trait: traitName })
     },
     {
-      q: `Si una mujer es portadora de ${traitName}, ¿cuál es la probabilidad de tener un hijo afectado?`,
-      a: `Si la madre es portadora (X<sup>${domAllele}</sup>X<sup>${recAllele}</sup>) y el padre es normal (X<sup>${domAllele}</sup>Y): cada hijo hombre tiene un 50% de probabilidad de ser afectado (hereda el X<sup>${recAllele}</sup> materno), y cada hija tiene un 50% de ser portadora. La probabilidad global de descendiente afectado es del 25%.`
+      q: uiText('qCarrierMother', `Si una mujer es portadora de ${traitName}, ¿cuál es la probabilidad de tener un hijo afectado?`, { trait: traitName }),
+      a: uiText('aCarrierMother', `Si la madre es portadora (X<sup>${domAllele}</sup>X<sup>${recAllele}</sup>) y el padre es normal (X<sup>${domAllele}</sup>Y): cada hijo hombre tiene un 50% de probabilidad de ser afectado (hereda el X<sup>${recAllele}</sup> materno), y cada hija tiene un 50% de ser portadora. La probabilidad global de descendiente afectado es del 25%.`, { trait: traitName, dom: domAllele, rec: recAllele })
     },
     {
-      q: `¿Puede una hija estar afectada por ${traitName}?`,
-      a: `Sí, pero requiere que tenga DOS copias del alelo recesivo: hereda X<sup>${recAllele}</sup> de la madre portadora o afectada Y X<sup>${recAllele}</sup> del padre afectado. Esto es mucho menos frecuente que en hombres. Por ejemplo, para el daltonismo, afecta al ~8% de hombres pero solo al ~0,5% de mujeres.`
+      q: uiText('qAffectedDaughter', `¿Puede una hija estar afectada por ${traitName}?`, { trait: traitName }),
+      a: uiText('aAffectedDaughter', `Sí, pero requiere que tenga DOS copias del alelo recesivo: hereda X<sup>${recAllele}</sup> de la madre portadora o afectada Y X<sup>${recAllele}</sup> del padre afectado. Esto es mucho menos frecuente que en hombres.`, { trait: traitName, dom: domAllele, rec: recAllele })
     },
   ];
 
@@ -649,7 +753,7 @@ function renderExplanation(motherGeno, fatherGeno, traitName, domAllele, recAlle
       <div class="qa-item">
         <div class="qa-question" onclick="toggleQA(this)">
           ${item.q}
-          <span style="font-size:0.9rem;color:var(--primary);">▼ Ver respuesta</span>
+          <span style="font-size:0.9rem;color:var(--primary);">${uiText('showAnswer', '▼ Ver respuesta')}</span>
         </div>
         <div class="qa-answer">${item.a}</div>
       </div>`;
@@ -659,7 +763,7 @@ function renderExplanation(motherGeno, fatherGeno, traitName, domAllele, recAlle
 function toggleQA(el) {
   const a = el.nextElementSibling;
   a.classList.toggle('open');
-  el.querySelector('span').textContent = a.classList.contains('open') ? '▲ Ocultar' : '▼ Ver respuesta';
+  el.querySelector('span').textContent = a.classList.contains('open') ? uiText('hideAnswer', '▲ Ocultar') : uiText('showAnswer', '▼ Ver respuesta');
 }
 
 function limpiar() {
@@ -667,6 +771,9 @@ function limpiar() {
     document.getElementById(id).classList.remove('visible');
   });
 }
+
+initLanguageSelector();
+applyLocaleToStaticPage();
 </script>
 </body>
 </html>
