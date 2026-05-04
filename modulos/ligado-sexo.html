@@ -166,6 +166,14 @@
     </div>
   </div>
 
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="simular" onclick="MendelSimExercises.switchTab('simular', this)">🧪 Simular</button>
+    <button class="tab-btn" data-tab="crear" onclick="MendelSimExercises.switchTab('crear', this)">🎓 Crear ejercicio</button>
+    <button class="tab-btn" data-tab="alumno" id="studentTabBtn" onclick="MendelSimExercises.switchTab('alumno', this)">📥 Actividad</button>
+  </div>
+
+  <div id="tab-simular" class="tab-content active">
+
   <!-- ── Sección 1: Configuración ── -->
   <div class="card">
     <div class="card-title" id="configTitle"><span class="step-number">1</span> Configuración del cruce</div>
@@ -292,11 +300,120 @@
     <div id="qaList"></div>
   </div>
 
+  </div>
+
+  <div id="tab-crear" class="tab-content">
+    <div class="card">
+      <div class="card-title">🎓 Crear ejercicio de herencia ligada al sexo</div>
+      <div class="alert alert-info">
+        <span class="alert-icon">📌</span>
+        <div>Define el caso, escribe el enunciado y genera una actividad sobre descendencia ligada al cromosoma X.</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="min-width:220px;">
+          <label for="teacherExerciseTitle">Título del ejercicio</label>
+          <input type="text" id="teacherExerciseTitle" placeholder="Ej: Daltonismo en una familia">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="teacherPrompt">Enunciado para el alumnado</label>
+        <textarea id="teacherPrompt" rows="4" placeholder="Describe el caso y qué probabilidades debe calcular el alumnado..."></textarea>
+      </div>
+
+      <hr class="divider" style="margin:1rem 0;">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="teacherMother">Genotipo de la madre</label>
+          <select id="teacherMother">
+            <option value="X^AX^A">X^A X^A — Normal</option>
+            <option value="X^AX^a">X^A X^a — Portadora</option>
+            <option value="X^aX^a">X^a X^a — Afectada</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="teacherFather">Genotipo del padre</label>
+          <select id="teacherFather">
+            <option value="X^AY">X^A Y — Normal</option>
+            <option value="X^aY">X^a Y — Afectado</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="teacherTraitName">Nombre del rasgo / enfermedad</label>
+          <input type="text" id="teacherTraitName" value="Hemofilia A" placeholder="Ej: Daltonismo">
+        </div>
+        <div class="form-group">
+          <label for="teacherAlleleA" id="teacherAlleleADomLabel">Alelo dominante (H = normal)</label>
+          <input type="text" id="teacherAlleleA" value="H" placeholder="H" oninput="updateTeacherXLinkedNotation()">
+        </div>
+        <div class="form-group">
+          <label for="teacherAlleleA2" id="teacherAlleleARecLabel">Alelo recesivo (h = afectado)</label>
+          <input type="text" id="teacherAlleleA2" value="h" placeholder="h" oninput="updateTeacherXLinkedNotation()">
+        </div>
+      </div>
+
+      <label class="form-group" style="display:flex;gap:0.5rem;align-items:center;">
+        <input type="checkbox" id="teacherAllowAutoCheck" checked>
+        <span>Permitir autocorrección al alumnado</span>
+      </label>
+
+      <div class="btn-group" style="margin-top:0.75rem;">
+        <button class="btn btn-primary" onclick="previewXLinkedExercise()">🔍 Previsualizar actividad</button>
+        <button class="btn btn-outline" onclick="copyXLinkedStudentURL()">🔗 Compartir con alumnado</button>
+        <button class="btn btn-outline" onclick="saveXLinkedExercise('teacher')">💾 Guardar editable</button>
+        <button class="btn btn-outline" onclick="saveXLinkedExercise('student')">🎓 Guardar alumno</button>
+        <button class="btn btn-outline" onclick="document.getElementById('xLinkedExerciseFile').click()">📂 Cargar actividad</button>
+        <input type="file" id="xLinkedExerciseFile" accept=".json,application/json" style="display:none;" onchange="loadXLinkedExerciseFile(event)">
+      </div>
+      <div id="teacherExerciseStatus" class="exercise-status" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div id="tab-alumno" class="tab-content">
+    <div class="card">
+      <div class="card-title" id="studentExerciseTitle">Actividad ligada al sexo</div>
+      <div id="studentExercisePrompt" class="alert alert-info" style="display:none;">
+        <span class="alert-icon">📖</span>
+        <div id="studentExercisePromptText"></div>
+      </div>
+      <div class="student-meta" id="studentExerciseMeta"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✍️ Respuesta del alumno</div>
+      <div class="form-row">
+        <div class="form-group" style="min-width:220px;">
+          <label for="studentName">Nombre</label>
+          <input type="text" id="studentName" placeholder="Nombre y apellidos">
+        </div>
+      </div>
+      <div id="studentAnswerSections"></div>
+      <div class="form-group" style="margin-top:1rem;">
+        <label for="studentJustification">Justificación</label>
+        <textarea id="studentJustification" rows="3" placeholder="Explica qué gametos producen los progenitores y cómo obtienes las probabilidades..."></textarea>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" id="studentCheckBtn" onclick="checkXLinkedStudentAnswers()">✅ Comprobar</button>
+        <button class="btn btn-outline" onclick="document.getElementById('xLinkedStudentExerciseFile').click()">📂 Cargar actividad</button>
+        <button class="btn btn-outline" onclick="downloadXLinkedStudentAnswers()">💾 Descargar respuestas</button>
+        <button class="btn btn-outline" onclick="copyXLinkedStudentAnswers()">📋 Copiar respuestas</button>
+        <input type="file" id="xLinkedStudentExerciseFile" accept=".json,application/json" style="display:none;" onchange="loadXLinkedExerciseFile(event)">
+      </div>
+      <div id="studentAutoCheckNote" class="exercise-status"></div>
+      <div id="studentFeedback" class="alert student-feedback"></div>
+    </div>
+  </div>
+
 </div>
 
 <footer>
   <div>
-    <strong><a href="https://bilateria.org" target="_blank" rel="noopener">Juan José de Haro</a></strong> &mdash; MendelSim v1.3
+    <strong><a href="https://bilateria.org" target="_blank" rel="noopener">Juan José de Haro</a></strong> &mdash; MendelSim v1.4
   </div>
   <div style="margin-top:0.3rem">
     Código: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">AGPLv3</a>
@@ -314,6 +431,7 @@
 <script src="../js/ligado-sexo-content-es.js"></script>
 <script src="../js/ligado-sexo-content-ca.js"></script>
 <script src="../js/ligado-sexo-content-en.js"></script>
+<script src="../js/exercise-mode.js"></script>
 <script>
 // ── UI helpers ───────────────────────────────────────────────
 function onMotherChange(radio) {
@@ -483,8 +601,8 @@ function realizarCruce() {
   const traitName  = document.getElementById('traitName').value || 'Rasgo';
 
   // Replace A/a placeholders with actual allele letters in notation
-  const motherDisp = motherGeno.replace(/A/g, domAllele).replace(/a/g, recAllele);
-  const fatherDisp = fatherGeno.replace(/A/g, domAllele).replace(/a/g, recAllele);
+  const motherDisp = displayXLinkedGenotype(motherGeno, domAllele, recAllele);
+  const fatherDisp = displayXLinkedGenotype(fatherGeno, domAllele, recAllele);
   document.getElementById('parentDisplay').innerHTML =
     `${uiText('motherLabel', 'Madre')}: <strong>${formatXNotation(motherDisp)}</strong> &nbsp;×&nbsp; ${uiText('fatherLabel', 'Padre')}: <strong>${formatXNotation(fatherDisp)}</strong>`;
 
@@ -495,8 +613,8 @@ function realizarCruce() {
   const malGametes = Genetics.generateXLinkedGametes(father);
 
   // Substitute actual allele letters
-  const femG = femGametes.map(g => g.replace('X^A', `X^${domAllele}`).replace('X^a', `X^${recAllele}`));
-  const malG = malGametes.map(g => g.replace('X^A', `X^${domAllele}`).replace('X^a', `X^${recAllele}`));
+  const femG = femGametes.map(g => displayXLinkedGenotype(g, domAllele, recAllele));
+  const malG = malGametes.map(g => displayXLinkedGenotype(g, domAllele, recAllele));
 
   // Build punnett (row = father gametes, col = mother gametes)
   renderXPunnett(femG, malG, domAllele, recAllele, traitName);
@@ -509,8 +627,47 @@ function realizarCruce() {
 }
 
 function formatXNotation(str) {
-  // Convert X^A → X<sup>A</sup>
-  return str.replace(/X\^([A-Za-z\d])/g, 'X<sup>$1</sup>');
+  // Convert X^A / X^abc → X<sup>...</sup>
+  return str.replace(/X\^([A-Za-z\d]+)/g, 'X<sup>$1</sup>');
+}
+
+function displayXLinkedGenotype(genotype, domAllele = 'A', recAllele = 'a') {
+  return String(genotype || '').replace(/X\^([Aa])/g, (_, allele) =>
+    `X^${allele === 'A' ? domAllele : recAllele}`
+  );
+}
+
+function updateTeacherXLinkedNotation() {
+  const domAllele = document.getElementById('teacherAlleleA')?.value.trim() || 'H';
+  const recAllele = document.getElementById('teacherAlleleA2')?.value.trim() || 'h';
+  const motherSelect = document.getElementById('teacherMother');
+  const fatherSelect = document.getElementById('teacherFather');
+  const dominantLabel = document.getElementById('teacherAlleleADomLabel');
+  const recessiveLabel = document.getElementById('teacherAlleleARecLabel');
+
+  if (dominantLabel) dominantLabel.textContent = `Alelo dominante (${domAllele} = normal)`;
+  if (recessiveLabel) recessiveLabel.textContent = `Alelo recesivo (${recAllele} = afectado)`;
+
+  if (motherSelect) {
+    const motherLabels = {
+      'X^AX^A': `X^${domAllele} X^${domAllele} — Normal`,
+      'X^AX^a': `X^${domAllele} X^${recAllele} — Portadora`,
+      'X^aX^a': `X^${recAllele} X^${recAllele} — Afectada`
+    };
+    Array.from(motherSelect.options).forEach(option => {
+      option.textContent = motherLabels[option.value] || option.value;
+    });
+  }
+
+  if (fatherSelect) {
+    const fatherLabels = {
+      'X^AY': `X^${domAllele} Y — Normal`,
+      'X^aY': `X^${recAllele} Y — Afectado`
+    };
+    Array.from(fatherSelect.options).forEach(option => {
+      option.textContent = fatherLabels[option.value] || option.value;
+    });
+  }
 }
 
 // ── Punnett rendering ────────────────────────────────────────
@@ -712,8 +869,8 @@ function renderXResults(femGametes, malGametes, domAllele, recAllele, traitName,
 
 // ── Explanation ──────────────────────────────────────────────
 function renderExplanation(motherGeno, fatherGeno, traitName, domAllele, recAllele) {
-  const mGeno = motherGeno.replace(/A/g, domAllele).replace(/a/g, recAllele);
-  const fGeno = fatherGeno.replace(/A/g, domAllele).replace(/a/g, recAllele);
+  const mGeno = displayXLinkedGenotype(motherGeno, domAllele, recAllele);
+  const fGeno = displayXLinkedGenotype(fatherGeno, domAllele, recAllele);
 
   const key = `${motherGeno}|${fatherGeno}`;
   const outcomeText = {
@@ -774,8 +931,203 @@ function limpiar() {
   });
 }
 
+// ── Teacher/student exercise mode ───────────────────────────
+let currentXLinkedActivity = null;
+let currentXLinkedSolution = null;
+
+function getXLinkedConfig(source = 'sim') {
+  const isTeacher = source === 'teacher';
+  return {
+    mother: isTeacher ? document.getElementById('teacherMother').value : (document.querySelector('[name="mother"]:checked')?.value || 'X^AX^a'),
+    father: isTeacher ? document.getElementById('teacherFather').value : (document.querySelector('[name="father"]:checked')?.value || 'X^AY'),
+    traitName: document.getElementById(isTeacher ? 'teacherTraitName' : 'traitName').value.trim() || 'Rasgo',
+    domAllele: document.getElementById(isTeacher ? 'teacherAlleleA' : 'alleleA').value.trim() || 'A',
+    recAllele: document.getElementById(isTeacher ? 'teacherAlleleA2' : 'alleleA2').value.trim() || 'a',
+  };
+}
+
+function applyXLinkedConfig(config = {}) {
+  document.getElementById('traitName').value = config.traitName || 'Rasgo';
+  document.getElementById('alleleA').value = config.domAllele || 'A';
+  document.getElementById('alleleA2').value = config.recAllele || 'a';
+  selectParents(config.mother || 'X^AX^a', config.father || 'X^AY');
+  if (document.getElementById('teacherMother')) {
+    document.getElementById('teacherMother').value = config.mother || 'X^AX^a';
+    document.getElementById('teacherFather').value = config.father || 'X^AY';
+    document.getElementById('teacherTraitName').value = config.traitName || 'Rasgo';
+    document.getElementById('teacherAlleleA').value = config.domAllele || 'A';
+    document.getElementById('teacherAlleleA2').value = config.recAllele || 'a';
+    updateTeacherXLinkedNotation();
+  }
+}
+
+function getXLinkedOffspring(config = getXLinkedConfig()) {
+  const mother = Genetics.parseXLinked(config.mother);
+  const father = Genetics.parseXLinked(config.father);
+  const femGametes = Genetics.generateXLinkedGametes(mother)
+    .map(g => g.replace('X^A', `X^${config.domAllele}`).replace('X^a', `X^${config.recAllele}`));
+  const malGametes = Genetics.generateXLinkedGametes(father)
+    .map(g => g.replace('X^A', `X^${config.domAllele}`).replace('X^a', `X^${config.recAllele}`));
+  const offspring = [];
+  for (const mg of malGametes) {
+    for (const fg of femGametes) {
+      const genotype = mg === 'Y'
+        ? fg + 'Y'
+        : combineXGametes(fg, mg, config.domAllele, config.recAllele);
+      const pheno = getXPhenoInfo(genotype, config.domAllele, config.recAllele, config.traitName);
+      offspring.push({ genotype, cls: pheno.cls, label: pheno.label });
+    }
+  }
+  return offspring;
+}
+
+function getXLinkedSolution(config = getXLinkedConfig()) {
+  const offspring = getXLinkedOffspring(config);
+  const total = offspring.length;
+  const count = cls => offspring.filter(item => item.cls === cls).length;
+  const affectedCount = count('yaff') + count('xaff');
+  const carrierCount = count('xcarr');
+  const outcomeRows = [
+    { key: 'ynorm', label: uiText('maleNormal', 'Hombre normal'), count: count('ynorm') },
+    { key: 'yaff', label: uiText('maleAffected', 'Hombre afectado'), count: count('yaff') },
+    { key: 'xnorm', label: uiText('femaleNormal', 'Mujer normal'), count: count('xnorm') },
+    { key: 'xcarr', label: uiText('femaleCarrier', 'Mujer portadora'), count: count('xcarr') },
+    { key: 'xaff', label: uiText('femaleAffected', 'Mujer afectada'), count: count('xaff') },
+  ];
+  const globalRows = [
+    { key: 'affected', label: uiText('affectedDescendants', 'Descendientes afectados (cualquier sexo)'), count: affectedCount },
+    { key: 'carrierWomen', label: uiText('carrierWomen', 'Mujeres portadoras'), count: carrierCount },
+  ];
+  return {
+    sections: [
+      { id: 'outcomes', title: 'Resultados por sexo y fenotipo', total, rows: outcomeRows },
+      { id: 'global', title: 'Probabilidades globales', total, rows: globalRows },
+    ],
+    summary: {
+      outcomeRatio: MendelSimExercises.buildRatioString(outcomeRows),
+      globalRatio: MendelSimExercises.buildRatioString(globalRows),
+    },
+  };
+}
+
+function buildXLinkedExerciseData(mode = 'teacher') {
+  const config = getXLinkedConfig('teacher');
+  const solution = getXLinkedSolution(config);
+  const motherDisp = config.mother.replace(/A/g, config.domAllele).replace(/a/g, config.recAllele);
+  const fatherDisp = config.father.replace(/A/g, config.domAllele).replace(/a/g, config.recAllele);
+  const title = document.getElementById('teacherExerciseTitle').value.trim() ||
+    `Herencia ligada al sexo: ${config.traitName}`;
+  const allowAutoCheck = document.getElementById('teacherAllowAutoCheck').checked;
+  return {
+    type: 'mendelsim-cross-exercise',
+    version: 1,
+    module: 'ligado-sexo',
+    launchMode: mode,
+    metadata: {
+      title,
+      prompt: document.getElementById('teacherPrompt').value.trim(),
+      allowAutoCheck,
+      trait: config.traitName,
+      crossLabel: `${motherDisp} × ${fatherDisp}`,
+      inheritance: 'Herencia recesiva ligada al cromosoma X',
+    },
+    assignment: {
+      allowAutoCheck,
+    },
+    config,
+    solution: mode === 'student' && allowAutoCheck ? solution : null,
+  };
+}
+
+function loadXLinkedActivityData(data, sourceLabel = 'actividad') {
+  if (!data || data.type !== 'mendelsim-cross-exercise' || data.module !== 'ligado-sexo') {
+    throw new Error('El archivo no contiene una actividad de herencia ligada al sexo válida.');
+  }
+  applyXLinkedConfig(data.config || {});
+  document.getElementById('teacherExerciseTitle').value = data.metadata?.title || '';
+  document.getElementById('teacherPrompt').value = data.metadata?.prompt || '';
+  document.getElementById('teacherAllowAutoCheck').checked = !!(data.metadata?.allowAutoCheck || data.assignment?.allowAutoCheck);
+
+  if (data.launchMode === 'student') {
+    renderXLinkedStudentActivity(data, sourceLabel, true);
+  } else {
+    MendelSimExercises.switchTab('crear');
+    MendelSimExercises.setStatus('teacherExerciseStatus', `Actividad cargada: ${sourceLabel}.`, 'success');
+  }
+}
+
+function renderXLinkedStudentActivity(data, sourceLabel = 'actividad', studentOnly = false) {
+  currentXLinkedActivity = data;
+  currentXLinkedSolution = getXLinkedSolution(data.config || {});
+  MendelSimExercises.renderStudentActivity(data, currentXLinkedSolution, {
+    defaultTitle: 'Actividad ligada al sexo',
+  });
+  MendelSimExercises.showStudentTab(studentOnly);
+}
+
+function previewXLinkedExercise() {
+  renderXLinkedStudentActivity(buildXLinkedExerciseData('student'), 'previsualización');
+}
+
+async function copyXLinkedStudentURL() {
+  const encoded = MendelSimExercises.encodeData(buildXLinkedExerciseData('student'));
+  const url = `${location.origin}${location.pathname}#actividad=${encoded}`;
+  await MendelSimExercises.copyText(url, 'Copia esta URL para compartirla con el alumnado:', () => {
+    MendelSimExercises.setStatus('teacherExerciseStatus', 'URL de alumno copiada al portapapeles.', 'success');
+  });
+}
+
+function saveXLinkedExercise(mode = 'teacher') {
+  const data = buildXLinkedExerciseData(mode);
+  const suffix = mode === 'student' ? 'alumno' : 'editable';
+  const filename = `${MendelSimExercises.safeFilename(data.metadata.title)}.${suffix}.mendelsim-ligado-sexo.json`;
+  MendelSimExercises.downloadBlob(
+    new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' }),
+    filename
+  );
+  MendelSimExercises.setStatus('teacherExerciseStatus', 'Archivo JSON generado.', 'success');
+}
+
+function loadXLinkedExerciseFile(event) {
+  MendelSimExercises.readJSONFile(event, loadXLinkedActivityData);
+}
+
+function checkXLinkedStudentAnswers() {
+  if (currentXLinkedSolution) MendelSimExercises.checkStudentAnswers(currentXLinkedSolution);
+}
+
+function collectXLinkedStudentAnswer() {
+  const answer = MendelSimExercises.collectStudentAnswers(currentXLinkedSolution);
+  return {
+    ...answer,
+    activity: currentXLinkedActivity,
+    text: MendelSimExercises.formatAnswersText(currentXLinkedActivity, currentXLinkedSolution),
+  };
+}
+
+function downloadXLinkedStudentAnswers() {
+  const answer = collectXLinkedStudentAnswer();
+  const filename = `${MendelSimExercises.safeFilename(answer.studentName, 'respuesta-alumno')}.respuesta-ligado-sexo.json`;
+  MendelSimExercises.downloadBlob(new Blob([JSON.stringify(answer, null, 2)], { type: 'application/json;charset=utf-8' }), filename);
+}
+
+async function copyXLinkedStudentAnswers() {
+  await MendelSimExercises.copyText(
+    MendelSimExercises.formatAnswersText(currentXLinkedActivity, currentXLinkedSolution),
+    'Copia estas respuestas:',
+    () => {
+      const box = document.getElementById('studentFeedback');
+      box.className = 'alert student-feedback visible alert-success';
+      box.textContent = 'Respuestas copiadas al portapapeles.';
+    }
+  );
+}
+
 initLanguageSelector();
 applyLocaleToStaticPage();
+updateTeacherXLinkedNotation();
+MendelSimExercises.showStudentEmpty('Actividad ligada al sexo');
+MendelSimExercises.loadFromHash(loadXLinkedActivityData);
 </script>
 </body>
 </html>

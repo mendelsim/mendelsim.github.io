@@ -111,7 +111,6 @@ const PEDIGREE_LOCALE = {
     builderAlleleRecNamePlaceholder: `Ex.: albinisme`,
     builderPromptLabel: `Enunciat per a l’alumnat`,
     builderPromptPlaceholder: `Descriu el cas, què han d’observar o què han de deduir...`,
-    builderEmailLabel: `Correu del professor (opcional)`,
     builderAutoCheckLabel: `Permetre l’autocorrecció a l’alumnat`,
     toolSelect: `✥ Moure`,
     toolCouple: `💑 Crear parella`,
@@ -141,7 +140,7 @@ const PEDIGREE_LOCALE = {
     studentJustificationPlaceholder: `Explica quines dades de l’arbre justifiquen la teva resposta...`,
     studentGenotypeSectionTitle: `🧬 Genotips proposats`,
     studentTableHead: `<th>Individu</th><th>Sexe</th><th>Estat observat</th><th>Genotip</th><th>Notes</th>`,
-    studentBtns: [`✅ Comprovar`, `💾 Descarregar respostes`, `📋 Copiar respostes`, `✉️ Preparar correu`],
+    studentBtns: [`✅ Comprovar`, `💾 Descarregar respostes`, `📋 Copiar respostes`],
   },
   en: {
     lang: `en`,
@@ -202,7 +201,6 @@ const PEDIGREE_LOCALE = {
     builderAlleleRecNamePlaceholder: `E.g.: albinism`,
     builderPromptLabel: `Prompt for students`,
     builderPromptPlaceholder: `Describe the case, what students should observe or deduce...`,
-    builderEmailLabel: `Teacher email (optional)`,
     builderAutoCheckLabel: `Allow autocorrection for students`,
     toolSelect: `✥ Move`,
     toolCouple: `💑 Create couple`,
@@ -232,7 +230,7 @@ const PEDIGREE_LOCALE = {
     studentJustificationPlaceholder: `Explain which data from the tree justify your answer...`,
     studentGenotypeSectionTitle: `🧬 Proposed genotypes`,
     studentTableHead: `<th>Individual</th><th>Sex</th><th>Observed status</th><th>Genotype</th><th>Notes</th>`,
-    studentBtns: [`✅ Check`, `💾 Download answers`, `📋 Copy answers`, `✉️ Prepare email`],
+    studentBtns: [`✅ Check`, `💾 Download answers`, `📋 Copy answers`],
   },
 };
 
@@ -330,7 +328,6 @@ function applyLocaleToStaticPage() {
   setAttr(`#builderAlleleRecName`, `placeholder`, S.builderAlleleRecNamePlaceholder);
   setText(`label[for="builderCasePrompt"]`, S.builderPromptLabel);
   setAttr(`#builderCasePrompt`, `placeholder`, S.builderPromptPlaceholder);
-  setText(`label[for="builderTeacherEmail"]`, S.builderEmailLabel);
   setText(`#builderAllowAutoCheck + span`, S.builderAutoCheckLabel);
   setText(`#tool-select`, S.toolSelect);
   setText(`#tool-couple`, S.toolCouple);
@@ -675,32 +672,41 @@ function resetBuilderAnalysisPanel() {
 
 function getBuilderMetadata() {
   return {
-    title: document.getElementById('builderCaseTitle').value.trim(),
-    trait: document.getElementById('builderTraitName').value.trim(),
-    organismType: document.getElementById('builderOrganismType').value,
-    prompt: document.getElementById('builderCasePrompt').value.trim(),
-    expectedPattern: document.getElementById('builderExpectedPattern').value,
-    alleleDom: document.getElementById('builderAlleleDom').value.trim() || 'A',
-    alleleDomName: document.getElementById('builderAlleleDomName').value.trim(),
-    alleleRec: document.getElementById('builderAlleleRec').value.trim() || 'a',
-    alleleRecName: document.getElementById('builderAlleleRecName').value.trim(),
-    teacherEmail: document.getElementById('builderTeacherEmail').value.trim(),
-    allowAutoCheck: document.getElementById('builderAllowAutoCheck').checked,
+    title: document.getElementById('builderCaseTitle')?.value.trim() || '',
+    trait: document.getElementById('builderTraitName')?.value.trim() || '',
+    organismType: document.getElementById('builderOrganismType')?.value || 'human',
+    prompt: document.getElementById('builderCasePrompt')?.value.trim() || '',
+    expectedPattern: document.getElementById('builderExpectedPattern')?.value || '',
+    alleleDom: document.getElementById('builderAlleleDom')?.value.trim() || 'A',
+    alleleDomName: document.getElementById('builderAlleleDomName')?.value.trim() || '',
+    alleleRec: document.getElementById('builderAlleleRec')?.value.trim() || 'a',
+    alleleRecName: document.getElementById('builderAlleleRecName')?.value.trim() || '',
+    allowAutoCheck: !!document.getElementById('builderAllowAutoCheck')?.checked,
   };
 }
 
 function setBuilderMetadata(metadata = {}) {
-  document.getElementById('builderCaseTitle').value = metadata.title || '';
-  document.getElementById('builderTraitName').value = metadata.trait || '';
-  document.getElementById('builderOrganismType').value = metadata.organismType === 'other' ? 'other' : 'human';
-  document.getElementById('builderCasePrompt').value = metadata.prompt || '';
-  document.getElementById('builderExpectedPattern').value = metadata.expectedPattern || '';
-  document.getElementById('builderAlleleDom').value = metadata.alleleDom || 'A';
-  document.getElementById('builderAlleleDomName').value = metadata.alleleDomName || '';
-  document.getElementById('builderAlleleRec').value = metadata.alleleRec || 'a';
-  document.getElementById('builderAlleleRecName').value = metadata.alleleRecName || '';
-  document.getElementById('builderTeacherEmail').value = metadata.teacherEmail || '';
-  document.getElementById('builderAllowAutoCheck').checked = !!metadata.allowAutoCheck;
+  const caseTitle = document.getElementById('builderCaseTitle');
+  const traitName = document.getElementById('builderTraitName');
+  const organismType = document.getElementById('builderOrganismType');
+  const casePrompt = document.getElementById('builderCasePrompt');
+  const expectedPattern = document.getElementById('builderExpectedPattern');
+  const alleleDom = document.getElementById('builderAlleleDom');
+  const alleleDomName = document.getElementById('builderAlleleDomName');
+  const alleleRec = document.getElementById('builderAlleleRec');
+  const alleleRecName = document.getElementById('builderAlleleRecName');
+  const allowAutoCheck = document.getElementById('builderAllowAutoCheck');
+
+  if (caseTitle) caseTitle.value = metadata.title || '';
+  if (traitName) traitName.value = metadata.trait || '';
+  if (organismType) organismType.value = metadata.organismType === 'other' ? 'other' : 'human';
+  if (casePrompt) casePrompt.value = metadata.prompt || '';
+  if (expectedPattern) expectedPattern.value = metadata.expectedPattern || '';
+  if (alleleDom) alleleDom.value = metadata.alleleDom || 'A';
+  if (alleleDomName) alleleDomName.value = metadata.alleleDomName || '';
+  if (alleleRec) alleleRec.value = metadata.alleleRec || 'a';
+  if (alleleRecName) alleleRecName.value = metadata.alleleRecName || '';
+  if (allowAutoCheck) allowAutoCheck.checked = !!metadata.allowAutoCheck;
   updateBuilderMetadata();
 }
 
@@ -724,7 +730,6 @@ function resetBuilderMetadata() {
     alleleDomName: '',
     alleleRec: 'a',
     alleleRecName: '',
-    teacherEmail: '',
     allowAutoCheck: false,
   });
 }
@@ -796,7 +801,6 @@ function metadataFromExercise(exercise) {
     alleleDomName: '',
     alleleRec: alleles.alleleRec,
     alleleRecName: '',
-    teacherEmail: '',
     allowAutoCheck: false,
   };
 }
@@ -866,7 +870,6 @@ function serializeBuilderCase(mode = 'teacher') {
     metadata,
     assignment: {
       allowAutoCheck: !!metadata.allowAutoCheck,
-      teacherEmail: metadata.teacherEmail || '',
     },
     individuals: Array.from(builderEngine.individuals.values()).map(ind => ({
       id: ind.id,
@@ -898,7 +901,6 @@ function normalizeBuilderCase(data) {
   const metadata = { ...(data.metadata || {}) };
   if (!metadata.title && data.title) metadata.title = data.title;
   if (!metadata.organismType) metadata.organismType = 'human';
-  metadata.teacherEmail = metadata.teacherEmail || data.assignment?.teacherEmail || '';
   metadata.allowAutoCheck = !!(metadata.allowAutoCheck || data.assignment?.allowAutoCheck);
   if (!metadata.prompt && (data.description || data.question)) {
     metadata.prompt = [data.description, data.question].filter(Boolean).join('\n\n');
@@ -906,7 +908,7 @@ function normalizeBuilderCase(data) {
   return {
     metadata,
     launchMode: data.launchMode || 'teacher',
-    assignment: data.assignment || { allowAutoCheck: !!metadata.allowAutoCheck, teacherEmail: metadata.teacherEmail || '' },
+    assignment: data.assignment || { allowAutoCheck: !!metadata.allowAutoCheck },
     solution: data.solution || null,
     exercise: {
       id: data.id || Date.now(),
@@ -1327,14 +1329,6 @@ async function copyStudentAnswers() {
   } catch (err) {
     prompt(t('pedigree.alert.copyPrompt', 'Copia estas respuestas:'), text);
   }
-}
-
-function emailStudentAnswers() {
-  const assignment = currentStudentAssignment;
-  const email = assignment?.assignment?.teacherEmail || assignment?.metadata?.teacherEmail || '';
-  const subject = encodeURIComponent(`${t('pedigree.email.subject', 'Respuesta MendelSim')} - ${assignment?.metadata?.title || t('pedigree.title.pedigree', 'Pedigrí')}`);
-  const body = encodeURIComponent(formatStudentAnswersText());
-  location.href = `mailto:${email}?subject=${subject}&body=${body}`;
 }
 
 function normalizeGenotypeForCheck(value) {

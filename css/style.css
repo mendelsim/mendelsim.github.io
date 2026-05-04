@@ -392,6 +392,65 @@ select:focus, input:focus, textarea:focus {
 }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
+.tabs.student-only-tabs {
+  justify-content: flex-start;
+}
+
+/* ── Teacher/student exercises ───────────────────────────── */
+.exercise-status {
+  min-height: 1.25rem;
+  margin-top: 0.7rem;
+  font-size: 0.84rem;
+  color: #64748b;
+}
+.exercise-status.success { color: #15803d; font-weight: 600; }
+.exercise-status.warning { color: #b45309; font-weight: 600; }
+.student-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+.student-meta-item {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.55rem 0.7rem;
+  background: #fff;
+}
+.exercise-answer-section { margin-top: 1rem; }
+.exercise-answer-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin-top: 0.55rem;
+}
+.exercise-answer-table th {
+  background: var(--primary);
+  color: #fff;
+  padding: 0.45rem 0.65rem;
+  text-align: left;
+  font-weight: 600;
+}
+.exercise-answer-table td {
+  padding: 0.45rem 0.65rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+.exercise-answer-table tr:nth-child(even) td { background: #f9fafb; }
+.student-count-input {
+  max-width: 7rem;
+}
+.exercise-total {
+  color: #64748b;
+  white-space: nowrap;
+}
+.student-feedback {
+  display: none;
+  margin-top: 0.75rem;
+}
+.student-feedback.visible { display: flex; flex-direction: column; }
+.check-ok { color: #15803d; font-weight: 700; }
+.check-error { color: #b91c1c; font-weight: 700; }
 
 /* ── Alerts ──────────────────────────────────────────────── */
 .alert {
@@ -737,6 +796,12 @@ footer a:hover {
   box-shadow: 0 0 0 3px rgba(95,219,139,0.15);
 }
 [data-theme="dark"] .card { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .law-box {
+  background: linear-gradient(135deg, #0d2e1a, #0a2216);
+  border-color: var(--border);
+}
+[data-theme="dark"] .law-title { color: var(--primary); }
+[data-theme="dark"] .law-box p { color: var(--text); }
 [data-theme="dark"] .module-card { background: var(--card); border-color: var(--border); color: var(--text); }
 [data-theme="dark"] .module-card p { color: #9dba9d; }
 [data-theme="dark"] .module-card h3 { color: var(--primary); }
@@ -745,6 +810,9 @@ footer a:hover {
 [data-theme="dark"] .tab-btn { color: #9dba9d; }
 [data-theme="dark"] .tab-btn:hover { color: var(--primary); }
 [data-theme="dark"] .tab-btn.active { color: var(--primary); }
+[data-theme="dark"] .student-meta-item { background: #192619; border-color: var(--border); }
+[data-theme="dark"] .exercise-answer-table td { border-bottom-color: #1e301e; }
+[data-theme="dark"] .exercise-answer-table tr:nth-child(even) td { background: #192619; }
 [data-theme="dark"] .punnett-cell { background: #1e2e1e; color: var(--text); }
 [data-theme="dark"] .punnett-cell.row-header { background: #1e361e; color: var(--primary); }
 [data-theme="dark"] .punnett-cell.result { background: #1a291a; }

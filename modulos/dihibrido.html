@@ -94,6 +94,14 @@
     <p style="font-size:0.9rem;">Los alelos de genes situados en cromosomas diferentes se distribuyen de forma independiente durante la formación de gametos. Esto produce 4 tipos de gametos en proporciones iguales (para un doble heterocigoto AaBb: AB, Ab, aB, ab).</p>
   </div>
 
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="simular" onclick="MendelSimExercises.switchTab('simular', this)">🧪 Simular</button>
+    <button class="tab-btn" data-tab="crear" onclick="MendelSimExercises.switchTab('crear', this)">🎓 Crear ejercicio</button>
+    <button class="tab-btn" data-tab="alumno" id="studentTabBtn" onclick="MendelSimExercises.switchTab('alumno', this)">📥 Actividad</button>
+  </div>
+
+  <div id="tab-simular" class="tab-content active">
+
   <!-- ── Sección 1: Configuración ── -->
   <div class="card">
     <div class="card-title" id="configTitle"><span class="step-number">1</span> Configuración del cruce dihíbrido</div>
@@ -220,11 +228,160 @@
     <div id="qaList"></div>
   </div>
 
+  </div>
+
+  <div id="tab-crear" class="tab-content">
+    <div class="card">
+      <div class="card-title">🎓 Crear ejercicio dihíbrido</div>
+      <div class="alert alert-info">
+        <span class="alert-icon">📌</span>
+        <div>Define el cruce, escribe el enunciado y genera una actividad con proporciones sobre 16 combinaciones.</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="min-width:220px;">
+          <label for="teacherExerciseTitle">Título del ejercicio</label>
+          <input type="text" id="teacherExerciseTitle" placeholder="Ej: Color y forma de semillas">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="teacherPrompt">Enunciado para el alumnado</label>
+        <textarea id="teacherPrompt" rows="4" placeholder="Describe el cruce y qué debe calcular el alumnado..."></textarea>
+      </div>
+
+      <hr class="divider" style="margin:1rem 0;">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="teacherAlleleADom">Símbolo dominante gen A</label>
+          <input type="text" id="teacherAlleleADom" value="A" maxlength="3" placeholder="A" oninput="updateTeacherDihybridNotation()">
+        </div>
+        <div class="form-group">
+          <label for="teacherAlleleARec">Símbolo recesivo gen A</label>
+          <input type="text" id="teacherAlleleARec" value="a" maxlength="3" placeholder="a" oninput="updateTeacherDihybridNotation()">
+        </div>
+        <div class="form-group">
+          <label for="teacherAlleleBDom">Símbolo dominante gen B</label>
+          <input type="text" id="teacherAlleleBDom" value="B" maxlength="3" placeholder="B" oninput="updateTeacherDihybridNotation()">
+        </div>
+        <div class="form-group">
+          <label for="teacherAlleleBRec">Símbolo recesivo gen B</label>
+          <input type="text" id="teacherAlleleBRec" value="b" maxlength="3" placeholder="b" oninput="updateTeacherDihybridNotation()">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Genotipo Progenitor P1</label>
+          <select id="teacherP1A">
+            <option value="Aa">Aa</option>
+            <option value="AA">AA</option>
+            <option value="aa">aa</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <select id="teacherP1B">
+            <option value="Bb">Bb</option>
+            <option value="BB">BB</option>
+            <option value="bb">bb</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Genotipo Progenitor P2</label>
+          <select id="teacherP2A">
+            <option value="Aa">Aa</option>
+            <option value="AA">AA</option>
+            <option value="aa">aa</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <select id="teacherP2B">
+            <option value="Bb">Bb</option>
+            <option value="BB">BB</option>
+            <option value="bb">bb</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="teacherTraitAdom" id="teacherTraitAdomLabel">Carácter A dominante (A_)</label>
+          <input type="text" id="teacherTraitAdom" value="Amarillo" placeholder="Ej: Amarillo">
+        </div>
+        <div class="form-group">
+          <label for="teacherTraitArec" id="teacherTraitArecLabel">Carácter A recesivo (aa)</label>
+          <input type="text" id="teacherTraitArec" value="Verde" placeholder="Ej: Verde">
+        </div>
+        <div class="form-group">
+          <label for="teacherTraitBdom" id="teacherTraitBdomLabel">Carácter B dominante (B_)</label>
+          <input type="text" id="teacherTraitBdom" value="Liso" placeholder="Ej: Liso">
+        </div>
+        <div class="form-group">
+          <label for="teacherTraitBrec" id="teacherTraitBrecLabel">Carácter B recesivo (bb)</label>
+          <input type="text" id="teacherTraitBrec" value="Rugoso" placeholder="Ej: Rugoso">
+        </div>
+      </div>
+
+      <label class="form-group" style="display:flex;gap:0.5rem;align-items:center;">
+        <input type="checkbox" id="teacherAllowAutoCheck" checked>
+        <span>Permitir autocorrección al alumnado</span>
+      </label>
+
+      <div class="btn-group" style="margin-top:0.75rem;">
+        <button class="btn btn-primary" onclick="previewDihybridExercise()">🔍 Previsualizar actividad</button>
+        <button class="btn btn-outline" onclick="copyDihybridStudentURL()">🔗 Compartir con alumnado</button>
+        <button class="btn btn-outline" onclick="saveDihybridExercise('teacher')">💾 Guardar editable</button>
+        <button class="btn btn-outline" onclick="saveDihybridExercise('student')">🎓 Guardar alumno</button>
+        <button class="btn btn-outline" onclick="document.getElementById('dihybridExerciseFile').click()">📂 Cargar actividad</button>
+        <input type="file" id="dihybridExerciseFile" accept=".json,application/json" style="display:none;" onchange="loadDihybridExerciseFile(event)">
+      </div>
+      <div id="teacherExerciseStatus" class="exercise-status" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div id="tab-alumno" class="tab-content">
+    <div class="card">
+      <div class="card-title" id="studentExerciseTitle">Actividad dihíbrida</div>
+      <div id="studentExercisePrompt" class="alert alert-info" style="display:none;">
+        <span class="alert-icon">📖</span>
+        <div id="studentExercisePromptText"></div>
+      </div>
+      <div class="student-meta" id="studentExerciseMeta"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✍️ Respuesta del alumno</div>
+      <div class="form-row">
+        <div class="form-group" style="min-width:220px;">
+          <label for="studentName">Nombre</label>
+          <input type="text" id="studentName" placeholder="Nombre y apellidos">
+        </div>
+      </div>
+      <div id="studentAnswerSections"></div>
+      <div class="form-group" style="margin-top:1rem;">
+        <label for="studentJustification">Justificación</label>
+        <textarea id="studentJustification" rows="3" placeholder="Explica cómo has obtenido las proporciones..."></textarea>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" id="studentCheckBtn" onclick="checkDihybridStudentAnswers()">✅ Comprobar</button>
+        <button class="btn btn-outline" onclick="document.getElementById('dihybridStudentExerciseFile').click()">📂 Cargar actividad</button>
+        <button class="btn btn-outline" onclick="downloadDihybridStudentAnswers()">💾 Descargar respuestas</button>
+        <button class="btn btn-outline" onclick="copyDihybridStudentAnswers()">📋 Copiar respuestas</button>
+        <input type="file" id="dihybridStudentExerciseFile" accept=".json,application/json" style="display:none;" onchange="loadDihybridExerciseFile(event)">
+      </div>
+      <div id="studentAutoCheckNote" class="exercise-status"></div>
+      <div id="studentFeedback" class="alert student-feedback"></div>
+    </div>
+  </div>
+
 </div>
 
 <footer>
   <div>
-    <strong><a href="https://bilateria.org" target="_blank" rel="noopener">Juan José de Haro</a></strong> &mdash; MendelSim v1.3
+    <strong><a href="https://bilateria.org" target="_blank" rel="noopener">Juan José de Haro</a></strong> &mdash; MendelSim v1.4
   </div>
   <div style="margin-top:0.3rem">
     Código: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">AGPLv3</a>
@@ -242,6 +399,7 @@
 <script src="../js/dihibrido-content-es.js"></script>
 <script src="../js/dihibrido-content-ca.js"></script>
 <script src="../js/dihibrido-content-en.js"></script>
+<script src="../js/exercise-mode.js"></script>
 <script>
 // ── Presets ──────────────────────────────────────────────────
 const DIHYBRID_CONTENT = window.DIHYBRID_CONTENT || {};
@@ -587,8 +745,269 @@ function limpiar() {
   document.getElementById('punnettGrid').innerHTML = '';
 }
 
+// ── Teacher/student exercise mode ───────────────────────────
+let currentDihybridActivity = null;
+let currentDihybridSolution = null;
+
+function getDihybridConfig(source = 'sim') {
+  const prefix = source === 'teacher' ? 'teacherP' : 'p';
+  const traitPrefix = source === 'teacher' ? 'teacherTrait' : 'trait';
+  const isTeacher = source === 'teacher';
+  return {
+    p1A: document.getElementById(`${prefix}1A`).value,
+    p1B: document.getElementById(`${prefix}1B`).value,
+    p2A: document.getElementById(`${prefix}2A`).value,
+    p2B: document.getElementById(`${prefix}2B`).value,
+    alleleADom: isTeacher ? (document.getElementById('teacherAlleleADom').value.trim() || 'A') : 'A',
+    alleleARec: isTeacher ? (document.getElementById('teacherAlleleARec').value.trim() || 'a') : 'a',
+    alleleBDom: isTeacher ? (document.getElementById('teacherAlleleBDom').value.trim() || 'B') : 'B',
+    alleleBRec: isTeacher ? (document.getElementById('teacherAlleleBRec').value.trim() || 'b') : 'b',
+    traitAdom: document.getElementById(`${traitPrefix}Adom`).value.trim() || 'A_',
+    traitArec: document.getElementById(`${traitPrefix}Arec`).value.trim() || 'aa',
+    traitBdom: document.getElementById(`${traitPrefix}Bdom`).value.trim() || 'B_',
+    traitBrec: document.getElementById(`${traitPrefix}Brec`).value.trim() || 'bb',
+  };
+}
+
+function applyDihybridConfig(config = {}) {
+  document.getElementById('p1A').value = config.p1A || 'Aa';
+  document.getElementById('p1B').value = config.p1B || 'Bb';
+  document.getElementById('p2A').value = config.p2A || 'Aa';
+  document.getElementById('p2B').value = config.p2B || 'Bb';
+  document.getElementById('traitAdom').value = config.traitAdom || 'A_';
+  document.getElementById('traitArec').value = config.traitArec || 'aa';
+  document.getElementById('traitBdom').value = config.traitBdom || 'B_';
+  document.getElementById('traitBrec').value = config.traitBrec || 'bb';
+  if (document.getElementById('teacherP1A')) {
+    document.getElementById('teacherAlleleADom').value = config.alleleADom || 'A';
+    document.getElementById('teacherAlleleARec').value = config.alleleARec || 'a';
+    document.getElementById('teacherAlleleBDom').value = config.alleleBDom || 'B';
+    document.getElementById('teacherAlleleBRec').value = config.alleleBRec || 'b';
+    document.getElementById('teacherP1A').value = config.p1A || 'Aa';
+    document.getElementById('teacherP1B').value = config.p1B || 'Bb';
+    document.getElementById('teacherP2A').value = config.p2A || 'Aa';
+    document.getElementById('teacherP2B').value = config.p2B || 'Bb';
+    document.getElementById('teacherTraitAdom').value = config.traitAdom || 'A_';
+    document.getElementById('teacherTraitArec').value = config.traitArec || 'aa';
+    document.getElementById('teacherTraitBdom').value = config.traitBdom || 'B_';
+    document.getElementById('teacherTraitBrec').value = config.traitBrec || 'bb';
+    updateTeacherDihybridNotation();
+  }
+}
+
+function displayDihybridGenotype(genotype, config) {
+  const alleleMap = {
+    A: config.alleleADom || 'A',
+    a: config.alleleARec || 'a',
+    B: config.alleleBDom || 'B',
+    b: config.alleleBRec || 'b'
+  };
+
+  return String(genotype || '')
+    .split('')
+    .map(allele => alleleMap[allele] || allele)
+    .join('');
+}
+
+function updateTeacherDihybridNotation() {
+  const alleleADom = document.getElementById('teacherAlleleADom')?.value.trim() || 'A';
+  const alleleARec = document.getElementById('teacherAlleleARec')?.value.trim() || 'a';
+  const alleleBDom = document.getElementById('teacherAlleleBDom')?.value.trim() || 'B';
+  const alleleBRec = document.getElementById('teacherAlleleBRec')?.value.trim() || 'b';
+  const labelsA = {
+    Aa: `${alleleADom}${alleleARec}`,
+    AA: `${alleleADom}${alleleADom}`,
+    aa: `${alleleARec}${alleleARec}`
+  };
+  const labelsB = {
+    Bb: `${alleleBDom}${alleleBRec}`,
+    BB: `${alleleBDom}${alleleBDom}`,
+    bb: `${alleleBRec}${alleleBRec}`
+  };
+
+  ['teacherP1A', 'teacherP2A'].forEach(selectId => {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    Array.from(select.options).forEach(option => {
+      option.textContent = labelsA[option.value] || option.value;
+    });
+  });
+
+  ['teacherP1B', 'teacherP2B'].forEach(selectId => {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    Array.from(select.options).forEach(option => {
+      option.textContent = labelsB[option.value] || option.value;
+    });
+  });
+
+  const traitAdomLabel = document.getElementById('teacherTraitAdomLabel');
+  const traitArecLabel = document.getElementById('teacherTraitArecLabel');
+  const traitBdomLabel = document.getElementById('teacherTraitBdomLabel');
+  const traitBrecLabel = document.getElementById('teacherTraitBrecLabel');
+  if (traitAdomLabel) traitAdomLabel.textContent = `Carácter A dominante (${alleleADom}_)`;
+  if (traitArecLabel) traitArecLabel.textContent = `Carácter A recesivo (${alleleARec}${alleleARec})`;
+  if (traitBdomLabel) traitBdomLabel.textContent = `Carácter B dominante (${alleleBDom}_)`;
+  if (traitBrecLabel) traitBrecLabel.textContent = `Carácter B recesivo (${alleleBRec}${alleleBRec})`;
+}
+
+function getDihybridSolution(config = getDihybridConfig()) {
+  const p1 = config.p1A + config.p1B;
+  const p2 = config.p2A + config.p2B;
+  const traitNames = {
+    domA: config.traitAdom || 'A_',
+    recA: config.traitArec || 'aa',
+    domB: config.traitBdom || 'B_',
+    recB: config.traitBrec || 'bb',
+    phAB: `${config.traitAdom || 'A_'} + ${config.traitBdom || 'B_'}`,
+    phAb: `${config.traitAdom || 'A_'} + ${config.traitBrec || 'bb'}`,
+    phaB: `${config.traitArec || 'aa'} + ${config.traitBdom || 'B_'}`,
+    phab: `${config.traitArec || 'aa'} + ${config.traitBrec || 'bb'}`,
+  };
+  const gametes1 = Genetics.generateGametes(Genetics.parseGenotype(p1));
+  const gametes2 = Genetics.generateGametes(Genetics.parseGenotype(p2));
+  const punnett = Genetics.buildPunnett(gametes1, gametes2);
+  const flat = punnett.flat();
+  const genoRows = Genetics.genotypeRatios(flat).map(row => ({
+    key: row.genotype,
+    label: displayDihybridGenotype(row.genotype, config),
+    count: row.count,
+  }));
+  const phenoRows = Genetics.dihybridPhenotypeRatios(flat, traitNames).map(row => ({
+    key: row.phenotype,
+    label: row.label,
+    count: row.count,
+  }));
+  return {
+    sections: [
+      { id: 'genotypes', title: 'Proporciones genotípicas', total: flat.length, rows: genoRows },
+      { id: 'phenotypes', title: 'Proporciones fenotípicas', total: flat.length, rows: phenoRows },
+    ],
+    summary: {
+      genotypeRatio: MendelSimExercises.buildRatioString(genoRows),
+      phenotypeRatio: MendelSimExercises.buildRatioString(phenoRows),
+    },
+  };
+}
+
+function buildDihybridExerciseData(mode = 'teacher') {
+  const config = getDihybridConfig('teacher');
+  const solution = getDihybridSolution(config);
+  const p1 = config.p1A + config.p1B;
+  const p2 = config.p2A + config.p2B;
+  const title = document.getElementById('teacherExerciseTitle').value.trim() ||
+    `Cruce dihíbrido ${p1} × ${p2}`;
+  const allowAutoCheck = document.getElementById('teacherAllowAutoCheck').checked;
+  return {
+    type: 'mendelsim-cross-exercise',
+    version: 1,
+    module: 'dihibrido',
+    launchMode: mode,
+    metadata: {
+      title,
+      prompt: document.getElementById('teacherPrompt').value.trim(),
+      allowAutoCheck,
+      trait: `${config.traitAdom}/${config.traitArec} y ${config.traitBdom}/${config.traitBrec}`,
+      crossLabel: `${displayDihybridGenotype(p1, config)} × ${displayDihybridGenotype(p2, config)}`,
+      inheritance: 'Dominancia completa en dos genes independientes',
+    },
+    assignment: {
+      allowAutoCheck,
+    },
+    config,
+    solution: mode === 'student' && allowAutoCheck ? solution : null,
+  };
+}
+
+function loadDihybridActivityData(data, sourceLabel = 'actividad') {
+  if (!data || data.type !== 'mendelsim-cross-exercise' || data.module !== 'dihibrido') {
+    throw new Error('El archivo no contiene una actividad dihíbrida válida.');
+  }
+  applyDihybridConfig(data.config || {});
+  document.getElementById('teacherExerciseTitle').value = data.metadata?.title || '';
+  document.getElementById('teacherPrompt').value = data.metadata?.prompt || '';
+  document.getElementById('teacherAllowAutoCheck').checked = !!(data.metadata?.allowAutoCheck || data.assignment?.allowAutoCheck);
+
+  if (data.launchMode === 'student') {
+    renderDihybridStudentActivity(data, sourceLabel, true);
+  } else {
+    MendelSimExercises.switchTab('crear');
+    MendelSimExercises.setStatus('teacherExerciseStatus', `Actividad cargada: ${sourceLabel}.`, 'success');
+  }
+}
+
+function renderDihybridStudentActivity(data, sourceLabel = 'actividad', studentOnly = false) {
+  currentDihybridActivity = data;
+  currentDihybridSolution = getDihybridSolution(data.config || {});
+  MendelSimExercises.renderStudentActivity(data, currentDihybridSolution, {
+    defaultTitle: 'Actividad dihíbrida',
+  });
+  MendelSimExercises.showStudentTab(studentOnly);
+}
+
+function previewDihybridExercise() {
+  renderDihybridStudentActivity(buildDihybridExerciseData('student'), 'previsualización');
+}
+
+async function copyDihybridStudentURL() {
+  const encoded = MendelSimExercises.encodeData(buildDihybridExerciseData('student'));
+  const url = `${location.origin}${location.pathname}#actividad=${encoded}`;
+  await MendelSimExercises.copyText(url, 'Copia esta URL para compartirla con el alumnado:', () => {
+    MendelSimExercises.setStatus('teacherExerciseStatus', 'URL de alumno copiada al portapapeles.', 'success');
+  });
+}
+
+function saveDihybridExercise(mode = 'teacher') {
+  const data = buildDihybridExerciseData(mode);
+  const suffix = mode === 'student' ? 'alumno' : 'editable';
+  const filename = `${MendelSimExercises.safeFilename(data.metadata.title)}.${suffix}.mendelsim-dihibrido.json`;
+  MendelSimExercises.downloadBlob(
+    new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' }),
+    filename
+  );
+  MendelSimExercises.setStatus('teacherExerciseStatus', 'Archivo JSON generado.', 'success');
+}
+
+function loadDihybridExerciseFile(event) {
+  MendelSimExercises.readJSONFile(event, loadDihybridActivityData);
+}
+
+function checkDihybridStudentAnswers() {
+  if (currentDihybridSolution) MendelSimExercises.checkStudentAnswers(currentDihybridSolution);
+}
+
+function collectDihybridStudentAnswer() {
+  const answer = MendelSimExercises.collectStudentAnswers(currentDihybridSolution);
+  return {
+    ...answer,
+    activity: currentDihybridActivity,
+    text: MendelSimExercises.formatAnswersText(currentDihybridActivity, currentDihybridSolution),
+  };
+}
+
+function downloadDihybridStudentAnswers() {
+  const answer = collectDihybridStudentAnswer();
+  const filename = `${MendelSimExercises.safeFilename(answer.studentName, 'respuesta-alumno')}.respuesta-dihibrido.json`;
+  MendelSimExercises.downloadBlob(new Blob([JSON.stringify(answer, null, 2)], { type: 'application/json;charset=utf-8' }), filename);
+}
+
+async function copyDihybridStudentAnswers() {
+  await MendelSimExercises.copyText(
+    MendelSimExercises.formatAnswersText(currentDihybridActivity, currentDihybridSolution),
+    'Copia estas respuestas:',
+    () => {
+      const box = document.getElementById('studentFeedback');
+      box.className = 'alert student-feedback visible alert-success';
+      box.textContent = 'Respuestas copiadas al portapapeles.';
+    }
+  );
+}
+
 initLanguageSelector();
 applyLocaleToStaticPage();
+updateTeacherDihybridNotation();
+MendelSimExercises.showStudentEmpty('Actividad dihíbrida');
+MendelSimExercises.loadFromHash(loadDihybridActivityData);
 </script>
 </body>
 </html>

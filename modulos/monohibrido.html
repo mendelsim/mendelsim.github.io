@@ -97,6 +97,14 @@
     <p><strong>Ley de la Segregación (2.ª ley):</strong> Los dos alelos de un gen se separan durante la formación de gametos; cada gameto recibe solo un alelo. Al cruzar heterocigotos F1 se recuperan ambos fenotipos en proporción 3:1.</p>
   </div>
 
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="simular" onclick="MendelSimExercises.switchTab('simular', this)">🧪 Simular</button>
+    <button class="tab-btn" data-tab="crear" onclick="MendelSimExercises.switchTab('crear', this)">🎓 Crear ejercicio</button>
+    <button class="tab-btn" data-tab="alumno" id="studentTabBtn" onclick="MendelSimExercises.switchTab('alumno', this)">📥 Actividad</button>
+  </div>
+
+  <div id="tab-simular" class="tab-content active">
+
   <!-- ── Sección 1: Configuración ── -->
   <div class="card">
     <div class="card-title" id="configTitle"><span class="step-number">1</span> Configuración del cruce</div>
@@ -232,11 +240,141 @@
     <div id="qaList"></div>
   </div>
 
+  </div>
+
+  <div id="tab-crear" class="tab-content">
+    <div class="card">
+      <div class="card-title">🎓 Crear ejercicio monohíbrido</div>
+      <div class="alert alert-info">
+        <span class="alert-icon">📌</span>
+        <div>Define el cruce, escribe el enunciado y genera una actividad para compartir con el alumnado.</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="min-width:220px;">
+          <label for="teacherExerciseTitle">Título del ejercicio</label>
+          <input type="text" id="teacherExerciseTitle" placeholder="Ej: Flores rojas y blancas">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="teacherPrompt">Enunciado para el alumnado</label>
+        <textarea id="teacherPrompt" rows="4" placeholder="Describe el cruce y qué debe calcular el alumnado..."></textarea>
+      </div>
+
+      <hr class="divider" style="margin:1rem 0;">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="teacherAlleleDom">Símbolo alelo dominante</label>
+          <input type="text" id="teacherAlleleDom" value="A" maxlength="3" placeholder="A" oninput="updateTeacherMonoNotation()">
+        </div>
+        <div class="form-group">
+          <label for="teacherAlleleRec">Símbolo alelo recesivo</label>
+          <input type="text" id="teacherAlleleRec" value="a" maxlength="3" placeholder="a" oninput="updateTeacherMonoNotation()">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="teacherP1Select">Genotipo Progenitor P1</label>
+          <select id="teacherP1Select" onchange="onTeacherMonoDominanceChange()">
+            <option value="Aa">Aa (heterocigoto)</option>
+            <option value="AA">AA (homocigoto dominante)</option>
+            <option value="aa">aa (homocigoto recesivo)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="teacherP2Select">Genotipo Progenitor P2</label>
+          <select id="teacherP2Select" onchange="onTeacherMonoDominanceChange()">
+            <option value="Aa">Aa (heterocigoto)</option>
+            <option value="AA">AA (homocigoto dominante)</option>
+            <option value="aa">aa (homocigoto recesivo)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Tipo de dominancia</label>
+        <div class="radio-group">
+          <label><input type="radio" name="teacherDominance" value="complete" checked onchange="onTeacherMonoDominanceChange()"> Dominancia completa</label>
+          <label><input type="radio" name="teacherDominance" value="incomplete" onchange="onTeacherMonoDominanceChange()"> Dominancia incompleta</label>
+          <label><input type="radio" name="teacherDominance" value="codominance" onchange="onTeacherMonoDominanceChange()"> Codominancia</label>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="teacherTraitDom" id="teacherLabelDom">Fenotipo alelo dominante (A)</label>
+          <input type="text" id="teacherTraitDom" value="Amarillo" placeholder="Ej: Amarillo">
+        </div>
+        <div class="form-group">
+          <label for="teacherTraitRec" id="teacherLabelRec">Fenotipo alelo recesivo (a)</label>
+          <input type="text" id="teacherTraitRec" value="Verde" placeholder="Ej: Verde">
+        </div>
+        <div class="form-group" id="teacherInterGroup" style="display:none;">
+          <label for="teacherTraitInter" id="teacherLabelInter">Fenotipo heterocigoto Aa</label>
+          <input type="text" id="teacherTraitInter" value="Intermedio" placeholder="Ej: Rosa">
+        </div>
+      </div>
+
+      <label class="form-group" style="display:flex;gap:0.5rem;align-items:center;">
+        <input type="checkbox" id="teacherAllowAutoCheck" checked>
+        <span>Permitir autocorrección al alumnado</span>
+      </label>
+
+      <div class="btn-group" style="margin-top:0.75rem;">
+        <button class="btn btn-primary" onclick="previewMonoExercise()">🔍 Previsualizar actividad</button>
+        <button class="btn btn-outline" onclick="copyMonoStudentURL()">🔗 Compartir con alumnado</button>
+        <button class="btn btn-outline" onclick="saveMonoExercise('teacher')">💾 Guardar editable</button>
+        <button class="btn btn-outline" onclick="saveMonoExercise('student')">🎓 Guardar alumno</button>
+        <button class="btn btn-outline" onclick="document.getElementById('monoExerciseFile').click()">📂 Cargar actividad</button>
+        <input type="file" id="monoExerciseFile" accept=".json,application/json" style="display:none;" onchange="loadMonoExerciseFile(event)">
+      </div>
+      <div id="teacherExerciseStatus" class="exercise-status" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div id="tab-alumno" class="tab-content">
+    <div class="card">
+      <div class="card-title" id="studentExerciseTitle">Actividad monohíbrida</div>
+      <div id="studentExercisePrompt" class="alert alert-info" style="display:none;">
+        <span class="alert-icon">📖</span>
+        <div id="studentExercisePromptText"></div>
+      </div>
+      <div class="student-meta" id="studentExerciseMeta"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✍️ Respuesta del alumno</div>
+      <div class="form-row">
+        <div class="form-group" style="min-width:220px;">
+          <label for="studentName">Nombre</label>
+          <input type="text" id="studentName" placeholder="Nombre y apellidos">
+        </div>
+      </div>
+      <div id="studentAnswerSections"></div>
+      <div class="form-group" style="margin-top:1rem;">
+        <label for="studentJustification">Justificación</label>
+        <textarea id="studentJustification" rows="3" placeholder="Explica cómo has obtenido las proporciones..."></textarea>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" id="studentCheckBtn" onclick="checkMonoStudentAnswers()">✅ Comprobar</button>
+        <button class="btn btn-outline" onclick="document.getElementById('monoStudentExerciseFile').click()">📂 Cargar actividad</button>
+        <button class="btn btn-outline" onclick="downloadMonoStudentAnswers()">💾 Descargar respuestas</button>
+        <button class="btn btn-outline" onclick="copyMonoStudentAnswers()">📋 Copiar respuestas</button>
+        <input type="file" id="monoStudentExerciseFile" accept=".json,application/json" style="display:none;" onchange="loadMonoExerciseFile(event)">
+      </div>
+      <div id="studentAutoCheckNote" class="exercise-status"></div>
+      <div id="studentFeedback" class="alert student-feedback"></div>
+    </div>
+  </div>
+
 </div>
 
 <footer>
   <div>
-    <strong><a href="https://bilateria.org" target="_blank" rel="noopener">Juan José de Haro</a></strong> &mdash; MendelSim v1.3
+    <strong><a href="https://bilateria.org" target="_blank" rel="noopener">Juan José de Haro</a></strong> &mdash; MendelSim v1.4
   </div>
   <div style="margin-top:0.3rem">
     Código: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">AGPLv3</a>
@@ -254,6 +392,7 @@
 <script src="../js/monohibrido-content-es.js"></script>
 <script src="../js/monohibrido-content-ca.js"></script>
 <script src="../js/monohibrido-content-en.js"></script>
+<script src="../js/exercise-mode.js"></script>
 <script>
 // ── State ────────────────────────────────────────────────────
 let currentPunnett = [];
@@ -745,11 +884,258 @@ function limpiar() {
   currentPunnett = [];
 }
 
+// ── Teacher/student exercise mode ───────────────────────────
+let currentMonoActivity = null;
+let currentMonoSolution = null;
+
+function getMonoConfig(source = 'sim') {
+  const isTeacher = source === 'teacher';
+  const dominanceName = isTeacher ? 'teacherDominance' : 'dominance';
+  const dominance = document.querySelector(`input[name="${dominanceName}"]:checked`)?.value || 'complete';
+  const alleleDom = isTeacher ? (document.getElementById('teacherAlleleDom').value.trim() || 'A') : 'A';
+  const alleleRec = isTeacher ? (document.getElementById('teacherAlleleRec').value.trim() || 'a') : 'a';
+  return {
+    p1: document.getElementById(isTeacher ? 'teacherP1Select' : 'p1Select').value,
+    p2: document.getElementById(isTeacher ? 'teacherP2Select' : 'p2Select').value,
+    dominance,
+    alleleDom,
+    alleleRec,
+    traitDom: document.getElementById(isTeacher ? 'teacherTraitDom' : 'traitDom').value.trim() || 'Dominante',
+    traitRec: document.getElementById(isTeacher ? 'teacherTraitRec' : 'traitRec').value.trim() || 'Recesivo',
+    traitInter: document.getElementById(isTeacher ? 'teacherTraitInter' : 'traitInter').value.trim() || 'Intermedio',
+  };
+}
+
+function applyMonoConfig(config = {}) {
+  document.getElementById('p1Select').value = config.p1 || 'Aa';
+  document.getElementById('p2Select').value = config.p2 || 'Aa';
+  document.querySelectorAll('input[name="dominance"]').forEach(radio => {
+    radio.checked = radio.value === (config.dominance || 'complete');
+  });
+  document.getElementById('traitDom').value = config.traitDom || 'Dominante';
+  document.getElementById('traitRec').value = config.traitRec || 'Recesivo';
+  document.getElementById('traitInter').value = config.traitInter || 'Intermedio';
+  onDomChange();
+  if (document.getElementById('teacherP1Select')) {
+    document.getElementById('teacherAlleleDom').value = config.alleleDom || 'A';
+    document.getElementById('teacherAlleleRec').value = config.alleleRec || 'a';
+    document.getElementById('teacherP1Select').value = config.p1 || 'Aa';
+    document.getElementById('teacherP2Select').value = config.p2 || 'Aa';
+    document.querySelectorAll('input[name="teacherDominance"]').forEach(radio => {
+      radio.checked = radio.value === (config.dominance || 'complete');
+    });
+    document.getElementById('teacherTraitDom').value = config.traitDom || 'Dominante';
+    document.getElementById('teacherTraitRec').value = config.traitRec || 'Recesivo';
+    document.getElementById('teacherTraitInter').value = config.traitInter || 'Intermedio';
+    updateTeacherMonoNotation();
+    onTeacherMonoDominanceChange();
+  }
+}
+
+function displayMonoGenotype(genotype, config) {
+  const alleleMap = {
+    A: config.alleleDom || 'A',
+    a: config.alleleRec || 'a'
+  };
+
+  return String(genotype || '')
+    .split('')
+    .map(allele => alleleMap[allele] || allele)
+    .join('');
+}
+
+function updateTeacherMonoNotation() {
+  const domAllele = document.getElementById('teacherAlleleDom')?.value.trim() || 'A';
+  const recAllele = document.getElementById('teacherAlleleRec')?.value.trim() || 'a';
+  const genotypeLabels = {
+    Aa: `${domAllele}${recAllele} (heterocigoto)`,
+    AA: `${domAllele}${domAllele} (homocigoto dominante)`,
+    aa: `${recAllele}${recAllele} (homocigoto recesivo)`
+  };
+
+  ['teacherP1Select', 'teacherP2Select'].forEach(selectId => {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    Array.from(select.options).forEach(option => {
+      option.textContent = genotypeLabels[option.value] || option.value;
+    });
+  });
+}
+
+function onTeacherMonoDominanceChange() {
+  const dom = document.querySelector('input[name="teacherDominance"]:checked')?.value || 'complete';
+  const interGroup = document.getElementById('teacherInterGroup');
+  const labelDom = document.getElementById('teacherLabelDom');
+  const labelRec = document.getElementById('teacherLabelRec');
+  const labelInter = document.getElementById('teacherLabelInter');
+  const domAllele = document.getElementById('teacherAlleleDom')?.value.trim() || 'A';
+  const recAllele = document.getElementById('teacherAlleleRec')?.value.trim() || 'a';
+  updateTeacherMonoNotation();
+  if (!interGroup) return;
+  if (dom === 'complete') {
+    interGroup.style.display = 'none';
+    labelDom.textContent = `Fenotipo alelo dominante (${domAllele})`;
+    labelRec.textContent = `Fenotipo alelo recesivo (${recAllele})`;
+    labelInter.textContent = `Fenotipo heterocigoto ${domAllele}${recAllele}`;
+  } else {
+    interGroup.style.display = '';
+    labelDom.textContent = `Fenotipo homocigoto ${domAllele}${domAllele}`;
+    labelRec.textContent = `Fenotipo homocigoto ${recAllele}${recAllele}`;
+    labelInter.textContent = `Fenotipo heterocigoto ${domAllele}${recAllele}`;
+  }
+}
+
+function getMonoSolution(config = getMonoConfig()) {
+  const traitNames = {
+    dominant: config.traitDom || 'Dominante',
+    recessive: config.traitRec || 'Recesivo',
+    intermediate: config.traitInter || 'Intermedio',
+  };
+  const gametes1 = Genetics.generateGametes(Genetics.parseGenotype(config.p1));
+  const gametes2 = Genetics.generateGametes(Genetics.parseGenotype(config.p2));
+  const punnett = Genetics.buildPunnett(gametes1, gametes2);
+  const flat = punnett.flat();
+  const genoRows = Genetics.genotypeRatios(flat).map(row => ({
+    key: row.genotype,
+    label: displayMonoGenotype(row.genotype, config),
+    count: row.count,
+  }));
+  const phenoRows = Genetics.phenotypeRatios(flat, config.dominance, traitNames).map(row => ({
+    key: row.phenotype,
+    label: row.label,
+    count: row.count,
+  }));
+  return {
+    sections: [
+      { id: 'genotypes', title: 'Proporciones genotípicas', total: flat.length, rows: genoRows },
+      { id: 'phenotypes', title: 'Proporciones fenotípicas', total: flat.length, rows: phenoRows },
+    ],
+    summary: {
+      genotypeRatio: MendelSimExercises.buildRatioString(genoRows),
+      phenotypeRatio: MendelSimExercises.buildRatioString(phenoRows),
+    },
+  };
+}
+
+function buildMonoExerciseData(mode = 'teacher') {
+  const config = getMonoConfig('teacher');
+  const solution = getMonoSolution(config);
+  const title = document.getElementById('teacherExerciseTitle').value.trim() ||
+    `Cruce monohíbrido ${config.p1} × ${config.p2}`;
+  const allowAutoCheck = document.getElementById('teacherAllowAutoCheck').checked;
+  return {
+    type: 'mendelsim-cross-exercise',
+    version: 1,
+    module: 'monohibrido',
+    launchMode: mode,
+    metadata: {
+      title,
+      prompt: document.getElementById('teacherPrompt').value.trim(),
+      allowAutoCheck,
+      trait: `${config.traitDom} / ${config.traitRec}`,
+      crossLabel: `${displayMonoGenotype(config.p1, config)} × ${displayMonoGenotype(config.p2, config)}`,
+      inheritance: DOMINANCE_LABELS[config.dominance] || config.dominance,
+    },
+    assignment: {
+      allowAutoCheck,
+    },
+    config,
+    solution: mode === 'student' && allowAutoCheck ? solution : null,
+  };
+}
+
+function loadMonoActivityData(data, sourceLabel = 'actividad') {
+  if (!data || data.type !== 'mendelsim-cross-exercise' || data.module !== 'monohibrido') {
+    throw new Error('El archivo no contiene una actividad monohíbrida válida.');
+  }
+  applyMonoConfig(data.config || {});
+  document.getElementById('teacherExerciseTitle').value = data.metadata?.title || '';
+  document.getElementById('teacherPrompt').value = data.metadata?.prompt || '';
+  document.getElementById('teacherAllowAutoCheck').checked = !!(data.metadata?.allowAutoCheck || data.assignment?.allowAutoCheck);
+
+  if (data.launchMode === 'student') {
+    renderMonoStudentActivity(data, sourceLabel, true);
+  } else {
+    MendelSimExercises.switchTab('crear');
+    MendelSimExercises.setStatus('teacherExerciseStatus', `Actividad cargada: ${sourceLabel}.`, 'success');
+  }
+}
+
+function renderMonoStudentActivity(data, sourceLabel = 'actividad', studentOnly = false) {
+  currentMonoActivity = data;
+  currentMonoSolution = getMonoSolution(data.config || {});
+  MendelSimExercises.renderStudentActivity(data, currentMonoSolution, {
+    defaultTitle: 'Actividad monohíbrida',
+  });
+  MendelSimExercises.showStudentTab(studentOnly);
+}
+
+function previewMonoExercise() {
+  renderMonoStudentActivity(buildMonoExerciseData('student'), 'previsualización');
+}
+
+async function copyMonoStudentURL() {
+  const encoded = MendelSimExercises.encodeData(buildMonoExerciseData('student'));
+  const url = `${location.origin}${location.pathname}#actividad=${encoded}`;
+  await MendelSimExercises.copyText(url, 'Copia esta URL para compartirla con el alumnado:', () => {
+    MendelSimExercises.setStatus('teacherExerciseStatus', 'URL de alumno copiada al portapapeles.', 'success');
+  });
+}
+
+function saveMonoExercise(mode = 'teacher') {
+  const data = buildMonoExerciseData(mode);
+  const suffix = mode === 'student' ? 'alumno' : 'editable';
+  const filename = `${MendelSimExercises.safeFilename(data.metadata.title)}.${suffix}.mendelsim-monohibrido.json`;
+  MendelSimExercises.downloadBlob(
+    new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' }),
+    filename
+  );
+  MendelSimExercises.setStatus('teacherExerciseStatus', 'Archivo JSON generado.', 'success');
+}
+
+function loadMonoExerciseFile(event) {
+  MendelSimExercises.readJSONFile(event, loadMonoActivityData);
+}
+
+function checkMonoStudentAnswers() {
+  if (currentMonoSolution) MendelSimExercises.checkStudentAnswers(currentMonoSolution);
+}
+
+function collectMonoStudentAnswer() {
+  const answer = MendelSimExercises.collectStudentAnswers(currentMonoSolution);
+  return {
+    ...answer,
+    activity: currentMonoActivity,
+    text: MendelSimExercises.formatAnswersText(currentMonoActivity, currentMonoSolution),
+  };
+}
+
+function downloadMonoStudentAnswers() {
+  const answer = collectMonoStudentAnswer();
+  const filename = `${MendelSimExercises.safeFilename(answer.studentName, 'respuesta-alumno')}.respuesta-monohibrido.json`;
+  MendelSimExercises.downloadBlob(new Blob([JSON.stringify(answer, null, 2)], { type: 'application/json;charset=utf-8' }), filename);
+}
+
+async function copyMonoStudentAnswers() {
+  await MendelSimExercises.copyText(
+    MendelSimExercises.formatAnswersText(currentMonoActivity, currentMonoSolution),
+    'Copia estas respuestas:',
+    () => {
+      const box = document.getElementById('studentFeedback');
+      box.className = 'alert student-feedback visible alert-success';
+      box.textContent = 'Respuestas copiadas al portapapeles.';
+    }
+  );
+}
+
 // Initialize
 initLanguageSelector();
 applyLocaleToStaticPage();
 onDomChange();
 setDominanceLocked(false);
+updateTeacherMonoNotation();
+MendelSimExercises.showStudentEmpty('Actividad monohíbrida');
+MendelSimExercises.loadFromHash(loadMonoActivityData);
 </script>
 </body>
 </html>
