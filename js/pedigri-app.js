@@ -71,8 +71,11 @@ const PEDIGREE_LOCALE = {
     analyzeGenerate: `🎲 Generar cas`,
     analyzeEditCopy: `✏️ Editar còpia`,
     analyzeTreeTitle: `🌳 Arbre genealògic `,
-    analyzeTreeControls: `Controls de l’arbre d’anàlisi`,
+    analyzeTreeControls: `Controles de l’arbre d’anàlisi`,
     analyzeZoomIn: `Apropar`,
+    analyzeZoomOut: `Allunyar`,
+    analyzeRestore: `Restaurar zoom`,
+    analyzePrint: `Imprimir o desar com a PDF`,
     clueBtn: `💡 Veure pista (0/0)`,
     solutionBtn: `✅ Veure solució`,
     resetBtn: `↺ Reiniciar`,
@@ -120,6 +123,12 @@ const PEDIGREE_LOCALE = {
     toolDelete: `🗑 Eliminar`,
     toolClear: `↺ Netejar`,
     builderTreeTitle: `🌳 Arbre del constructor `,
+    builderFullscreen: `Pantalla completa`,
+    builderSnapGrid: `Quadrícula de 20px`,
+    builderChildSexLabel: `Sexe del descendent`,
+    builderChildSexRandom: `Sexe aleatori`,
+    builderChildSexMale: `Descendent home`,
+    builderChildSexFemale: `Descendent dona`,
     analyzeBuilderBtn: `🔍 Analitzar arbre`,
     builderOutlineActions: [`📋 Carregar exemple`, `💾 Desar editable`, `🎓 Desar alumne`, `📂 Carregar cas`, `📥 Revisar resposta`, `🔗 Compartir amb l’alumnat`, `🖼 Descarregar PNG`, `🖨 Imprimir`],
     builderAnalysisSectionTitle: `🧬 Genotips compatibles`,
@@ -163,6 +172,9 @@ const PEDIGREE_LOCALE = {
     analyzeTreeTitle: `🌳 Family tree `,
     analyzeTreeControls: `Analysis tree controls`,
     analyzeZoomIn: `Zoom in`,
+    analyzeZoomOut: `Zoom out`,
+    analyzeRestore: `Restore zoom`,
+    analyzePrint: `Print or save as PDF`,
     clueBtn: `💡 Show hint (0/0)`,
     solutionBtn: `✅ Show solution`,
     resetBtn: `↺ Reset`,
@@ -210,6 +222,12 @@ const PEDIGREE_LOCALE = {
     toolDelete: `🗑 Delete`,
     toolClear: `↺ Clear`,
     builderTreeTitle: `🌳 Builder tree `,
+    builderFullscreen: `Full screen`,
+    builderSnapGrid: `20px grid`,
+    builderChildSexLabel: `Offspring sex`,
+    builderChildSexRandom: `Random sex`,
+    builderChildSexMale: `Male offspring`,
+    builderChildSexFemale: `Female offspring`,
     analyzeBuilderBtn: `🔍 Analyse tree`,
     builderOutlineActions: [`📋 Load example`, `💾 Save editable`, `🎓 Save student`, `📂 Load case`, `📥 Review response`, `🔗 Share with students`, `🖼 Download PNG`, `🖨 Print`],
     builderAnalysisSectionTitle: `🧬 Compatible genotypes`,
@@ -283,7 +301,10 @@ function applyLocaleToStaticPage() {
   setText(`#tab-analizar .exercise-selector .btn-outline`, S.analyzeEditCopy);
   setLeadingText(`#tab-analizar .tree-title`, S.analyzeTreeTitle);
   setAttr(`#tab-analizar .tree-controls`, `aria-label`, S.analyzeTreeControls);
-  setAttr(`#analysisSvgZoom + .tree-control-btn`, `title`, S.analyzeZoomIn);
+  document.querySelectorAll(`.tree-control-btn[onclick*="-0.1"]`).forEach(b => b.title = S.analyzeZoomOut);
+  document.querySelectorAll(`.tree-control-btn[onclick*="0.1"]`).forEach(b => b.title = S.analyzeZoomIn);
+  document.querySelectorAll(`.tree-control-btn[onclick*="resetTreeZoom"]`).forEach(b => b.title = S.analyzeRestore);
+  document.querySelectorAll(`.tree-control-btn[onclick*="printTree"]`).forEach(b => b.title = S.analyzePrint);
   setText(`#clueBtn`, S.clueBtn);
   setText(`#solutionBtn`, S.solutionBtn);
   setText(`#solutionBtn + .btn-outline`, S.resetBtn);
@@ -296,6 +317,7 @@ function applyLocaleToStaticPage() {
   setText(`#tab-practicar .exercise-selector .btn-secondary`, S.practiceGenerate);
   setText(`#tab-practicar .exercise-selector .btn-outline`, S.practiceEditCopy);
   setText(`#tab-practicar .tree-title`, S.practiceTreeTitle);
+  setAttr(`#tab-practicar .tree-controls`, `aria-label`, S.analyzeTreeControls); // Re-use
   setText(`#practiceAnswerCard .card-title`, S.practiceAnswerTitle);
   document.querySelectorAll(`#patternChoices label`).forEach((label, index) => {
     const input = label.querySelector(`input`);
@@ -330,13 +352,22 @@ function applyLocaleToStaticPage() {
   setAttr(`#builderCasePrompt`, `placeholder`, S.builderPromptPlaceholder);
   setText(`#builderAllowAutoCheck + span`, S.builderAutoCheckLabel);
   setText(`#tool-select`, S.toolSelect);
+  setText(`#tool-addMale`, S.toolAddMale || (S.lang === 'ca' ? '♂ Afegir home' : '♂ Add male'));
+  setText(`#tool-addFemale`, S.toolAddFemale || (S.lang === 'ca' ? '♀ Afegir dona' : '♀ Add female'));
   setText(`#tool-couple`, S.toolCouple);
   setText(`#tool-child`, S.toolChild);
+  setAttr(`.builder-sex-toggle`, `aria-label`, S.builderChildSexLabel);
+  setAttr(`#child-sex-random`, `title`, S.builderChildSexRandom);
+  setAttr(`#child-sex-male`, `title`, S.builderChildSexMale);
+  setAttr(`#child-sex-female`, `title`, S.builderChildSexFemale);
   setText(`#tool-toggleAffected`, S.toolAffected);
   setText(`#tool-toggleCarrier`, S.toolCarrier);
   setText(`#tool-delete`, S.toolDelete);
   setText(`#builderToolbar .tool-btn:last-of-type`, S.toolClear);
   setLeadingText(`#builderWorkspace .builder-section .tree-title`, S.builderTreeTitle);
+  setAttr(`#builderWorkspace .tree-controls`, `aria-label`, S.analyzeTreeControls); // Re-use
+  setAttr(`#builderFullscreenBtn`, `title`, S.builderFullscreen);
+  setText(`.snap-grid-hint`, S.builderSnapGrid);
   setText(`#builderActions .btn-primary`, S.analyzeBuilderBtn);
   S.builderOutlineActions.forEach((text, index) => {
     const btn = document.querySelectorAll(`#builderActions .btn-outline`)[index];
@@ -347,6 +378,7 @@ function applyLocaleToStaticPage() {
 
   setText(`#studentCaseTitle`, S.studentCaseTitle);
   setLeadingText(`#tab-alumno .tree-title`, S.studentTreeTitle);
+  setAttr(`#tab-alumno .tree-controls`, `aria-label`, S.analyzeTreeControls); // Re-use
   setText(`#tab-alumno .card-title:last-of-type`, S.studentAnswerTitle);
   setText(`label[for="studentName"]`, S.studentNameLabel);
   setAttr(`#studentName`, `placeholder`, S.studentNamePlaceholder);
@@ -360,11 +392,22 @@ function applyLocaleToStaticPage() {
   setText(`label[for="studentJustification"]`, S.studentJustificationLabel);
   setAttr(`#studentJustification`, `placeholder`, S.studentJustificationPlaceholder);
   setText(`#tab-alumno .section-title`, S.studentGenotypeSectionTitle);
-  setHTML(`#tab-alumno thead tr`, S.studentTableHead);
+  setHTML(`#tab-alumno .genotype-table thead tr`, S.studentTableHead);
   S.studentBtns.forEach((text, index) => {
     const btn = document.querySelectorAll(`#tab-alumno .btn-group .btn`)[index];
     if (btn) btn.textContent = text;
   });
+
+  const footerLinks = document.querySelectorAll(`footer a[target="_blank"]`);
+  if (footerLinks.length >= 3) {
+    if (S.footerIssues) footerLinks[2].textContent = S.footerIssues;
+  }
+  const footerDiv = document.querySelector(`footer div:last-child`);
+  if (footerDiv) {
+    footerDiv.innerHTML = footerDiv.innerHTML
+      .replace(`Código:`, S.footerCode + `:`)
+      .replace(`Contenidos:`, S.footerContent + `:`);
+  }
 }
 
 function initLanguageSelector() {

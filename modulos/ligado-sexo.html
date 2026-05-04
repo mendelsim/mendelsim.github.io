@@ -508,42 +508,108 @@ function setGenotypeOptionHTML(id, name, value, checked, onchange, genotypeHTML,
 }
 
 function applyLocaleToStaticPage() {
-  if (window.MendelSimI18n?.getLocale() === 'es') return;
-  document.documentElement.lang = window.MendelSimI18n.getLocale();
+  const locale = window.MendelSimI18n?.getLocale() || 'es';
+  document.documentElement.lang = locale;
   document.title = uiText('pageTitle', document.title);
-  setText('.back-btn', uiText('back', '← Inici'));
-  setText('.header h1', uiText('heading', 'Herència lligada al sexe'));
-  setText('.header p', uiText('subtitle', 'Gens en el cromosoma X — portadores, hemizigots, herència recessiva i dominant'));
-  setAttr('#darkToggle', 'title', uiText('darkToggle', 'Mode fosc'));
-  setText('.law-title', uiText('lawTitle', '📜 Herència lligada al sexe'));
+  setText('.back-btn', uiText('back', '← Inicio'));
+  setText('.header h1', uiText('heading', 'Herencia Ligada al Sexo'));
+  setText('.header p', uiText('subtitle', 'Genes en el cromosoma X — portadoras, hemicigotos, herencia recesiva y dominante'));
+  setAttr('#darkToggle', 'title', uiText('darkToggle', 'Modo oscuro'));
+  setText('.law-title', uiText('lawTitle', '📜 Herencia ligada al sexo — Principio de Morgan (1910)'));
   const laws = document.querySelectorAll('.law-box p');
   if (laws[0]) laws[0].innerHTML = uiText('law1', laws[0].innerHTML);
   if (laws[1]) laws[1].innerHTML = uiText('law2', laws[1].innerHTML);
-  setText('#notationTitle', uiText('notationTitle', '📌 Notació utilitzada'));
+  setText('#notationTitle', uiText('notationTitle', '📌 Notación utilizada'));
   setHTML('.xlinked-notation', uiText('notation', document.querySelector('.xlinked-notation')?.innerHTML || ''));
-  setHTML('#configTitle', `<span class="step-number">1</span> ${uiText('configTitle', 'Configuració de l’encreuament')}`);
+  setHTML('#configTitle', `<span class="step-number">1</span> ${uiText('configTitle', 'Configuración del cruce')}`);
   const presetButtons = document.querySelectorAll('#presetsRow .preset-btn');
-  if (presetButtons[3]) presetButtons[3].textContent = uiText('randomExample', '🎲 Nou exemple');
-  setText('#motherLabel', uiText('mother', 'Genotip de la mare'));
-  setText('#fatherLabel', uiText('father', 'Genotip del pare'));
-  setGenotypeOptionHTML('opt-fXAXA', 'mother', 'X^AX^A', true, 'onMotherChange', 'X<sup>A</sup>X<sup>A</sup>', uiText('motherNormal', 'Normal (homozigota dominant)'));
-  setGenotypeOptionHTML('opt-fXAXa', 'mother', 'X^AX^a', false, 'onMotherChange', 'X<sup>A</sup>X<sup>a</sup>', uiText('motherCarrier', 'Portadora (heterozigota)'));
-  setGenotypeOptionHTML('opt-fXaXa', 'mother', 'X^aX^a', false, 'onMotherChange', 'X<sup>a</sup>X<sup>a</sup>', uiText('motherAffected', 'Afectada (homozigota recessiva)'));
+  if (presetButtons[3]) presetButtons[3].textContent = uiText('randomExample', '🎲 Nuevo ejemplo');
+  setText('#motherLabel', uiText('mother', 'Genotipo de la madre'));
+  setText('#fatherLabel', uiText('father', 'Genotipo del padre'));
+  setGenotypeOptionHTML('opt-fXAXA', 'mother', 'X^AX^A', true, 'onMotherChange', 'X<sup>A</sup>X<sup>A</sup>', uiText('motherNormal', 'Normal (homocigota dominante)'));
+  setGenotypeOptionHTML('opt-fXAXa', 'mother', 'X^AX^a', false, 'onMotherChange', 'X<sup>A</sup>X<sup>a</sup>', uiText('motherCarrier', 'Portadora (heterocigota)'));
+  setGenotypeOptionHTML('opt-fXaXa', 'mother', 'X^aX^a', false, 'onMotherChange', 'X<sup>a</sup>X<sup>a</sup>', uiText('motherAffected', 'Afectada (homocigota recesiva)'));
   setGenotypeOptionHTML('opt-mXAY', 'father', 'X^AY', true, 'onFatherChange', 'X<sup>A</sup>Y', uiText('fatherNormal', 'Normal'));
-  setGenotypeOptionHTML('opt-mXaY', 'father', 'X^aY', false, 'onFatherChange', 'X<sup>a</sup>Y', uiText('fatherAffected', 'Afectat'));
-  setText('label[for="traitName"]', uiText('traitName', 'Nom del tret / malaltia'));
-  setText('label[for="alleleA"]', uiText('domAllele', 'Al·lel dominant (A = normal)'));
-  setText('label[for="alleleA2"]', uiText('recAllele', 'Al·lel recessiu (a = afectat)'));
-  setText('.btn-group .btn-primary', uiText('run', '▶ Fer l’encreuament'));
-  setText('.btn-group .btn-outline', uiText('clear', '↺ Netejar'));
-  setHTML('#punnettTitle', `<span class="step-number">2</span> ${uiText('punnettTitle', 'Quadre de Punnett (herència lligada a l’X)')}`);
-  setHTML('#punnettSection .alert div', uiText('punnettHint', 'Els homes hereten el cromosoma X de la mare i el Y del pare.'));
-  setHTML('#punnettSection p strong', uiText('parents', 'Progenitors') + ':');
-  setHTML('#resultsTitle', `<span class="step-number">3</span> ${uiText('resultsTitle', 'Resultats per sexe')}`);
-  setText('#resultsSection .section-title', uiText('globalProb', '📊 Probabilitats globals'));
-  setHTML('#explainTitle', `<span class="step-number">4</span> ${uiText('explainTitle', 'Per què els trets X-recessius afecten més els homes?')}`);
+  setGenotypeOptionHTML('opt-mXaY', 'father', 'X^aY', false, 'onFatherChange', 'X<sup>a</sup>Y', uiText('fatherAffected', 'Afectado'));
+  setText('label[for="traitName"]', uiText('traitName', 'Nombre del rasgo / enfermedad'));
+  setAttr('#traitName', 'placeholder', uiText('traitNamePlaceholder', 'Ej: Daltonismo'));
+  if (document.getElementById('traitName').value === 'Hemofilia A') {
+    document.getElementById('traitName').value = uiText('traitNameFallback', 'Hemofilia A');
+  }
+
+  setText('label[for="alleleA"]', uiText('domAllele', 'Alelo dominante (A = normal)'));
+  if (document.getElementById('alleleA').value === 'H') {
+    document.getElementById('alleleA').value = uiText('alleleAdomFallback', 'H');
+  }
+
+  setText('label[for="alleleA2"]', uiText('recAllele', 'Alelo recesivo (a = afectado)'));
+  if (document.getElementById('alleleA2').value === 'h') {
+    document.getElementById('alleleA2').value = uiText('alleleArecFallback', 'h');
+  }
+
+  setText('.btn-group .btn-primary', uiText('run', '▶ Realizar cruce'));
+  setText('.btn-group .btn-outline', uiText('clear', '↺ Limpiar'));
+  setHTML('#punnettTitle', `<span class="step-number">2</span> ${uiText('punnettTitle', 'Cuadro de Punnett (herencia ligada al X)')}`);
+  setHTML('#punnettSection .alert div', uiText('punnettHint', 'Los hombres heredan el cromosoma X de la madre y el Y del padre. Por eso los hombres no pueden ser "portadores" de rasgos ligados al X recesivo — o lo expresan o no lo tienen.'));
+  setHTML('#punnettSection p strong', uiText('parents', 'Progenitores') + ':');
+  setHTML('#resultsTitle', `<span class="step-number">3</span> ${uiText('resultsTitle', 'Resultados por sexo')}`);
+  setText('#resultsSection .section-title', uiText('globalProb', '📊 Probabilidades globales'));
+  setHTML('#explainTitle', `<span class="step-number">4</span> ${uiText('explainTitle', '¿Por qué los rasgos X-recesivos afectan más a hombres?')}`);
   setHTML('#explainSection .alert-warning div', uiText('hemizygousBox', document.querySelector('#explainSection .alert-warning div')?.innerHTML || ''));
-  setText('#explainSection .section-title', uiText('reviewQuestions', '❓ Preguntes de repàs'));
+  setText('#explainSection .section-title', uiText('reviewQuestions', '❓ Preguntas de repaso'));
+  setText('[data-tab="simular"]', uiText('tabSimulate', '🧪 Simular'));
+  setText('[data-tab="crear"]', uiText('tabCreate', '🎓 Crear ejercicio'));
+  setText('[data-tab="alumno"]', uiText('tabActivity', '📥 Actividad'));
+  setText('#tab-crear .card-title', uiText('teacherCardTitle', '🎓 Crear ejercicio de herencia ligada al sexo'));
+  setHTML('#tab-crear .alert div', uiText('teacherCardAlert', 'Define el caso, escribe el enunciado y genera una actividad sobre descendencia ligada al cromosoma X.'));
+  setText('label[for="teacherExerciseTitle"]', uiText('teacherExerciseTitleLabel', 'Título del ejercicio'));
+  setAttr('#teacherExerciseTitle', 'placeholder', uiText('teacherExerciseTitlePlaceholder', 'Ej: Daltonismo en una familia'));
+  setText('label[for="teacherPrompt"]', uiText('teacherPromptLabel', 'Enunciado para el alumnado'));
+  setAttr('#teacherPrompt', 'placeholder', uiText('teacherPromptPlaceholder', 'Describe el caso y qué probabilidades debe calcular el alumnado...'));
+  setText('label[for="teacherMother"]', uiText('teacherMotherLabel', 'Genotipo de la madre'));
+  document.querySelectorAll('#teacherMother option').forEach(opt => {
+    if (opt.value === 'X^AX^A') opt.textContent = uiText('teacherMotherNormal', 'X^A X^A — Normal');
+    if (opt.value === 'X^AX^a') opt.textContent = uiText('teacherMotherCarrier', 'X^A X^a — Portadora');
+    if (opt.value === 'X^aX^a') opt.textContent = uiText('teacherMotherAffected', 'X^a X^a — Afectada');
+  });
+  setText('label[for="teacherFather"]', uiText('teacherFatherLabel', 'Genotipo del padre'));
+  document.querySelectorAll('#teacherFather option').forEach(opt => {
+    if (opt.value === 'X^AY') opt.textContent = uiText('teacherFatherNormal', 'X^A Y — Normal');
+    if (opt.value === 'X^aY') opt.textContent = uiText('teacherFatherAffected', 'X^a Y — Afectado');
+  });
+  setText('label[for="teacherTraitName"]', uiText('teacherTraitNameLabel', 'Nombre del rasgo / enfermedad'));
+  setText('#teacherAlleleADomLabel', uiText('domAllele', 'Alelo dominante (A = normal)'));
+  setText('#teacherAlleleARecLabel', uiText('recAllele', 'Alelo recesivo (a = afectado)'));
+  setText('#teacherAllowAutoCheck + span', uiText('teacherAutoCheck', 'Permitir autocorrección al alumnado'));
+  const tBtns = document.querySelectorAll('#tab-crear .btn-group .btn');
+  if (tBtns[0]) tBtns[0].textContent = uiText('teacherBtnPreview', '🔍 Previsualizar actividad');
+  if (tBtns[1]) tBtns[1].textContent = uiText('teacherBtnShare', '🔗 Compartir con alumnado');
+  if (tBtns[2]) tBtns[2].textContent = uiText('teacherBtnSaveTeacher', '💾 Guardar editable');
+  if (tBtns[3]) tBtns[3].textContent = uiText('teacherBtnSaveStudent', '🎓 Guardar alumno');
+  if (tBtns[4]) tBtns[4].textContent = uiText('teacherBtnLoad', '📂 Cargar actividad');
+  setText('#studentExerciseTitle', uiText('studentExerciseTitle', 'Actividad ligada al sexo'));
+  setText('#tab-alumno .card:last-child .card-title', uiText('studentAnswerCardTitle', '✍️ Respuesta del alumno'));
+  setText('label[for="studentName"]', uiText('studentNameLabel', 'Nombre'));
+  setAttr('#studentName', 'placeholder', uiText('studentNamePlaceholder', 'Nombre y apellidos'));
+  setText('label[for="studentJustification"]', uiText('studentJustificationLabel', 'Justificación'));
+  setAttr('#studentJustification', 'placeholder', uiText('studentJustificationPlaceholder', 'Explica qué gametos producen los progenitores y cómo obtienes las probabilidades...'));
+  const sBtns = document.querySelectorAll('#tab-alumno .btn-group .btn');
+  if (sBtns[0]) sBtns[0].textContent = uiText('studentBtnCheck', '✅ Comprobar');
+  if (sBtns[1]) sBtns[1].textContent = uiText('studentBtnLoad', '📂 Cargar actividad');
+  if (sBtns[2]) sBtns[2].textContent = uiText('studentBtnDownload', '💾 Descargar respuestas');
+  if (sBtns[3]) sBtns[3].textContent = uiText('studentBtnCopy', '📋 Copiar respuestas');
+  const footer = document.querySelector('footer div:last-child');
+  if (footer) {
+    footer.innerHTML = `
+    ${uiText('footerCode', 'Código')}: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">AGPLv3</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    ${uiText('footerContent', 'Contenidos')}: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    &copy; 2026
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <a href="https://github.com/mendelsim/mendelsim.github.io/issues" target="_blank" rel="noopener">${uiText('footerIssues', 'Sugerencias y errores')}</a>
+  `;
+  }
 }
 
 function pickRandom(items) {

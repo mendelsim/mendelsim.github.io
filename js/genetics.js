@@ -175,9 +175,9 @@ const Genetics = {
     };
 
     const labelMap = {
-      'dom':   traitNames?.dominant   || 'Dominante',
-      'rec':   traitNames?.recessive  || 'Recesivo',
-      'inter': traitNames?.intermediate || 'Intermedio',
+      'dom':   traitNames?.dominant   || t('genetics.dominant', 'Dominante'),
+      'rec':   traitNames?.recessive  || t('genetics.recessive', 'Recesivo'),
+      'inter': traitNames?.intermediate || t('genetics.intermediate', 'Intermedio'),
       'AB':    traitNames?.intermediate || ((traitNames?.dominant || 'A') + ' + ' + (traitNames?.recessive || 'B')),
     };
 
@@ -226,10 +226,10 @@ const Genetics = {
     }
     const tn = traitNames || {};
     const labelMap = {
-      AB: `${tn.domA || 'A_'} + ${tn.domB || 'B_'} (${tn.phAB || 'Ambos dominantes'})`,
-      Ab: `${tn.domA || 'A_'} + ${tn.recB || 'bb'} (${tn.phAb || 'A dominante, b recesivo'})`,
-      aB: `${tn.recA || 'aa'} + ${tn.domB || 'B_'} (${tn.phaB || 'a recesivo, B dominante'})`,
-      ab: `${tn.recA || 'aa'} + ${tn.recB || 'bb'} (${tn.phab || 'Ambos recesivos'})`,
+      AB: `${tn.domA || 'A_'} + ${tn.domB || 'B_'} (${tn.phAB || t('genetics.bothDominant', 'Ambos dominantes')})`,
+      Ab: `${tn.domA || 'A_'} + ${tn.recB || 'bb'} (${tn.phAb || t('genetics.ADomBRec', 'A dominante, b recesivo')})`,
+      aB: `${tn.recA || 'aa'} + ${tn.domB || 'B_'} (${tn.phaB || t('genetics.ARecBDom', 'a recesivo, B dominante')})`,
+      ab: `${tn.recA || 'aa'} + ${tn.recB || 'bb'} (${tn.phab || t('genetics.bothRecessive', 'Ambos recesivos')})`,
     };
     const colorMap = {
       AB: { class: 'pheno-dom',   color: '#d1fae5', textColor: '#065f46' },

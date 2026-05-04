@@ -451,33 +451,33 @@ function initLanguageSelector() {
 }
 
 function applyLocaleToStaticPage() {
-  if (window.MendelSimI18n?.getLocale() === 'es') return;
-  document.documentElement.lang = window.MendelSimI18n.getLocale();
+  const locale = window.MendelSimI18n?.getLocale() || 'es';
+  document.documentElement.lang = locale;
   document.title = uiText('pageTitle', document.title);
-  setText('.back-btn', uiText('back', '← Inici'));
-  setText('.header h1', uiText('heading', 'Encreuament monohíbrid'));
-  setText('.header p', uiText('subtitle', 'Herència d’un sol caràcter — Quadre de Punnett 2×2'));
-  setAttr('#darkToggle', 'title', uiText('darkToggle', 'Mode fosc'));
-  setText('.law-title', uiText('lawTitle', '📜 1a i 2a lleis de Mendel'));
+  setText('.back-btn', uiText('back', '← Inicio'));
+  setText('.header h1', uiText('heading', 'Cruce monohíbrido'));
+  setText('.header p', uiText('subtitle', 'Herencia de un solo carácter — Cuadro de Punnett 2×2'));
+  setAttr('#darkToggle', 'title', uiText('darkToggle', 'Modo oscuro'));
+  setText('.law-title', uiText('lawTitle', '📜 1.ª y 2.ª Leyes de Mendel'));
   const lawParagraphs = document.querySelectorAll('.law-box p');
   if (lawParagraphs[0]) lawParagraphs[0].innerHTML = uiText('lawUniformity', lawParagraphs[0].innerHTML);
   if (lawParagraphs[1]) lawParagraphs[1].innerHTML = uiText('lawSegregation', lawParagraphs[1].innerHTML);
-  setHTML('#configTitle', `<span class="step-number">1</span> ${uiText('configTitleText', 'Configuració de l’encreuament')}`);
-  setText('#configHint', uiText('configHint', 'Selecciona exemples predefinits o configura el teu propi encreuament:'));
+  setHTML('#configTitle', `<span class="step-number">1</span> ${uiText('configTitleText', 'Configuración del cruce')}`);
+  setText('#configHint', uiText('configHint', 'Selecciona ejemplos predefinidos o configura tu propio cruce:'));
   const presetButtons = document.querySelectorAll('#presetsRow .preset-btn');
   ['presetPeas','presetBlood','presetSnapdragon','presetCoat','randomExample','custom'].forEach((key, index) => {
     if (presetButtons[index]) presetButtons[index].textContent = uiText(key, presetButtons[index].textContent);
   });
-  setText('label[for="p1Select"]', uiText('p1', 'Genotip progenitor P1'));
-  setText('label[for="p2Select"]', uiText('p2', 'Genotip progenitor P2'));
+  setText('label[for="p1Select"]', uiText('p1', 'Genotipo Progenitor P1'));
+  setText('label[for="p2Select"]', uiText('p2', 'Genotipo Progenitor P2'));
   document.querySelectorAll('#p1Select option, #p2Select option').forEach(opt => {
-    if (opt.value === 'Aa') opt.textContent = uiText('heterozygous', 'Aa (heterozigot)');
-    if (opt.value === 'AA') opt.textContent = uiText('homoDom', 'AA (homozigot dominant)');
-    if (opt.value === 'aa') opt.textContent = uiText('homoRec', 'aa (homozigot recessiu)');
+    if (opt.value === 'Aa') opt.textContent = uiText('heterozygous', 'Aa (heterocigoto)');
+    if (opt.value === 'AA') opt.textContent = uiText('homoDom', 'AA (homocigoto dominante)');
+    if (opt.value === 'aa') opt.textContent = uiText('homoRec', 'aa (homocigoto recesivo)');
   });
-  setText('#dominanceTypeLabel', uiText('dominanceType', 'Tipus de dominància'));
+  setText('#dominanceTypeLabel', uiText('dominanceType', 'Tipo de dominancia'));
   const dominanceLabels = document.querySelectorAll('#dominanceGroup label');
-  [uiText('complete', 'Dominància completa'), uiText('incomplete', 'Dominància incompleta'), uiText('codominance', 'Codominància')].forEach((text, index) => {
+  [uiText('complete', 'Dominancia completa'), uiText('incomplete', 'Dominancia incompleta'), uiText('codominance', 'Codominancia')].forEach((text, index) => {
     const label = dominanceLabels[index];
     const input = label?.querySelector('input');
     if (label) {
@@ -485,22 +485,93 @@ function applyLocaleToStaticPage() {
       if (input) label.prepend(input);
     }
   });
-  setText('label[for="traitDom"]', uiText('alleleDom', 'Fenotip al·lel dominant (A)'));
-  setText('label[for="traitRec"]', uiText('alleleRec', 'Fenotip al·lel recessiu (a)'));
-  setText('label[for="traitInter"]', uiText('inter', 'Fenotip intermedi (Aa)'));
-  setText('.btn-group .btn-primary', uiText('run', '▶ Fer l’encreuament'));
-  setText('.btn-group .btn-outline', uiText('clear', '↺ Netejar'));
-  setHTML('#punnettSection .card-title', `<span class="step-number">2</span> ${uiText('punnettTitleText', 'Quadre de Punnett')}`);
-  setHTML('#punnettSection .alert div', uiText('punnettHint', 'Cada cel·la mostra el genotip d’un possible descendent.'));
-  setHTML('#resultsSection .card-title', `<span class="step-number">3</span> ${uiText('resultsTitleText', 'Resultats')}`);
-  setText('#resultsSection .section-title:nth-of-type(1)', uiText('genoRatios', '📊 Proporcions genotípiques'));
+  setText('label[for="traitDom"]', uiText('alleleDom', 'Fenotipo alelo dominante (A)'));
+  setAttr('#traitDom', 'placeholder', uiText('traitDomPlaceholder', 'Ej: Amarillo'));
+  if (document.getElementById('traitDom').value === 'Amarillo') {
+    document.getElementById('traitDom').value = uiText('dominantFallback', 'Amarillo');
+  }
+
+  setText('label[for="traitRec"]', uiText('alleleRec', 'Fenotipo alelo recesivo (a)'));
+  setAttr('#traitRec', 'placeholder', uiText('traitRecPlaceholder', 'Ej: Verde'));
+  if (document.getElementById('traitRec').value === 'Verde') {
+    document.getElementById('traitRec').value = uiText('recessiveFallback', 'Verde');
+  }
+
+  setText('label[for="traitInter"]', uiText('inter', 'Fenotipo intermedio (Aa)'));
+  setAttr('#traitInter', 'placeholder', uiText('interPlaceholder', 'Ej: Rosa'));
+  if (document.getElementById('traitInter').value === 'Intermedio') {
+    document.getElementById('traitInter').value = uiText('intermediateFallback', 'Intermedio');
+  }
+
+  setText('.btn-group .btn-primary', uiText('run', '▶ Realizar cruce'));
+  setText('.btn-group .btn-outline', uiText('clear', '↺ Limpiar'));
+  setHTML('#punnettSection .card-title', `<span class="step-number">2</span> ${uiText('punnettTitleText', 'Cuadro de Punnett')}`);
+  setHTML('#punnettSection .alert div', uiText('punnettHint', 'Cada celda muestra el genotipo de un posible descendiente. Las celdas aparecen una por una para que puedas seguir el proceso.'));
+  setHTML('#resultsSection .card-title', `<span class="step-number">3</span> ${uiText('resultsTitleText', 'Resultados')}`);
   const resultTitles = document.querySelectorAll('#resultsSection .section-title');
-  if (resultTitles[0]) resultTitles[0].textContent = uiText('genoRatios', resultTitles[0].textContent);
-  if (resultTitles[1]) resultTitles[1].textContent = uiText('phenoRatios', resultTitles[1].textContent);
-  if (resultTitles[2]) resultTitles[2].textContent = uiText('probabilityTitle', resultTitles[2].textContent);
-  setText('label[for="probSelect"]', uiText('probabilityQuestion', 'Quina és la probabilitat d’obtenir...?'));
-  setHTML('#understandSection .card-title', `<span class="step-number">4</span> ${uiText('understandingTitleText', 'Comprensió i autoavaluació')}`);
-  setText('#understandSection .section-title', uiText('reviewQuestions', '❓ Preguntes de repàs'));
+  if (resultTitles[0]) resultTitles[0].textContent = uiText('genoRatios', '📊 Proporciones genotípicas');
+  if (resultTitles[1]) resultTitles[1].textContent = uiText('phenoRatios', '🎨 Proporciones fenotípicas');
+  if (resultTitles[2]) resultTitles[2].textContent = uiText('probabilityTitle', '🎯 Calculadora de probabilidades');
+  setText('label[for="probSelect"]', uiText('probabilityQuestion', '¿Cuál es la probabilidad de obtener...?'));
+  setHTML('#understandSection .card-title', `<span class="step-number">4</span> ${uiText('understandingTitleText', 'Comprensión y autoevaluación')}`);
+  setText('#understandSection .section-title', uiText('reviewQuestions', '❓ Preguntas de repaso'));
+  setText('[data-tab="simular"]', uiText('tabSimulate', '🧪 Simular'));
+  setText('[data-tab="crear"]', uiText('tabCreate', '🎓 Crear ejercicio'));
+  setText('[data-tab="alumno"]', uiText('tabActivity', '📥 Actividad'));
+  setText('#tab-crear .card-title', uiText('teacherCardTitle', '🎓 Crear ejercicio monohíbrido'));
+  setHTML('#tab-crear .alert div', uiText('teacherCardAlert', 'Define el cruce, escribe el enunciado y genera una actividad para compartir con el alumnado.'));
+  setText('label[for="teacherExerciseTitle"]', uiText('teacherExerciseTitleLabel', 'Título del ejercicio'));
+  setAttr('#teacherExerciseTitle', 'placeholder', uiText('teacherExerciseTitlePlaceholder', 'Ej: Flores rojas y blancas'));
+  setText('label[for="teacherPrompt"]', uiText('teacherPromptLabel', 'Enunciado para el alumnado'));
+  setAttr('#teacherPrompt', 'placeholder', uiText('teacherPromptPlaceholder', 'Describe el cruce y qué debe calcular el alumnado...'));
+  setText('label[for="teacherAlleleDom"]', uiText('teacherAlleleDomLabel', 'Símbolo alelo dominante'));
+  setText('label[for="teacherAlleleRec"]', uiText('teacherAlleleRecLabel', 'Símbolo alelo recesivo'));
+  setText('label[for="teacherP1Select"]', uiText('teacherP1Label', 'Genotipo Progenitor P1'));
+  setText('label[for="teacherP2Select"]', uiText('teacherP2Label', 'Genotipo Progenitor P2'));
+  document.querySelectorAll('#teacherP1Select option, #teacherP2Select option').forEach(opt => {
+    if (opt.value === 'Aa') opt.textContent = uiText('teacherHeterozygous', 'Aa (heterocigoto)');
+    if (opt.value === 'AA') opt.textContent = uiText('teacherHomoDom', 'AA (homocigoto dominante)');
+    if (opt.value === 'aa') opt.textContent = uiText('teacherHomoRec', 'aa (homocigoto recesivo)');
+  });
+  document.querySelectorAll('label:has(input[name="teacherDominance"])').forEach((label, index) => {
+    const input = label.querySelector('input');
+    const texts = [uiText('complete', 'Dominancia completa'), uiText('incomplete', 'Dominancia incompleta'), uiText('codominance', 'Codominancia')];
+    label.textContent = ' ' + (texts[index] || '');
+    if (input) label.prepend(input);
+  });
+  setText('#teacherLabelDom', uiText('teacherLabelDom', 'Fenotipo alelo dominante (A)'));
+  setText('#teacherLabelRec', uiText('teacherLabelRec', 'Fenotipo alelo recesivo (a)'));
+  setText('#teacherLabelInter', uiText('teacherLabelInter', 'Fenotipo heterocigoto Aa'));
+  setText('#teacherAllowAutoCheck + span', uiText('teacherAutoCheck', 'Permitir autocorrección al alumnado'));
+  const tBtns = document.querySelectorAll('#tab-crear .btn-group .btn');
+  if (tBtns[0]) tBtns[0].textContent = uiText('teacherBtnPreview', '🔍 Previsualizar actividad');
+  if (tBtns[1]) tBtns[1].textContent = uiText('teacherBtnShare', '🔗 Compartir con alumnado');
+  if (tBtns[2]) tBtns[2].textContent = uiText('teacherBtnSaveTeacher', '💾 Guardar editable');
+  if (tBtns[3]) tBtns[3].textContent = uiText('teacherBtnSaveStudent', '🎓 Guardar alumno');
+  if (tBtns[4]) tBtns[4].textContent = uiText('teacherBtnLoad', '📂 Cargar actividad');
+  setText('#studentExerciseTitle', uiText('studentExerciseTitle', 'Actividad monohíbrida'));
+  setText('#tab-alumno .card:last-child .card-title', uiText('studentAnswerCardTitle', '✍️ Respuesta del alumno'));
+  setText('label[for="studentName"]', uiText('studentNameLabel', 'Nombre'));
+  setAttr('#studentName', 'placeholder', uiText('studentNamePlaceholder', 'Nombre y apellidos'));
+  setText('label[for="studentJustification"]', uiText('studentJustificationLabel', 'Justificación'));
+  setAttr('#studentJustification', 'placeholder', uiText('studentJustificationPlaceholder', 'Explica cómo has obtenido las proporciones...'));
+  const sBtns = document.querySelectorAll('#tab-alumno .btn-group .btn');
+  if (sBtns[0]) sBtns[0].textContent = uiText('studentBtnCheck', '✅ Comprobar');
+  if (sBtns[1]) sBtns[1].textContent = uiText('studentBtnLoad', '📂 Cargar actividad');
+  if (sBtns[2]) sBtns[2].textContent = uiText('studentBtnDownload', '💾 Descargar respuestas');
+  if (sBtns[3]) sBtns[3].textContent = uiText('studentBtnCopy', '📋 Copiar respuestas');
+  const footer = document.querySelector('footer div:last-child');
+  if (footer) {
+    footer.innerHTML = `
+    ${uiText('footerCode', 'Código')}: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">AGPLv3</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    ${uiText('footerContent', 'Contenidos')}: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    &copy; 2026
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <a href="https://github.com/mendelsim/mendelsim.github.io/issues" target="_blank" rel="noopener">${uiText('footerIssues', 'Sugerencias y errores')}</a>
+  `;
+  }
 }
 
 function pickRandom(items) {

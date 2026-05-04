@@ -74,25 +74,25 @@
     switchTab('alumno', btn);
   }
 
-  function showStudentEmpty(title = 'Actividad MendelSim') {
+  function showStudentEmpty(title = t('exercise.defaultTitle', 'Actividad MendelSim')) {
     const titleEl = document.getElementById('studentExerciseTitle');
     if (titleEl) titleEl.textContent = title;
     const promptBox = document.getElementById('studentExercisePrompt');
     const promptText = document.getElementById('studentExercisePromptText');
     if (promptBox) promptBox.style.display = '';
     if (promptText) {
-      promptText.textContent = 'Abre el enlace que te ha dado tu profesor/a o carga el archivo JSON de actividad.';
+      promptText.textContent = t('exercise.loadFromProfessor', 'Abre el enlace que te ha dado tu profesor/a o carga el archivo JSON de actividad.');
     }
     const meta = document.getElementById('studentExerciseMeta');
     if (meta) meta.innerHTML = '';
     const sections = document.getElementById('studentAnswerSections');
     if (sections) {
-      sections.innerHTML = '<div class="alert alert-warning"><span class="alert-icon">📂</span><div>No hay actividad cargada. Usa el botón para cargar un archivo JSON de actividad.</div></div>';
+      sections.innerHTML = `<div class="alert alert-warning"><span class="alert-icon">📂</span><div>${t('exercise.noActivityLoaded', 'No hay actividad cargada. Usa el botón para cargar un archivo JSON de actividad.')}</div></div>`;
     }
     const checkBtn = document.getElementById('studentCheckBtn');
     if (checkBtn) checkBtn.disabled = true;
     const note = document.getElementById('studentAutoCheckNote');
-    if (note) note.textContent = 'Todavía no hay una actividad cargada.';
+    if (note) note.textContent = t('exercise.noActivityLoadedNote', 'Todavía no hay una actividad cargada.');
   }
 
   function setStatus(id, message, type = '') {
@@ -150,7 +150,7 @@
   }
 
   function renderStudentActivity(data, solution, options = {}) {
-    const title = data.metadata?.title || options.defaultTitle || 'Actividad MendelSim';
+    const title = data.metadata?.title || options.defaultTitle || t('exercise.defaultTitle', 'Actividad MendelSim');
     const prompt = data.metadata?.prompt || '';
     const meta = data.metadata || {};
 
@@ -166,9 +166,9 @@
     }
 
     const metaItems = [];
-    if (meta.trait) metaItems.push(`<div class="student-meta-item"><strong>Rasgo</strong><br>${escapeHTML(meta.trait)}</div>`);
-    if (meta.crossLabel) metaItems.push(`<div class="student-meta-item"><strong>Cruce</strong><br>${formatGenotypeHTML(meta.crossLabel)}</div>`);
-    if (meta.inheritance) metaItems.push(`<div class="student-meta-item"><strong>Modelo</strong><br>${escapeHTML(meta.inheritance)}</div>`);
+    if (meta.trait) metaItems.push(`<div class="student-meta-item"><strong>${t('exercise.trait', 'Rasgo')}</strong><br>${escapeHTML(meta.trait)}</div>`);
+    if (meta.crossLabel) metaItems.push(`<div class="student-meta-item"><strong>${t('exercise.cross', 'Cruce')}</strong><br>${formatGenotypeHTML(meta.crossLabel)}</div>`);
+    if (meta.inheritance) metaItems.push(`<div class="student-meta-item"><strong>${t('exercise.model', 'Modelo')}</strong><br>${escapeHTML(meta.inheritance)}</div>`);
     document.getElementById('studentExerciseMeta').innerHTML = metaItems.join('');
 
     const form = document.getElementById('studentAnswerSections');
@@ -185,7 +185,7 @@
         <div class="exercise-answer-section">
           <div class="section-title">${escapeHTML(section.title)}</div>
           <table class="exercise-answer-table">
-            <thead><tr><th>Resultado</th><th>Casos</th><th>Total</th></tr></thead>
+            <thead><tr><th>${t('exercise.result', 'Resultado')}</th><th>${t('exercise.cases', 'Casos')}</th><th>${t('exercise.total', 'Total')}</th></tr></thead>
             <tbody>${tableRows}</tbody>
           </table>
         </div>
@@ -201,8 +201,8 @@
     const checkBtn = document.getElementById('studentCheckBtn');
     if (checkBtn) checkBtn.disabled = !autoCheck;
     document.getElementById('studentAutoCheckNote').textContent = autoCheck
-      ? 'El profesor ha activado la autocorrección para esta actividad.'
-      : 'El profesor no ha activado la autocorrección. Completa la respuesta y envíala.';
+      ? t('exercise.autoCheckEnabled', 'El profesor ha activado la autocorrección para esta actividad.')
+      : t('exercise.autoCheckDisabled', 'El profesor no ha activado la autocorrección. Completa la respuesta y envíala.');
   }
 
   function collectStudentAnswers(solution) {
@@ -243,30 +243,30 @@
         const value = answer.counts[section.id]?.[row.key];
         const ok = Number(value) === Number(row.count);
         if (ok) correct++;
-        lines.push(`<p><span class="${ok ? 'check-ok' : 'check-error'}">${ok ? '✓' : '✗'}</span> ${formatGenotypeHTML(row.label)}: ${value ?? '(sin responder)'} / ${section.total}${ok ? '' : `; referencia: ${row.count} / ${section.total} (${countToPercent(row.count, section.total)}%)`}</p>`);
+        lines.push(`<p><span class="${ok ? 'check-ok' : 'check-error'}">${ok ? '✓' : '✗'}</span> ${formatGenotypeHTML(row.label)}: ${value ?? t('exercise.notAnswered', '(sin responder)')} / ${section.total}${ok ? '' : `; ${t('exercise.reference', 'referencia')}: ${row.count} / ${section.total} (${countToPercent(row.count, section.total)}%)`}</p>`);
       });
     });
 
     const feedback = document.getElementById('studentFeedback');
     feedback.className = `alert student-feedback visible ${correct === total ? 'alert-success' : 'alert-warning'}`;
-    feedback.innerHTML = `<p><strong>Resultado:</strong> ${correct}/${total} respuestas correctas.</p>${lines.join('')}`;
+    feedback.innerHTML = `<p><strong>${t('exercise.checkResult', 'Resultado:')}</strong> ${correct}/${total} ${t('exercise.correctAnswers', 'respuestas correctas.')}</p>${lines.join('')}`;
   }
 
   function formatAnswersText(data, solution) {
     const answer = collectStudentAnswers(solution);
     const lines = [
-      `Actividad: ${data.metadata?.title || 'Actividad MendelSim'}`,
-      `Alumno/a: ${answer.studentName || '(sin nombre)'}`,
+      `${t('exercise.activity', 'Activitat')}: ${data.metadata?.title || t('exercise.defaultTitle', 'Actividad MendelSim')}`,
+      `${t('exercise.student', 'Alumno/a')}: ${answer.studentName || t('exercise.noName', '(sin nombre)')}`,
       '',
-      'Respuestas:',
+      `${t('exercise.answers', 'Respuestas')}:`,
     ];
     answer.summary.forEach(section => {
       lines.push(`\n${section.title}`);
       section.rows.forEach(row => {
-        lines.push(`- ${row.label}: ${row.count ?? '(sin responder)'} / ${row.total}`);
+        lines.push(`- ${row.label}: ${row.count ?? t('exercise.notAnswered', '(sin responder)')} / ${row.total}`);
       });
     });
-    lines.push('', 'Justificación:', answer.justification || '(sin responder)');
+    lines.push('', `${t('exercise.justification', 'Justificación')}:`, answer.justification || t('exercise.notAnswered', '(sin responder)'));
     return lines.join('\n');
   }
 
@@ -278,7 +278,7 @@
       return true;
     } catch (err) {
       console.error(err);
-      alert('No se pudo leer la actividad desde la URL.');
+      alert(t('exercise.urlError', 'No se pudo leer la actividad desde la URL.'));
       return false;
     }
   }
