@@ -157,7 +157,7 @@ window.PEDIGREE_CONTENT = {
   randomTemplates: {
     title: 'Caso aleatorio: {name}',
     AR: {
-      description: 'Dos progenitores no afectados tienen una hija afectada por {affected}. El árbol está generado con una plantilla mendeliana resoluble.',
+      description: 'Dos progenitores no afectados tienen una hija afectada por {affected}.',
       question: 'Identifica el patrón de herencia de {name} y deduce los genotipos que quedan determinados por el árbol.',
       clues: [
         'Los progenitores I-1 e I-2 no están afectados, pero tienen una hija afectada (II-2): el rasgo debe comportarse como recesivo.',

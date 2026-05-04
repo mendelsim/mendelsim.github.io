@@ -158,7 +158,7 @@ if (window.MendelSimI18n?.getLocale() === 'ca') {
     randomTemplates: {
       title: 'Cas aleatori: {name}',
       AR: {
-        description: 'Dos progenitors no afectats tenen una filla afectada per {affected}. L’arbre s’ha generat amb una plantilla mendeliana resoluble.',
+        description: 'Dos progenitors no afectats tenen una filla afectada per {affected}.',
         question: 'Identifica el patró d’herència de {name} i dedueix els genotips determinats per l’arbre.',
         clues: [
           'Els progenitors I-1 i I-2 no estan afectats però tenen una filla afectada (II-2): el tret ha de comportar-se com a recessiu.',

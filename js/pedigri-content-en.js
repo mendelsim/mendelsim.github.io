@@ -158,7 +158,7 @@ if (window.MendelSimI18n?.getLocale() === 'en') {
     randomTemplates: {
       title: 'Random case: {name}',
       AR: {
-        description: 'Two unaffected parents have an affected daughter with {affected}. The pedigree has been generated with a solvable Mendelian template.',
+        description: 'Two unaffected parents have an affected daughter with {affected}.',
         question: 'Identify the inheritance pattern of {name} and deduce the genotypes determined by the pedigree.',
         clues: [
           'Parents I-1 and I-2 are unaffected but have an affected daughter (II-2): the trait must behave as recessive.',
