@@ -1,0 +1,70 @@
+if (window.MendelSimI18n?.getLocale() === 'en') {
+  window.DIHYBRID_CONTENT = {
+    presets: {
+      clasico:   { p1A:'Aa', p1B:'Bb', p2A:'Aa', p2B:'Bb', ta:'Yellow', tr:'Green', tb:'Smooth', tbr:'Wrinkled', description:'Classic dihybrid cross with two independent genes and double heterozygosity in both parents.' },
+      testcross: { p1A:'Aa', p1B:'Bb', p2A:'aa', p2B:'bb', ta:'Yellow', tr:'Green', tb:'Smooth', tbr:'Wrinkled', description:'Testcross: the double heterozygote is crossed with a double homozygous recessive.' },
+      guisantes: { p1A:'Aa', p1B:'Bb', p2A:'Aa', p2B:'Bb', ta:'Yellow seed', tr:'Green seed', tb:'Smooth shape', tbr:'Wrinkled shape', description:'Classic Mendelian case with pea seed colour and shape.' },
+      AAbb:      { p1A:'AA', p1B:'Bb', p2A:'Aa', p2B:'Bb', ta:'Yellow', tr:'Green', tb:'Smooth', tbr:'Wrinkled', description:'Cross with dominant homozygosity for the first gene and segregation in the second.' },
+    },
+    randomTraitPairs: [
+      { context: 'peas', ta: 'Yellow seed', tr: 'Green seed', tb: 'Smooth seed', tbr: 'Wrinkled seed', description: 'Two classic Mendelian traits in peas, treated as independent genes.' },
+      { context: 'Drosophila', ta: 'Grey body', tr: 'Black body', tb: 'Normal wings', tbr: 'Vestigial wings', description: 'Two autosomal Drosophila traits commonly used as a school model of independent assortment.' },
+      { context: 'maize', ta: 'Pigmented kernel', tr: 'Unpigmented kernel', tb: 'Smooth kernel', tbr: 'Wrinkled kernel', description: 'Maize kernel traits modelled as two loci with complete dominance.' },
+      { context: 'tomato', ta: 'Tall stem', tr: 'Dwarf stem', tb: 'Red fruit', tbr: 'Yellow fruit', description: 'Didactic example of two independent plant traits with complete dominance.' }
+    ],
+    randomCrosses: [
+      { p1A:'Aa', p1B:'Bb', p2A:'Aa', p2B:'Bb', label:'AaBb × AaBb' },
+      { p1A:'Aa', p1B:'Bb', p2A:'aa', p2B:'bb', label:'AaBb × aabb' },
+      { p1A:'Aa', p1B:'Bb', p2A:'Aa', p2B:'bb', label:'AaBb × Aabb' },
+      { p1A:'Aa', p1B:'bb', p2A:'Aa', p2B:'Bb', label:'Aabb × AaBb' },
+      { p1A:'AA', p1B:'Bb', p2A:'Aa', p2B:'Bb', label:'AABb × AaBb' },
+      { p1A:'Aa', p1B:'BB', p2A:'Aa', p2B:'Bb', label:'AaBB × AaBb' },
+      { p1A:'aa', p1B:'Bb', p2A:'Aa', p2B:'Bb', label:'aaBb × AaBb' }
+    ],
+    messages: {
+      generatedExample: 'Generated example ({context}): {description} Cross: {cross}.'
+    },
+    ui: {
+      pageTitle: 'Dihybrid Cross — MendelSim',
+      back: '← Home',
+      heading: 'Dihybrid Cross',
+      subtitle: 'Inheritance of two independent traits — 4×4 Punnett square',
+      lawTitle: '📜 Law of Independent Assortment (Mendel\'s 3rd law)',
+      lawText: 'Alleles of genes located on different chromosomes assort independently during gamete formation. This produces 4 types of gametes in equal proportions (for a double heterozygote AaBb: AB, Ab, aB, ab).',
+      configTitle: 'Dihybrid cross configuration',
+      presetClassic: '🟡 Classic AaBb × AaBb',
+      presetTestcross: '🔬 Testcross (AaBb × aabb)',
+      presetPeas: '🌱 Peas (colour × shape)',
+      randomExample: '🎲 New example',
+      p1: 'Parent P1 genotype',
+      p2: 'Parent P2 genotype',
+      traitNames: 'Trait names (complete dominance for both genes):',
+      traitADom: 'Dominant A trait (A_)',
+      traitARec: 'Recessive A trait (aa)',
+      traitBDom: 'Dominant B trait (B_)',
+      traitBRec: 'Recessive B trait (bb)',
+      run: '▶ Run cross',
+      clear: '↺ Clear',
+      punnettTitle: '4×4 Punnett square (16 combinations)',
+      resultsTitle: 'Results',
+      genoRatios: '📊 Genotypic ratios',
+      phenoRatios: '🎨 Phenotypic ratios',
+      mendel9331: '<strong>Mendel\'s 9:3:3:1 ratio!</strong> This classic result confirms that the two genes are inherited independently (different chromosomes).',
+      understandingTitle: 'Understanding and self-assessment',
+      reviewQuestions: '❓ Review questions',
+      phenotypes: 'Phenotypes:',
+      explanationStart: 'The cross <strong>{p1} × {p2}</strong> produces {count} different phenotypes. ',
+      explanation9331: 'The 9:3:3:1 ratio is the classic signature of Mendel\'s dihybrid cross and confirms that the two genes are on different chromosomes (independently assorted).',
+      explanationOther: 'Since at least one parent is homozygous for one gene, the ratios differ from the classic 9:3:3:1.',
+      q9331: 'Why does the cross AaBb × AaBb produce the 9:3:3:1 ratio?',
+      a9331: 'Because each gene is inherited independently. The double heterozygote AaBb produces 4 types of gametes (AB, Ab, aB, ab) in equal proportions. Crossing 4 × 4 gametes gives 16 combinations: 9 A_B_, 3 A_bb, 3 aaB_, and 1 aabb.',
+      qTestcross: 'What is a testcross?',
+      aTestcross: 'It is the cross of an individual with an unknown genotype with a double homozygous recessive (aabb). The ratios of offspring reveal the genotype of the unknown parent.',
+      qLinked: 'What happens if the two genes are on the same chromosome?',
+      aLinked: 'If the genes are linked (on the same chromosome), they do not assort independently and the 9:3:3:1 ratio is not obtained. Parental combinations are more frequent than recombinant ones.',
+      showAnswer: '▼ Show answer',
+      hideAnswer: '▲ Hide',
+      darkToggle: 'Dark mode',
+    }
+  };
+}

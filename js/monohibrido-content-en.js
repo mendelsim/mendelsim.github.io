@@ -1,0 +1,137 @@
+if (window.MendelSimI18n?.getLocale() === 'en') {
+  window.MONOHYBRID_CONTENT = {
+    dominanceLabels: {
+      complete: 'complete dominance',
+      incomplete: 'incomplete dominance',
+      codominance: 'codominance',
+    },
+    presets: {
+      guisantes: {
+        p1: 'Aa', p2: 'Aa', dominance: 'complete',
+        dom: 'Yellow', rec: 'Green', inter: '',
+        description: 'Mendel crossed yellow peas (AA and Aa) with green peas (aa). Yellow colour (A) is dominant over green (a).'
+      },
+      sangre: {
+        p1: 'Aa', p2: 'Aa', dominance: 'codominance',
+        dom: 'Blood group M', rec: 'Blood group N', inter: 'Blood group MN',
+        description: 'The MN blood group system shows codominance. In heterozygotes, both M and N alleles are expressed simultaneously.'
+      },
+      boca: {
+        p1: 'Aa', p2: 'Aa', dominance: 'incomplete',
+        dom: 'Red', rec: 'White', inter: 'Pink',
+        description: 'Snapdragon flowers show incomplete dominance. Combining the red (A) and white (a) alleles produces pink flowers (Aa).'
+      },
+      pelaje: {
+        p1: 'Aa', p2: 'aa', dominance: 'complete',
+        dom: 'Black', rec: 'Orange', inter: '',
+        description: 'In cat coat colour, the black allele (A) is dominant over orange (a) in autosomal inheritance.'
+      }
+    },
+    randomTraits: {
+      complete: [
+        { dom: 'Yellow seeds', rec: 'Green seeds', description: 'Classic Mendelian trait in peas: the yellow colour allele is modelled as dominant over green.' },
+        { dom: 'Smooth seeds', rec: 'Wrinkled seeds', description: 'Classic Mendel pea trait: smooth seed shape is modelled as dominant over wrinkled.' },
+        { dom: 'Normal wings', rec: 'Vestigial wings', description: 'Didactic example in Drosophila: vestigial wings are treated as the recessive phenotype relative to normal wings.' },
+        { dom: 'Normal pigmentation', rec: 'Albinism', description: 'Common autosomal recessive model in school genetics: albinism appears in homozygous recessive individuals.' }
+      ],
+      incomplete: [
+        { dom: 'Red flowers', rec: 'White flowers', inter: 'Pink flowers', description: 'Incomplete dominance in snapdragon or four-o\'clock flowers: the heterozygote shows an intermediate phenotype.' },
+        { dom: 'Black plumage', rec: 'White plumage', inter: 'Blue plumage', description: 'Classic incomplete dominance model in Andalusian chickens: the heterozygote shows blue plumage.' },
+        { dom: 'Red fruit', rec: 'White fruit', inter: 'Pink fruit', description: 'School example of incomplete dominance: the heterozygote shows intermediate colour intensity.' }
+      ],
+      codominance: [
+        { dom: 'Blood group M', rec: 'Blood group N', inter: 'Blood group MN', description: 'MN blood group system: M and N alleles are expressed simultaneously in the heterozygote.' },
+        { dom: 'Red coat', rec: 'White coat', inter: 'Roan coat', description: 'Codominance in roan cattle: both red and white hairs are observed simultaneously in the heterozygote.' }
+      ]
+    },
+    randomCrosses: [
+      ['Aa', 'Aa'],
+      ['Aa', 'aa'],
+      ['aa', 'Aa'],
+      ['AA', 'aa'],
+      ['aa', 'AA'],
+      ['AA', 'Aa'],
+      ['Aa', 'AA']
+    ],
+    messages: {
+      customMode: 'Custom mode: choose genotypes, phenotypes and dominance type freely. Guided examples fix the type to avoid inconsistent combinations.',
+      presetLocked: 'Type fixed by this example: {dominance}. Use "Custom" if you want to change it.',
+      randomLocked: 'Type fixed by the random example: {dominance}. Use "Custom" if you want to change it.',
+      generatedExample: 'Generated example: {description} Cross: {p1} × {p2}.'
+    },
+    ui: {
+      pageTitle: 'Monohybrid Cross — MendelSim',
+      back: '← Home',
+      heading: 'Monohybrid Cross',
+      subtitle: 'Inheritance of a single trait — 2×2 Punnett square',
+      lawTitle: '📜 1st and 2nd Laws of Mendel',
+      lawUniformity: '<strong>Law of Uniformity (1st law):</strong> When crossing two homozygous individuals for contrasting traits, all F1 offspring are identical and express the dominant trait.',
+      lawSegregation: '<strong>Law of Segregation (2nd law):</strong> The two alleles of a gene separate during gamete formation; each gamete receives only one allele. Crossing F1 heterozygotes recovers both phenotypes in a 3:1 ratio.',
+      configTitle: '1 Cross configuration',
+      configTitleText: 'Cross configuration',
+      configHint: 'Select preset examples or configure your own cross:',
+      presetPeas: '🟡 Peas (colour)',
+      presetBlood: '🩸 MN system',
+      presetSnapdragon: '🌸 Snapdragon',
+      presetCoat: '🐱 Cat coat',
+      randomExample: '🎲 New example',
+      custom: '⚙️ Custom',
+      p1: 'Parent P1 genotype',
+      p2: 'Parent P2 genotype',
+      heterozygous: 'Aa (heterozygous)',
+      homoDom: 'AA (homozygous dominant)',
+      homoRec: 'aa (homozygous recessive)',
+      dominanceType: 'Dominance type',
+      complete: 'Complete dominance',
+      incomplete: 'Incomplete dominance',
+      codominance: 'Codominance',
+      alleleDom: 'Dominant allele phenotype (A)',
+      alleleRec: 'Recessive allele phenotype (a)',
+      inter: 'Intermediate phenotype (Aa)',
+      homoAA: 'Homozygous AA phenotype',
+      homoaa: 'Homozygous aa phenotype',
+      heteroAa: 'Heterozygous Aa phenotype',
+      run: '▶ Run cross',
+      clear: '↺ Clear',
+      punnettTitle: '2 Punnett square',
+      punnettTitleText: 'Punnett square',
+      punnettHint: 'Each cell shows the genotype of a possible offspring. Cells appear one by one so you can follow the process.',
+      resultsTitle: '3 Results',
+      resultsTitleText: 'Results',
+      genoRatios: '📊 Genotypic ratios',
+      phenoRatios: '🎨 Phenotypic ratios',
+      probabilityTitle: '🎯 Probability calculator',
+      probabilityQuestion: 'What is the probability of obtaining...?',
+      probabilityPlaceholder: '— Select a phenotype —',
+      understandingTitle: '4 Understanding and self-assessment',
+      understandingTitleText: 'Understanding and self-assessment',
+      reviewQuestions: '❓ Review questions',
+      legend: 'Legend:',
+      proportion: 'Ratio',
+      customUnlocked: 'Custom mode: you can freely choose the dominance type.',
+      dominantFallback: 'Dominant',
+      recessiveFallback: 'Recessive',
+      intermediateFallback: 'Intermediate',
+      interPlaceholder: 'E.g.: Pink',
+      codominancePlaceholder: 'E.g.: Group AB',
+      explanationStart: 'The cross <strong>{p1} × {p2}</strong> with <strong>{dominance}</strong> produces the results shown. ',
+      explanationOne: 'All offspring show the same phenotype: <strong>{label}</strong>.',
+      explanationTwo: 'Two different phenotypes are obtained in a ratio of <strong>{a}:{b}</strong> ({labelA} : {labelB}).',
+      explanationMany: '<strong>{count} different phenotypes</strong> are obtained in the ratios shown.',
+      incompleteExplanation: ' Incomplete dominance produces an intermediate phenotype in heterozygotes, since neither allele "dominates" the other completely.',
+      codominanceExplanation: ' In codominance, both alleles are expressed simultaneously and independently in the heterozygote\'s phenotype.',
+      qDominant: 'What does it mean for an allele to be dominant?',
+      aDominant: 'An allele is dominant when it is expressed in the phenotype even if only one copy is present (heterozygote). The recessive allele is only expressed when present in two copies (homozygous recessive).',
+      qProportion: 'Why is the ratio {ratio} obtained?',
+      aProportion: 'In the cross {p1} × {p2}, possible gametes combine at random. Each cell of the Punnett square represents an equally likely combination. The {cells} boxes represent all possible combinations.',
+      qPredict: 'Is it possible to predict exactly what offspring a couple will have?',
+      aPredict: 'No. The ratios are statistical probabilities that hold approximately for large numbers of offspring. Each individual offspring is the result of chance (which gamete fertilises which).',
+      showAnswer: '▼ Show answer',
+      hideAnswer: '▲ Hide',
+      darkToggle: 'Dark mode',
+      footerCode: 'Code',
+      footerContent: 'Content',
+      footerIssues: 'Suggestions and bugs',
+    }
+  };
+}

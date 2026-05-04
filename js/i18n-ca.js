@@ -130,4 +130,18 @@ MendelSimI18n.register('ca', {
   'pedigree.tool.instructions.child.second': 'Fes clic en un altre individu de la parella, o al llenç per afegir un descendent ({childSex}).',
   'pedigree.tool.instructions.delete': 'Fes clic en un individu per eliminar-lo.',
   'pedigree.tooltip.genotype': 'Genotip',
+
+  'pedigree.error.printWindow': 'No s\'ha pogut obrir la finestra d\'impressió. Revisa si el navegador ha bloquejat les finestres emergents.',
+  'pedigree.error.loadCase': 'No s\'ha pogut carregar el cas.',
+  'pedigree.error.loadStudentAnswer': 'No s\'ha pogut carregar la resposta de l\'alumne.',
+  'pedigree.feedback.urlCopied': 'URL d\'alumne copiada al porta-retalls.',
+  'pedigree.action.copyUrlPrompt': 'Copia aquest URL per compartir-lo amb l\'alumnat:',
+  'pedigree.error.loadFromUrl': 'No s\'ha pogut llegir el cas des de l\'URL.',
+  'pedigree.error.pngFailed': 'No s\'ha pogut generar el PNG.',
+  'pedigree.alert.selectPattern': 'Selecciona un patró d\'herència abans de comprovar.',
+  'pedigree.note.AD': 'En l\'herència dominant, la descendència no afectada es representa com {rr}. Els afectats poden ser {Dr} o {DD} si l\'arbre no permet distingir-ho.',
+  'pedigree.note.AR': 'En l\'herència recessiva, els afectats són {rr}. Els no afectats poden ser {DD} o {Dr} si no hi ha més informació.',
+  'pedigree.note.XR': 'En l\'herència recessiva lligada a l\'X, els {malePlural} no són portadors: o estan afectats o no ho estan. Les {femalePlural} no afectades poden ser portadores.',
+  'pedigree.note.XD.human': 'En l\'herència dominant lligada a l\'X, un pare afectat transmet el seu X afectat a totes les filles i el seu Y a tots els fills.',
+  'pedigree.note.XD.other': 'En l\'herència dominant lligada a l\'X, un progenitor mascle afectat transmet el seu X afectat a tota la descendència femella i el seu Y a tota la descendència mascle.',
 });

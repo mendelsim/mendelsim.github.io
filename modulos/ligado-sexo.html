@@ -138,6 +138,7 @@
       <select id="languageSelect" aria-label="Idioma">
         <option value="es">ES</option>
         <option value="ca">CA</option>
+        <option value="en">EN</option>
       </select>
     </label>
     <button id="darkToggle" class="dark-toggle" title="Modo oscuro">🌙</button>
@@ -295,7 +296,7 @@
 
 <footer>
   <div>
-    <strong><a href="https://bilateria.org" target="_blank" rel="noopener">Juan José de Haro</a></strong> &mdash; MendelSim v1.2
+    <strong><a href="https://bilateria.org" target="_blank" rel="noopener">Juan José de Haro</a></strong> &mdash; MendelSim v1.3
   </div>
   <div style="margin-top:0.3rem">
     Código: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">AGPLv3</a>
@@ -312,6 +313,7 @@
 <script src="../js/i18n.js"></script>
 <script src="../js/ligado-sexo-content-es.js"></script>
 <script src="../js/ligado-sexo-content-ca.js"></script>
+<script src="../js/ligado-sexo-content-en.js"></script>
 <script>
 // ── UI helpers ───────────────────────────────────────────────
 function onMotherChange(radio) {
@@ -364,13 +366,13 @@ function initLanguageSelector() {
   const select = document.getElementById('languageSelect');
   if (!select || !window.MendelSimI18n) return;
   const locale = MendelSimI18n.getLocale();
-  select.value = locale === 'ca' ? 'ca' : 'es';
+  select.value = ['ca', 'en'].includes(locale) ? locale : 'es';
   select.addEventListener('change', () => {
-    const nextLocale = select.value === 'ca' ? 'ca' : 'es';
+    const nextLocale = select.value;
     MendelSimI18n.setLocale(nextLocale);
     const url = new URL(window.location.href);
-    if (nextLocale === 'ca') {
-      url.searchParams.set('lang', 'ca');
+    if (nextLocale !== 'es') {
+      url.searchParams.set('lang', nextLocale);
     } else {
       url.searchParams.delete('lang');
     }
@@ -388,13 +390,13 @@ function setGenotypeOptionHTML(id, name, value, checked, onchange, genotypeHTML,
 }
 
 function applyLocaleToStaticPage() {
-  if (window.MendelSimI18n?.getLocale() !== 'ca') return;
-  document.documentElement.lang = 'ca';
+  if (window.MendelSimI18n?.getLocale() === 'es') return;
+  document.documentElement.lang = window.MendelSimI18n.getLocale();
   document.title = uiText('pageTitle', document.title);
   setText('.back-btn', uiText('back', '← Inici'));
   setText('.header h1', uiText('heading', 'Herència lligada al sexe'));
   setText('.header p', uiText('subtitle', 'Gens en el cromosoma X — portadores, hemizigots, herència recessiva i dominant'));
-  setAttr('#darkToggle', 'title', 'Mode fosc');
+  setAttr('#darkToggle', 'title', uiText('darkToggle', 'Mode fosc'));
   setText('.law-title', uiText('lawTitle', '📜 Herència lligada al sexe'));
   const laws = document.querySelectorAll('.law-box p');
   if (laws[0]) laws[0].innerHTML = uiText('law1', laws[0].innerHTML);

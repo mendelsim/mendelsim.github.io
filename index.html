@@ -60,6 +60,7 @@
       <select id="languageSelect" aria-label="Idioma">
         <option value="es">ES</option>
         <option value="ca">CA</option>
+        <option value="en">EN</option>
       </select>
     </label>
     <button id="darkToggle" class="dark-toggle" title="Modo oscuro">🌙</button>
@@ -141,7 +142,7 @@
 
 <footer>
   <div>
-    <strong><a href="https://bilateria.org" target="_blank" rel="noopener">Juan José de Haro</a></strong> &mdash; MendelSim v1.2
+    <strong><a href="https://bilateria.org" target="_blank" rel="noopener">Juan José de Haro</a></strong> &mdash; MendelSim v1.3
   </div>
   <div style="margin-top:0.3rem">
     Código: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">AGPLv3</a>
@@ -202,17 +203,63 @@ const INDEX_CA = {
   footerIssues: 'Suggeriments i errors',
 };
 
+const INDEX_EN = {
+  pageTitle: 'MendelSim — Genetics Simulator',
+  heading: 'MendelSim — Genetics Simulator',
+  subtitle: 'Learn and practise genetics with interactive simulators',
+  features: [
+    '✅ Animated Punnett squares',
+    '✅ Monohybrid and dihybrid inheritance',
+    '✅ Sex-linked inheritance',
+    '✅ Interactive pedigrees',
+    '✅ Exercises with solutions',
+    '✅ No installation — runs in the browser',
+  ],
+  modulesTitle: 'Available modules',
+  modulesIntro: 'Select a module to start practising:',
+  modules: [
+    {
+      title: 'Monohybrid Cross',
+      description: 'Study the transmission of a single trait. Build Punnett squares and calculate phenotypic ratios.',
+    },
+    {
+      title: 'Dihybrid Cross',
+      description: 'Analyse the simultaneous inheritance of two independent traits. 4×4 Punnett square with 16 combinations.',
+    },
+    {
+      title: 'Sex-linked Inheritance',
+      description: 'Study genes on sex chromosomes. X-linked inheritance, carriers and hemizygotes. Haemophilia, colour blindness and more.',
+    },
+    {
+      title: 'Interactive Pedigrees',
+      description: 'Analyse family trees, identify hereditary patterns and build your own pedigrees step by step.',
+    },
+  ],
+  start: 'Start →',
+  howTitle: 'ℹ️ How to use MendelSim',
+  steps: [
+    'Choose the module that matches the topic you are studying.',
+    'Set the parental genotypes and the type of inheritance.',
+    'Observe the animated Punnett square and read the results.',
+    'Practise with pedigrees: analyse patterns and deduce genotypes.',
+    'Use the pedigree builder to create your own family trees.',
+  ],
+  footerCode: 'Code',
+  footerContent: 'Content',
+  footerIssues: 'Suggestions and bugs',
+};
+
 function initLanguageSelector() {
   const select = document.getElementById('languageSelect');
   if (!select || !window.MendelSimI18n) return;
   const locale = MendelSimI18n.getLocale();
-  select.value = locale === 'ca' ? 'ca' : 'es';
+  select.value = ['ca', 'en'].includes(locale) ? locale : 'es';
   select.addEventListener('change', () => {
-    const nextLocale = select.value === 'ca' ? 'ca' : 'es';
+    const nextLocale = select.value;
     MendelSimI18n.setLocale(nextLocale);
     const url = new URL(window.location.href);
-    if (nextLocale === 'ca') {
-      url.searchParams.set('lang', 'ca');
+    if (nextLocale !== 'es') {
+      url.searchParams.set('lang', nextLocale);
     } else {
       url.searchParams.delete('lang');
     }
@@ -221,53 +268,56 @@ function initLanguageSelector() {
 }
 
 function propagateLocaleLinks() {
-  if (window.MendelSimI18n?.getLocale() !== 'ca') return;
+  const locale = window.MendelSimI18n?.getLocale();
+  if (!locale || locale === 'es') return;
   document.querySelectorAll('.module-card').forEach(link => {
     const url = new URL(link.getAttribute('href'), window.location.href);
-    url.searchParams.set('lang', 'ca');
+    url.searchParams.set('lang', locale);
     link.setAttribute('href', `modulos/${url.pathname.split('/').pop()}${url.search}`);
   });
 }
 
-function applyCatalan() {
-  if (window.MendelSimI18n?.getLocale() !== 'ca') return;
-  document.documentElement.lang = 'ca';
-  document.title = INDEX_CA.pageTitle;
-  document.querySelector('.header h1').textContent = INDEX_CA.heading;
-  document.querySelector('.hero-subtitle').textContent = INDEX_CA.subtitle;
-  document.getElementById('darkToggle')?.setAttribute('title', 'Mode fosc');
+function applyLocale() {
+  const locale = window.MendelSimI18n?.getLocale();
+  const L = locale === 'ca' ? INDEX_CA : locale === 'en' ? INDEX_EN : null;
+  if (!L) return;
+  document.documentElement.lang = locale;
+  document.title = L.pageTitle;
+  document.querySelector('.header h1').textContent = L.heading;
+  document.querySelector('.hero-subtitle').textContent = L.subtitle;
+  document.getElementById('darkToggle')?.setAttribute('title', locale === 'en' ? 'Dark mode' : 'Mode fosc');
   document.querySelectorAll('.feature-list li').forEach((li, index) => {
-    li.textContent = INDEX_CA.features[index] || li.textContent;
+    li.textContent = L.features[index] || li.textContent;
   });
-  document.querySelector('.modules-section h2').textContent = INDEX_CA.modulesTitle;
-  document.querySelector('.modules-section > p').textContent = INDEX_CA.modulesIntro;
+  document.querySelector('.modules-section h2').textContent = L.modulesTitle;
+  document.querySelector('.modules-section > p').textContent = L.modulesIntro;
   document.querySelectorAll('.module-card').forEach((card, index) => {
-    const data = INDEX_CA.modules[index];
+    const data = L.modules[index];
     if (!data) return;
     card.querySelector('h3').textContent = data.title;
     card.querySelector('p').textContent = data.description;
-    card.querySelector('.btn').textContent = INDEX_CA.start;
+    card.querySelector('.btn').textContent = L.start;
   });
-  document.querySelector('.card-title').textContent = INDEX_CA.howTitle;
+  document.querySelector('.card-title').textContent = L.howTitle;
   document.querySelectorAll('.card ol li').forEach((li, index) => {
-    li.textContent = INDEX_CA.steps[index] || li.textContent;
+    li.textContent = L.steps[index] || li.textContent;
   });
   const footer = document.querySelector('footer div:last-child');
   if (footer) {
     footer.innerHTML = `
-    ${INDEX_CA.footerCode}: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">AGPLv3</a>
+    ${L.footerCode}: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">AGPLv3</a>
     &nbsp;&nbsp;·&nbsp;&nbsp;
-    ${INDEX_CA.footerContent}: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>
+    ${L.footerContent}: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>
     &nbsp;&nbsp;·&nbsp;&nbsp;
     &copy; 2026
     &nbsp;&nbsp;·&nbsp;&nbsp;
-    <a href="https://github.com/mendelsim/mendelsim.github.io/issues" target="_blank" rel="noopener">${INDEX_CA.footerIssues}</a>
+    <a href="https://github.com/mendelsim/mendelsim.github.io/issues" target="_blank" rel="noopener">${L.footerIssues}</a>
   `;
   }
 }
 
 initLanguageSelector();
-applyCatalan();
+applyLocale();
 propagateLocaleLinks();
 </script>
 </body>
