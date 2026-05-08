@@ -152,7 +152,7 @@ const PEDIGREE_LOCALE = {
     studentJustificationPlaceholder: `Explica quines dades de l’arbre justifiquen la teva resposta...`,
     studentGenotypeSectionTitle: `🧬 Genotips proposats`,
     studentTableHead: `<th>Individu</th><th>Sexe</th><th>Estat observat</th><th>Genotip</th><th>Notes</th>`,
-    studentBtns: [`✅ Comprovar`, `💾 Descarregar respostes`, `📋 Copiar respostes`, `🖨 Imprimir PDF`, `📤 Compartir com a URL`],
+    studentBtns: [`✅ Comprovar`, `💾 Descarregar respostes`, `📋 Copiar respostes`, `🖨 Imprimir PDF`, `🔗 Compartir com a URL`],
   },
   en: {
     lang: `en`,
@@ -254,7 +254,7 @@ const PEDIGREE_LOCALE = {
     studentJustificationPlaceholder: `Explain which data from the tree justify your answer...`,
     studentGenotypeSectionTitle: `🧬 Proposed genotypes`,
     studentTableHead: `<th>Individual</th><th>Sex</th><th>Observed status</th><th>Genotype</th><th>Notes</th>`,
-    studentBtns: [`✅ Check`, `💾 Download answers`, `📋 Copy answers`, `🖨 Print PDF`, `📤 Share as URL`],
+    studentBtns: [`✅ Check`, `💾 Download answers`, `📋 Copy answers`, `🖨 Print PDF`, `🔗 Share as URL`],
   },
 };
 

@@ -364,7 +364,7 @@
         <button class="btn btn-outline student-export-btn" onclick="downloadMonoStudentAnswers()">💾 Descargar respuestas</button>
         <button class="btn btn-outline student-export-btn" onclick="copyMonoStudentAnswers()">📋 Copiar respuestas</button>
         <button class="btn btn-outline student-export-btn" id="studentPrintBtn" onclick="MendelSimExercises.printStudentAnswers(currentMonoActivity, currentMonoSolution)">🖨 Imprimir PDF</button>
-        <button class="btn btn-outline student-export-btn" id="studentShareUrlBtn" onclick="shareMonoStudentAnswerURL()">📤 Compartir como URL</button>
+        <button class="btn btn-outline student-export-btn" id="studentShareUrlBtn" onclick="shareMonoStudentAnswerURL()">🔗 Compartir como URL</button>
         <input type="file" id="monoStudentExerciseFile" accept=".json,application/json" style="display:none;" onchange="loadMonoExerciseFile(event)">
       </div>
       <div id="studentAutoCheckNote" class="exercise-status"></div>
@@ -565,7 +565,7 @@ function applyLocaleToStaticPage() {
   if (sBtns[2]) sBtns[2].textContent = uiText('studentBtnDownload', '💾 Descargar respuestas');
   if (sBtns[3]) sBtns[3].textContent = uiText('studentBtnCopy', '📋 Copiar respuestas');
   if (sBtns[4]) sBtns[4].textContent = uiText('studentBtnPrint', '🖨 Imprimir PDF');
-  if (sBtns[5]) sBtns[5].textContent = uiText('studentBtnShareUrl', '📤 Compartir como URL');
+  if (sBtns[5]) sBtns[5].textContent = uiText('studentBtnShareUrl', '🔗 Compartir como URL');
   const footer = document.querySelector('footer div:last-child');
   if (footer) {
     footer.innerHTML = `

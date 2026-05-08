@@ -108,7 +108,7 @@ if (window.MendelSimI18n?.getLocale() === 'en') {
       studentBtnDownload: '💾 Download answers',
       studentBtnCopy: '📋 Copy answers',
       studentBtnPrint: '🖨 Print PDF',
-      studentBtnShareUrl: '📤 Share as URL',
+      studentBtnShareUrl: '🔗 Share as URL',
       darkToggle: 'Dark mode',
       footerCode: 'Code',
       footerContent: 'Content',
