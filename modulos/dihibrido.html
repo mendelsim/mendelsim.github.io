@@ -7,6 +7,7 @@
   <link rel="icon" type="image/svg+xml" href="../favicon.svg">
   <link rel="stylesheet" href="../css/style.css">
   <script src="../js/darkmode.js"></script>
+  <script src="../js/collapsible-intro.js"></script>
   <style>
     .punnett-grid.dihybrid {
       grid-template-columns: 90px repeat(4, 76px);
@@ -62,6 +63,10 @@
     }
     .law-box p { font-size: 0.9rem; margin: 0; }
     [data-theme="dark"] .law-box { background: linear-gradient(135deg, #0d2e1a, #0a2216); }
+    .law-title { cursor: pointer; user-select: none; }
+    .law-box-toggle { background: none; border: none; font-size: 0.75rem; color: var(--primary); cursor: pointer; padding: 0 0 0 0.5rem; line-height: 1; }
+    .law-box-body { overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; max-height: 200px; opacity: 1; }
+    .law-box--collapsed .law-box-body { max-height: 0; opacity: 0; }
   </style>
 </head>
 <body>

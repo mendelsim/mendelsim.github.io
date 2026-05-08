@@ -7,7 +7,14 @@
   <link rel="icon" type="image/svg+xml" href="../favicon.svg">
   <link rel="stylesheet" href="../css/style.css">
   <script src="../js/darkmode.js"></script>
+  <script src="../js/collapsible-intro.js"></script>
   <link rel="stylesheet" href="../css/pedigri.css">
+  <style>
+    .law-title { cursor: pointer; user-select: none; }
+    .law-box-toggle { background: none; border: none; font-size: 0.75rem; color: var(--primary); cursor: pointer; padding: 0 0 0 0.5rem; line-height: 1; }
+    .law-box-body { overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; max-height: 300px; opacity: 1; }
+    .law-box--collapsed .law-box-body { max-height: 0; opacity: 0; }
+  </style>
 </head>
 <body>
 
