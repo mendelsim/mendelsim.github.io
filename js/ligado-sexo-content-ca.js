@@ -87,7 +87,7 @@ if (window.MendelSimI18n?.getLocale() === 'ca') {
       hideAnswer: '▲ Amagar',
       tabSimulate: '🧪 Simular',
       tabCreate: '🎓 Crear exercici',
-      tabActivity: '📥 Activitat',
+      tabActivity: '📝 Activitat',
       teacherCardTitle: '🎓 Crear exercici d\'herència lligada al sexe',
       teacherCardAlert: 'Defineix el cas, escriu l\'enunciat i genera una activitat sobre descendència lligada al cromosoma X.',
       teacherExerciseTitleLabel: 'Títol de l\'exercici',

@@ -74,7 +74,7 @@ if (window.MendelSimI18n?.getLocale() === 'ca') {
       hideAnswer: '▲ Amagar',
       tabSimulate: '🧪 Simular',
       tabCreate: '🎓 Crear exercici',
-      tabActivity: '📥 Activitat',
+      tabActivity: '📝 Activitat',
       teacherCardTitle: '🎓 Crear exercici dihíbrid',
       teacherCardAlert: 'Defineix el creuament, escriu l\'enunciat i genera una activitat amb proporcions sobre 16 combinacions.',
       teacherExerciseTitleLabel: 'Títol de l\'exercici',

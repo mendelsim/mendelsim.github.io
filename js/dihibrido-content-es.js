@@ -73,7 +73,7 @@ window.DIHYBRID_CONTENT = {
     hideAnswer: '▲ Ocultar',
     tabSimulate: '🧪 Simular',
     tabCreate: '🎓 Crear ejercicio',
-    tabActivity: '📥 Actividad',
+    tabActivity: '📝 Actividad',
     teacherCardTitle: '🎓 Crear ejercicio dihíbrido',
     teacherCardAlert: 'Define el cruce, escribe el enunciado y genera una actividad con proporciones sobre 16 combinaciones.',
     teacherExerciseTitleLabel: 'Título del ejercicio',

@@ -87,7 +87,7 @@ if (window.MendelSimI18n?.getLocale() === 'en') {
       hideAnswer: '▲ Hide',
       tabSimulate: '🧪 Simulate',
       tabCreate: '🎓 Create exercise',
-      tabActivity: '📥 Activity',
+      tabActivity: '📝 Activity',
       teacherCardTitle: '🎓 Create sex-linked inheritance exercise',
       teacherCardAlert: 'Define the case, write the prompt and generate an activity about X-linked offspring.',
       teacherExerciseTitleLabel: 'Exercise title',

@@ -74,7 +74,7 @@ if (window.MendelSimI18n?.getLocale() === 'en') {
       hideAnswer: '▲ Hide',
       tabSimulate: '🧪 Simulate',
       tabCreate: '🎓 Create exercise',
-      tabActivity: '📥 Activity',
+      tabActivity: '📝 Activity',
       teacherCardTitle: '🎓 Create dihybrid exercise',
       teacherCardAlert: 'Define the cross, write the prompt and generate an activity with ratios over 16 combinations.',
       teacherExerciseTitleLabel: 'Exercise title',

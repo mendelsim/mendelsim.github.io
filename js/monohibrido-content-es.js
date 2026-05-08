@@ -127,7 +127,7 @@ window.MONOHYBRID_CONTENT = {
     hideAnswer: '▲ Ocultar',
     tabSimulate: '🧪 Simular',
     tabCreate: '🎓 Crear ejercicio',
-    tabActivity: '📥 Actividad',
+    tabActivity: '📝 Actividad',
     teacherCardTitle: '🎓 Crear ejercicio monohíbrido',
     teacherCardAlert: 'Define el cruce, escribe el enunciado y genera una actividad para compartir con el alumnado.',
     teacherExerciseTitleLabel: 'Título del ejercicio',

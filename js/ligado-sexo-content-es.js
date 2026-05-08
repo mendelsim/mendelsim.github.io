@@ -68,7 +68,7 @@ window.X_LINKED_CONTENT = {
     hideAnswer: '▲ Ocultar',
     tabSimulate: '🧪 Simular',
     tabCreate: '🎓 Crear ejercicio',
-    tabActivity: '📥 Actividad',
+    tabActivity: '📝 Actividad',
     teacherCardTitle: '🎓 Crear ejercicio de herencia ligada al sexo',
     teacherCardAlert: 'Define el caso, escribe el enunciado y genera una actividad sobre descendencia ligada al cromosoma X.',
     teacherExerciseTitleLabel: 'Título del ejercicio',

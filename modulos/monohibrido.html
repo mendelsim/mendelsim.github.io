@@ -100,7 +100,7 @@
   <div class="tabs">
     <button class="tab-btn active" data-tab="simular" onclick="MendelSimExercises.switchTab('simular', this)">🧪 Simular</button>
     <button class="tab-btn" data-tab="crear" onclick="MendelSimExercises.switchTab('crear', this)">🎓 Crear ejercicio</button>
-    <button class="tab-btn" data-tab="alumno" id="studentTabBtn" onclick="MendelSimExercises.switchTab('alumno', this)">📥 Actividad</button>
+    <button class="tab-btn" data-tab="alumno" id="studentTabBtn" onclick="MendelSimExercises.switchTab('alumno', this)">📝 Actividad</button>
   </div>
 
   <div id="tab-simular" class="tab-content active">
@@ -523,7 +523,7 @@ function applyLocaleToStaticPage() {
   setText('#understandSection .section-title', uiText('reviewQuestions', '❓ Preguntas de repaso'));
   setText('[data-tab="simular"]', uiText('tabSimulate', '🧪 Simular'));
   setText('[data-tab="crear"]', uiText('tabCreate', '🎓 Crear ejercicio'));
-  setText('[data-tab="alumno"]', uiText('tabActivity', '📥 Actividad'));
+  setText('[data-tab="alumno"]', uiText('tabActivity', '📝 Actividad'));
   setText('#tab-crear .card-title', uiText('teacherCardTitle', '🎓 Crear ejercicio monohíbrido'));
   setHTML('#tab-crear .alert div', uiText('teacherCardAlert', 'Define el cruce, escribe el enunciado y genera una actividad para compartir con el alumnado.'));
   setText('label[for="teacherExerciseTitle"]', uiText('teacherExerciseTitleLabel', 'Título del ejercicio'));
