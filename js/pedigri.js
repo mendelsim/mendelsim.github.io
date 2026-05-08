@@ -763,6 +763,82 @@ class PedigreeEngine {
   // ── Analysis ─────────────────────────────────────────────
 
   /**
+   * Detect genetically impossible situations in the pedigree given a known pattern.
+   * pattern: 'AR' | 'AD' | 'XR' | 'XD' | 'unknown'
+   * Returns an array of { type, p1label, p2label, childLabels } objects.
+   */
+  detectImpossibilities(pattern) {
+    const issues = [];
+    const isRecessive = pattern === 'AR' || pattern === 'XR';
+    const isXR = pattern === 'XR';
+    const isAD = pattern === 'AD';
+    const isXD = pattern === 'XD';
+
+    for (const couple of this.couples) {
+      const p1 = this.individuals.get(couple.p1);
+      const p2 = this.individuals.get(couple.p2);
+      if (!p1 || !p2) continue;
+      const children = couple.children.map(cid => this.individuals.get(cid)).filter(Boolean);
+      if (children.length === 0) continue;
+
+      // AR/XR: two affected parents (aa×aa) → all children must be affected
+      if (isRecessive && p1.affected && p2.affected) {
+        const unaffected = children.filter(c => !c.affected);
+        if (unaffected.length > 0) {
+          issues.push({
+            type: 'twoAffectedParentsUnaffectedChild',
+            p1label: p1.label,
+            p2label: p2.label,
+            childLabels: unaffected.map(c => c.label),
+          });
+        }
+      }
+
+      // AD: two unaffected parents (aa×aa) cannot have affected children
+      if (isAD && !p1.affected && !p2.affected) {
+        const affectedChildren = children.filter(c => c.affected);
+        if (affectedChildren.length > 0) {
+          issues.push({
+            type: 'twoUnaffectedParentsAffectedChildAD',
+            p1label: p1.label,
+            p2label: p2.label,
+            childLabels: affectedChildren.map(c => c.label),
+          });
+        }
+      }
+
+      // XR: affected mother (XᵃXᵃ) × unaffected father (XᴬY) → all sons must be affected
+      const mother = p1.sex === 'F' ? p1 : (p2.sex === 'F' ? p2 : null);
+      const father = p1.sex === 'M' ? p1 : (p2.sex === 'M' ? p2 : null);
+      if (isXR && mother && father && mother.affected && !father.affected) {
+        const unaffectedSons = children.filter(c => c.sex === 'M' && !c.affected);
+        if (unaffectedSons.length > 0) {
+          issues.push({
+            type: 'affectedMotherUnaffectedSons',
+            p1label: mother.label,
+            p2label: father.label,
+            childLabels: unaffectedSons.map(c => c.label),
+          });
+        }
+      }
+
+      // XD: affected father (XᴬY) → all daughters must be affected
+      if (isXD && father && father.affected) {
+        const unaffectedDaughters = children.filter(c => c.sex === 'F' && !c.affected);
+        if (unaffectedDaughters.length > 0) {
+          issues.push({
+            type: 'affectedFatherUnaffectedDaughtersXD',
+            p1label: father.label,
+            p2label: mother ? mother.label : '',
+            childLabels: unaffectedDaughters.map(c => c.label),
+          });
+        }
+      }
+    }
+    return issues;
+  }
+
+  /**
    * Attempt to auto-detect inheritance pattern from pedigree.
    * Returns 'AD' | 'AR' | 'XR' | 'XD' | 'unknown'
    */

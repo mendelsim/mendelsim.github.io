@@ -751,6 +751,7 @@ function resetBuilderAnalysisPanel() {
   document.getElementById('builderAnalysisResult').classList.remove('visible');
   document.getElementById('builderGenotypeTableBody').innerHTML = '';
   document.getElementById('builderGenotypeNote').innerHTML = '';
+  document.getElementById('builderImpossibilities').innerHTML = '';
 }
 
 function getBuilderMetadata() {
@@ -2140,20 +2141,90 @@ function renderBuilderGenotypeTable(solution) {
   note.innerHTML = formatGenotypeHTML(solution.notes.join(' '));
 }
 
+function renderBuilderGenotypeTableUnknown() {
+  const tbody = document.getElementById('builderGenotypeTableBody');
+  const note = document.getElementById('builderGenotypeNote');
+  tbody.innerHTML = '';
+  const individuals = Array.from(builderEngine.individuals.values()).sort((a, b) => a.id - b.id);
+  const labels = getBuilderSexLabels();
+  for (const ind of individuals) {
+    const sexLabelText = sexLabel(ind.sex, labels);
+    tbody.innerHTML += `<tr>
+      <td><strong>${ind.label}</strong> (${sexLabelText})</td>
+      <td><code>?</code></td>
+      <td>—</td>
+    </tr>`;
+  }
+  note.innerHTML = '';
+}
+
 function analyzeBuilderTree() {
-  const pattern = builderEngine.analyzePattern();
-  const info    = builderEngine.getPatternInfo(pattern);
   const alleles = getBuilderAlleles();
   const meta = getBuilderMetadata();
-  const solution = inferBuilderGenotypes(pattern, alleles);
 
   builderEngine.hideSolution();
+
+  const result = document.getElementById('builderAnalysisResult');
+  result.classList.add('visible');
+
+  // Detect pattern first (needed to apply pattern-specific impossibility rules)
+  const pattern = builderEngine.analyzePattern();
+
+  // Check for genetic impossibilities given the detected pattern
+  const impossibilities = builderEngine.detectImpossibilities(pattern);
+  const impossDiv = document.getElementById('builderImpossibilities');
+
+  if (impossibilities.length > 0) {
+    const msgs = impossibilities.map(issue => {
+      if (issue.type === 'twoAffectedParentsUnaffectedChild') {
+        return `<li>${t('pedigree.impossible.twoAffectedParentsUnaffectedChild',
+          'Los progenitores {p1} y {p2} están afectados, pero su descendencia {children} no lo está. En herencia recesiva (aa × aa), toda la descendencia debe ser afectada.')
+          .replace('{p1}', `<strong>${issue.p1label}</strong>`)
+          .replace('{p2}', `<strong>${issue.p2label}</strong>`)
+          .replace('{children}', `<strong>${issue.childLabels.join(', ')}</strong>`)}</li>`;
+      }
+      if (issue.type === 'twoUnaffectedParentsAffectedChildAD') {
+        return `<li>${t('pedigree.impossible.twoUnaffectedParentsAffectedChildAD',
+          'Los progenitores {p1} y {p2} no están afectados, pero su descendencia {children} sí lo está. En herencia autosómica dominante (aa × aa), ningún hijo puede estar afectado.')
+          .replace('{p1}', `<strong>${issue.p1label}</strong>`)
+          .replace('{p2}', `<strong>${issue.p2label}</strong>`)
+          .replace('{children}', `<strong>${issue.childLabels.join(', ')}</strong>`)}</li>`;
+      }
+      if (issue.type === 'affectedMotherUnaffectedSons') {
+        return `<li>${t('pedigree.impossible.affectedMotherUnaffectedSons',
+          'La madre {p1} está afectada pero tiene hijos {children} no afectados. En herencia recesiva ligada al X, los hijos de una madre afectada deben estar afectados.')
+          .replace('{p1}', `<strong>${issue.p1label}</strong>`)
+          .replace('{children}', `<strong>${issue.childLabels.join(', ')}</strong>`)}</li>`;
+      }
+      if (issue.type === 'affectedFatherUnaffectedDaughtersXD') {
+        return `<li>${t('pedigree.impossible.affectedFatherUnaffectedDaughtersXD',
+          'El padre {p1} está afectado pero tiene hijas {children} no afectadas. En herencia dominante ligada al X, todas las hijas de un padre afectado deben estar afectadas.')
+          .replace('{p1}', `<strong>${issue.p1label}</strong>`)
+          .replace('{children}', `<strong>${issue.childLabels.join(', ')}</strong>`)}</li>`;
+      }
+      return '';
+    }).filter(Boolean).join('');
+    impossDiv.innerHTML =
+      `<div class="pattern-result" style="background:#fef3c7;border:2px solid #f59e0b;color:#92400e;margin-bottom:0.5rem;">
+        ⚠️ <strong>${t('pedigree.impossible.title', 'Árbol genéticamente imposible')}</strong>
+        <ul style="margin:0.4rem 0 0 1.2rem;font-weight:normal;font-size:0.9rem;">${msgs}</ul>
+      </div>`;
+
+    // Hide pattern and show placeholders in genotype table
+    document.getElementById('builderPatternDisplay').innerHTML = '';
+    document.getElementById('builderPatternDesc').innerHTML = '';
+    renderBuilderGenotypeTableUnknown();
+    return;
+  }
+
+  impossDiv.innerHTML = '';
+  const info    = builderEngine.getPatternInfo(pattern);
+  const solution = inferBuilderGenotypes(pattern, alleles);
+
   if (Object.keys(solution.genotypes).length > 0) {
     builderEngine.showSolution(solution);
   }
 
-  const result  = document.getElementById('builderAnalysisResult');
-  result.classList.add('visible');
   document.getElementById('builderPatternDisplay').innerHTML =
     `<div class="pattern-result ${info.class || 'alert alert-info'}">
       🔍 ${t('pedigree.analysis.mostLikelyPattern', 'Patrón más probable')}: <strong>${info.name}</strong>
