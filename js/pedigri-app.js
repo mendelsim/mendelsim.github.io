@@ -261,7 +261,10 @@ const PEDIGREE_LOCALE = {
 function applyLocaleToStaticPage() {
   const locale = MendelSimI18n.getLocale();
   const S = PEDIGREE_LOCALE[locale];
-  if (!S) return;
+  if (!S) {
+    window.MendelSimButtonTooltips?.apply();
+    return;
+  }
 
   const setText = (selector, text) => {
     const el = document.querySelector(selector);
@@ -385,7 +388,7 @@ function applyLocaleToStaticPage() {
   setText(`#studentCaseTitle`, S.studentCaseTitle);
   setLeadingText(`#tab-alumno .tree-title`, S.studentTreeTitle);
   setAttr(`#tab-alumno .tree-controls`, `aria-label`, S.analyzeTreeControls); // Re-use
-  setText(`#tab-alumno .card-title:last-of-type`, S.studentAnswerTitle);
+  setText(`#studentAnswerTitle`, S.studentAnswerTitle);
   setText(`label[for="studentName"]`, S.studentNameLabel);
   setAttr(`#studentName`, `placeholder`, S.studentNamePlaceholder);
   setText(`label[for="studentPattern"]`, S.studentPatternLabel);
@@ -414,6 +417,7 @@ function applyLocaleToStaticPage() {
       .replace(`Código:`, S.footerCode + `:`)
       .replace(`Contenidos:`, S.footerContent + `:`);
   }
+  window.MendelSimButtonTooltips?.apply();
 }
 
 function initLanguageSelector() {
@@ -468,7 +472,13 @@ function initEngines() {
       }
     }
   });
-  loadBuilderCaseFromURL();
+  if (!window.MendelSimJsonLauncher?.loadPendingPedigreeFile(
+    loadBuilderCaseData,
+    loadStudentSubmissionData,
+    loadStudentAssignmentData
+  )) {
+    loadBuilderCaseFromURL();
+  }
 }
 
 function getTreeBaseWidth(svg) {

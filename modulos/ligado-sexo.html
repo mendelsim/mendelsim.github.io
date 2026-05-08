@@ -434,6 +434,8 @@
 <script src="../js/ligado-sexo-content-ca.js"></script>
 <script src="../js/ligado-sexo-content-en.js"></script>
 <script src="../js/exercise-mode.js"></script>
+<script src="../js/json-launcher.js"></script>
+<script src="../js/button-tooltips.js"></script>
 <script>
 // ── UI helpers ───────────────────────────────────────────────
 function onMotherChange(radio) {
@@ -1203,10 +1205,13 @@ async function copyXLinkedStudentAnswers() {
 
 initLanguageSelector();
 applyLocaleToStaticPage();
+MendelSimButtonTooltips.apply();
 updateTeacherXLinkedNotation();
 MendelSimExercises.showStudentEmpty('Actividad ligada al sexo');
 if (!MendelSimExercises.loadFromHash(loadXLinkedActivityData)) {
-  MendelSimExercises.loadFromAnswerHash(renderXLinkedStudentActivity);
+  if (!MendelSimExercises.loadFromAnswerHash(renderXLinkedStudentActivity)) {
+    MendelSimJsonLauncher.loadPendingCrossFile(loadXLinkedActivityData);
+  }
 }
 </script>
 </body>

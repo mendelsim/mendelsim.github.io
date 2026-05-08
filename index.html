@@ -44,6 +44,19 @@
       align-items: center;
       gap: 0.3rem;
     }
+    .quick-open {
+      margin: 1.2rem 0 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      flex-wrap: wrap;
+    }
+    .quick-open p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--text);
+      opacity: 0.82;
+    }
   </style>
 </head>
 <body>
@@ -77,6 +90,12 @@
     <li>✅ Ejercicios con soluciones</li>
     <li>✅ Sin instalación — funciona en el navegador</li>
   </ul>
+
+  <div class="quick-open">
+    <button class="btn btn-primary" id="homeJsonFileButton" type="button" onclick="document.getElementById('homeJsonFile').click()">📂 Abrir archivo de MendelSim</button>
+    <input type="file" id="homeJsonFile" accept=".json,application/json" style="display:none;" onchange="MendelSimJsonLauncher.openFileFromHome(event)">
+    <p>Abre actividades editables, actividades de alumno y respuestas en su módulo correspondiente.</p>
+  </div>
 
   <div class="modules-section">
     <h2>Módulos disponibles</h2>
@@ -156,6 +175,8 @@
 </footer>
 
 <script src="js/i18n.js"></script>
+<script src="js/json-launcher.js"></script>
+<script src="js/button-tooltips.js"></script>
 <script>
 const INDEX_CA = {
   pageTitle: 'MendelSim — Simulador de genètica',
@@ -171,6 +192,8 @@ const INDEX_CA = {
   ],
   modulesTitle: 'Mòduls disponibles',
   modulesIntro: 'Selecciona un mòdul per començar a practicar:',
+  quickOpenButton: '📂 Obrir fitxer de MendelSim',
+  quickOpenHint: 'Obre activitats editables, activitats d’alumne i respostes en el mòdul corresponent.',
   modules: [
     {
       title: 'Encreuament monohíbrid',
@@ -217,6 +240,8 @@ const INDEX_EN = {
   ],
   modulesTitle: 'Available modules',
   modulesIntro: 'Select a module to start practising:',
+  quickOpenButton: '📂 Open MendelSim file',
+  quickOpenHint: 'Open editable activities, student activities and answers in the corresponding module.',
   modules: [
     {
       title: 'Monohybrid Cross',
@@ -294,6 +319,10 @@ function applyLocale() {
   });
   document.querySelector('.modules-section h2').textContent = L.modulesTitle;
   document.querySelector('.modules-section > p').textContent = L.modulesIntro;
+  const quickOpenBtn = document.querySelector('.quick-open .btn');
+  const quickOpenHint = document.querySelector('.quick-open p');
+  if (quickOpenBtn && L.quickOpenButton) quickOpenBtn.textContent = L.quickOpenButton;
+  if (quickOpenHint && L.quickOpenHint) quickOpenHint.textContent = L.quickOpenHint;
   document.querySelectorAll('.module-card').forEach((card, index) => {
     const data = L.modules[index];
     if (!data) return;
@@ -322,6 +351,7 @@ function applyLocale() {
 initLanguageSelector();
 applyLocale();
 propagateLocaleLinks();
+MendelSimButtonTooltips.apply();
 </script>
 </body>
 </html>

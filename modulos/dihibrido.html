@@ -402,6 +402,8 @@
 <script src="../js/dihibrido-content-ca.js"></script>
 <script src="../js/dihibrido-content-en.js"></script>
 <script src="../js/exercise-mode.js"></script>
+<script src="../js/json-launcher.js"></script>
+<script src="../js/button-tooltips.js"></script>
 <script>
 // ── Presets ──────────────────────────────────────────────────
 const DIHYBRID_CONTENT = window.DIHYBRID_CONTENT || {};
@@ -1082,10 +1084,13 @@ async function copyDihybridStudentAnswers() {
 
 initLanguageSelector();
 applyLocaleToStaticPage();
+MendelSimButtonTooltips.apply();
 updateTeacherDihybridNotation();
 MendelSimExercises.showStudentEmpty('Actividad dihíbrida');
 if (!MendelSimExercises.loadFromHash(loadDihybridActivityData)) {
-  MendelSimExercises.loadFromAnswerHash(renderDihybridStudentActivity);
+  if (!MendelSimExercises.loadFromAnswerHash(renderDihybridStudentActivity)) {
+    MendelSimJsonLauncher.loadPendingCrossFile(loadDihybridActivityData);
+  }
 }
 </script>
 </body>
