@@ -515,6 +515,8 @@ function applyLocaleToStaticPage() {
   setText('.header h1', uiText('heading', 'Herencia Ligada al Sexo'));
   setText('.header p', uiText('subtitle', 'Genes en el cromosoma X — portadoras, hemicigotos, herencia recesiva y dominante'));
   setAttr('#darkToggle', 'title', uiText('darkToggle', 'Modo oscuro'));
+  setText('#languageLabel', window.t ? window.t('language.label', 'Idioma') : 'Idioma');
+  setAttr('#languageSelect', 'aria-label', window.t ? window.t('language.ariaLabel', 'Selecciona el idioma') : 'Selecciona el idioma');
   setText('.law-title', uiText('lawTitle', '📜 Herencia ligada al sexo — Principio de Morgan (1910)'));
   const laws = document.querySelectorAll('.law-box p');
   if (laws[0]) laws[0].innerHTML = uiText('law1', laws[0].innerHTML);

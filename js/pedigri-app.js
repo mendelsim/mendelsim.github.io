@@ -118,10 +118,13 @@ const PEDIGREE_LOCALE = {
     toolSelect: `✥ Moure`,
     toolCouple: `💑 Crear parella`,
     toolChild: `👶 Descendent`,
+    toolAddMale: `♂ Afegir home`,
+    toolAddFemale: `♀ Afegir dona`,
     toolAffected: `● Afectat`,
     toolCarrier: `◉ Portador`,
     toolDelete: `🗑 Eliminar`,
     toolClear: `↺ Netejar`,
+    languageLabel: `Idioma`,
     builderTreeTitle: `🌳 Arbre del constructor `,
     builderFullscreen: `Pantalla completa`,
     builderSnapGrid: `Quadrícula de 20px`,
@@ -217,10 +220,13 @@ const PEDIGREE_LOCALE = {
     toolSelect: `✥ Move`,
     toolCouple: `💑 Create couple`,
     toolChild: `👶 Offspring`,
+    toolAddMale: `♂ Add male`,
+    toolAddFemale: `♀ Add female`,
     toolAffected: `● Affected`,
     toolCarrier: `◉ Carrier`,
     toolDelete: `🗑 Delete`,
     toolClear: `↺ Clear`,
+    languageLabel: `Language`,
     builderTreeTitle: `🌳 Builder tree `,
     builderFullscreen: `Full screen`,
     builderSnapGrid: `20px grid`,
@@ -285,8 +291,8 @@ function applyLocaleToStaticPage() {
   setText(`.header h1`, S.heading);
   setText(`.header p`, S.subtitle);
   setAttr(`#darkToggle`, `title`, S.darkToggle);
-  setText(`#languageLabel`, `Language`);
-  setAttr(`#languageSelect`, `aria-label`, `Language`);
+  setText(`#languageLabel`, S.languageLabel || `Language`);
+  setAttr(`#languageSelect`, `aria-label`, S.languageLabel || `Language`);
   setText(`.law-title`, S.lawTitle);
   setHTML(`.law-box p`, S.lawText);
   setText(`.legend-pedigree strong`, S.legendLabel);
@@ -352,8 +358,8 @@ function applyLocaleToStaticPage() {
   setAttr(`#builderCasePrompt`, `placeholder`, S.builderPromptPlaceholder);
   setText(`#builderAllowAutoCheck + span`, S.builderAutoCheckLabel);
   setText(`#tool-select`, S.toolSelect);
-  setText(`#tool-addMale`, S.toolAddMale || (S.lang === 'ca' ? '♂ Afegir home' : '♂ Add male'));
-  setText(`#tool-addFemale`, S.toolAddFemale || (S.lang === 'ca' ? '♀ Afegir dona' : '♀ Add female'));
+  setText(`#tool-addMale`, S.toolAddMale);
+  setText(`#tool-addFemale`, S.toolAddFemale);
   setText(`#tool-couple`, S.toolCouple);
   setText(`#tool-child`, S.toolChild);
   setAttr(`.builder-sex-toggle`, `aria-label`, S.builderChildSexLabel);
@@ -785,10 +791,11 @@ function updateBuilderOrganismLabels() {
   const addFemale = document.getElementById('tool-addFemale');
   const childMale = document.getElementById('child-sex-male');
   const childFemale = document.getElementById('child-sex-female');
-  if (addMale) addMale.textContent = `♂ Añadir ${labels.maleLower}`;
-  if (addFemale) addFemale.textContent = `♀ Añadir ${labels.femaleLower}`;
-  if (childMale) childMale.title = `Descendiente ${labels.maleLower}`;
-  if (childFemale) childFemale.title = `Descendiente ${labels.femaleLower}`;
+
+  if (addMale) addMale.textContent = t('pedigree.tool.addMale', '♂ Añadir {maleLower}', { maleLower: labels.maleLower });
+  if (addFemale) addFemale.textContent = t('pedigree.tool.addFemale', '♀ Añadir {femaleLower}', { femaleLower: labels.femaleLower });
+  if (childMale) childMale.title = t('pedigree.sex.descendantMale', 'Descendiente {maleLower}', { maleLower: labels.maleLower });
+  if (childFemale) childFemale.title = t('pedigree.sex.descendantFemale', 'Descendiente {femaleLower}', { femaleLower: labels.femaleLower });
 
   if (document.getElementById('tab-constructor')?.classList.contains('active')) {
     updateLegendSexLabels(labels);

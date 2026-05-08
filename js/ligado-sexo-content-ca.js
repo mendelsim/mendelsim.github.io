@@ -98,7 +98,7 @@ if (window.MendelSimI18n?.getLocale() === 'ca') {
       teacherMotherAffected: 'X^a X^a — Afectada',
       teacherFatherNormal: 'X^A Y — Normal',
       teacherFatherAffected: 'X^a Y — Afectat',
-      teacherTraitNameLabel: 'Nom del rasgo / malaltia',
+      teacherTraitNameLabel: 'Nom del tret / malaltia',
       traitNameFallback: 'Hemofília A',
       alleleAdomFallback: 'H',
       alleleArecFallback: 'h',

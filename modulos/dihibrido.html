@@ -460,6 +460,8 @@ function applyLocaleToStaticPage() {
   setText('.header h1', uiText('heading', 'Cruce dihíbrido'));
   setText('.header p', uiText('subtitle', 'Herencia de dos caracteres independientes — Cuadro de Punnett 4×4'));
   setAttr('#darkToggle', 'title', uiText('darkToggle', 'Modo oscuro'));
+  setText('#languageLabel', window.t ? window.t('language.label', 'Idioma') : 'Idioma');
+  setAttr('#languageSelect', 'aria-label', window.t ? window.t('language.ariaLabel', 'Selecciona el idioma') : 'Selecciona el idioma');
   setText('.law-title', uiText('lawTitle', '📜 Ley de la Distribución Independiente (3.ª Ley de Mendel)'));
   setText('.law-box p', uiText('lawText', 'Los alelos de genes situados en cromosomas diferentes se distribuyen de forma independiente durante la formación de gametos. Esto produce 4 tipos de gametos en proporciones iguales (para un doble heterocigoto AaBb: AB, Ab, aB, ab).'));
   setHTML('#configTitle', `<span class="step-number">1</span> ${uiText('configTitle', 'Configuración del cruce dihíbrido')}`);

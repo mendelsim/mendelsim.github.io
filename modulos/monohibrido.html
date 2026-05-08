@@ -458,6 +458,8 @@ function applyLocaleToStaticPage() {
   setText('.header h1', uiText('heading', 'Cruce monohíbrido'));
   setText('.header p', uiText('subtitle', 'Herencia de un solo carácter — Cuadro de Punnett 2×2'));
   setAttr('#darkToggle', 'title', uiText('darkToggle', 'Modo oscuro'));
+  setText('#languageLabel', window.t ? window.t('language.label', 'Idioma') : 'Idioma');
+  setAttr('#languageSelect', 'aria-label', window.t ? window.t('language.ariaLabel', 'Selecciona el idioma') : 'Selecciona el idioma');
   setText('.law-title', uiText('lawTitle', '📜 1.ª y 2.ª Leyes de Mendel'));
   const lawParagraphs = document.querySelectorAll('.law-box p');
   if (lawParagraphs[0]) lawParagraphs[0].innerHTML = uiText('lawUniformity', lawParagraphs[0].innerHTML);

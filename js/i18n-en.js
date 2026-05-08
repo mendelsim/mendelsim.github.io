@@ -29,6 +29,8 @@ MendelSimI18n.register('en', {
   'pedigree.sex.other.femalePlural': 'females',
   'pedigree.sex.other.femaleCarrier': 'Carrier female (heterozygous)',
   'pedigree.sex.other.maleCarrier': 'Carrier male (heterozygous)',
+  'pedigree.sex.descendantMale': 'Male offspring ({maleLower})',
+  'pedigree.sex.descendantFemale': 'Female offspring ({femaleLower})',
 
   'pedigree.status.affectedNeutral': 'Affected',
   'pedigree.status.carrierNeutral': 'Carrier',
@@ -174,4 +176,6 @@ MendelSimI18n.register('en', {
   'genetics.ADomBRec': 'A dominant, b recessive',
   'genetics.ARecBDom': 'a recessive, B dominant',
   'genetics.bothRecessive': 'Both recessive',
+  'language.label': 'Language',
+  'language.ariaLabel': 'Select language',
 });

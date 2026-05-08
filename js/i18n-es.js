@@ -29,6 +29,8 @@ MendelSimI18n.register('es', {
   'pedigree.sex.other.femalePlural': 'hembras',
   'pedigree.sex.other.femaleCarrier': 'Hembra portadora (heterocigota)',
   'pedigree.sex.other.maleCarrier': 'Macho portador (heterocigoto)',
+  'pedigree.sex.descendantMale': 'Descendiente {maleLower}',
+  'pedigree.sex.descendantFemale': 'Descendiente {femaleLower}',
 
   'pedigree.status.affectedNeutral': 'Afectado/a',
   'pedigree.status.carrierNeutral': 'Portador/a',

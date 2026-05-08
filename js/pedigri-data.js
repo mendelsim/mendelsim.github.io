@@ -22,6 +22,20 @@ function formatPedigreeContentList(items = [], params = {}) {
 
 function withExerciseContent(exercise) {
   const content = PEDIGREE_CONTENT.exercises?.[exercise.id] || {};
+  const locale = MendelSimI18n.getLocale();
+  const rawGenotypes = content.genotypes || exercise.answer.genotypes || {};
+  const genotypes = { ...rawGenotypes };
+
+  if (locale === 'en') {
+    for (const id in genotypes) {
+      if (typeof genotypes[id] === 'string') {
+        genotypes[id] = genotypes[id]
+          .replace(/ o /g, ' or ')
+          .replace(/\(portadora\)/g, '(carrier)');
+      }
+    }
+  }
+
   return {
     ...exercise,
     title: content.title || exercise.title,
@@ -31,6 +45,7 @@ function withExerciseContent(exercise) {
       ...exercise.answer,
       patternName: RANDOM_PATTERN_NAMES[exercise.answer.pattern] || content.patternName || exercise.answer.patternName,
       clues: content.clues || exercise.answer.clues || [],
+      genotypes,
       genotypeLabels: content.genotypeLabels || exercise.answer.genotypeLabels || {},
     }
   };
@@ -284,7 +299,7 @@ function createRandomPedigreeExercise() {
     XR: buildRandomXRExercise,
     XD: buildRandomXDExercise
   };
-  return builders[pattern](trait);
+  return withExerciseContent(builders[pattern](trait));
 }
 
 function randomExerciseTitle(trait) {
