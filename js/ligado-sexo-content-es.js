@@ -100,6 +100,7 @@ window.X_LINKED_CONTENT = {
     studentBtnDownload: '💾 Descargar respuestas',
     studentBtnCopy: '📋 Copiar respuestas',
     studentBtnPrint: '🖨 Imprimir PDF',
+    studentBtnShareUrl: '📤 Compartir como URL',
     darkToggle: 'Modo oscuro',
     footerCode: 'Código',
     footerContent: 'Contenidos',

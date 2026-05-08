@@ -403,6 +403,7 @@
         <button class="btn btn-outline student-export-btn" onclick="downloadXLinkedStudentAnswers()">💾 Descargar respuestas</button>
         <button class="btn btn-outline student-export-btn" onclick="copyXLinkedStudentAnswers()">📋 Copiar respuestas</button>
         <button class="btn btn-outline student-export-btn" id="studentPrintBtn" onclick="MendelSimExercises.printStudentAnswers(currentXLinkedActivity, currentXLinkedSolution)">🖨 Imprimir PDF</button>
+        <button class="btn btn-outline student-export-btn" id="studentShareUrlBtn" onclick="shareXLinkedStudentAnswerURL()">📤 Compartir como URL</button>
         <input type="file" id="xLinkedStudentExerciseFile" accept=".json,application/json" style="display:none;" onchange="loadXLinkedExerciseFile(event)">
       </div>
       <div id="studentAutoCheckNote" class="exercise-status"></div>
@@ -604,6 +605,7 @@ function applyLocaleToStaticPage() {
   if (sBtns[2]) sBtns[2].textContent = uiText('studentBtnDownload', '💾 Descargar respuestas');
   if (sBtns[3]) sBtns[3].textContent = uiText('studentBtnCopy', '📋 Copiar respuestas');
   if (sBtns[4]) sBtns[4].textContent = uiText('studentBtnPrint', '🖨 Imprimir PDF');
+  if (sBtns[5]) sBtns[5].textContent = uiText('studentBtnShareUrl', '📤 Compartir como URL');
   const footer = document.querySelector('footer div:last-child');
   if (footer) {
     footer.innerHTML = `
@@ -1183,6 +1185,10 @@ function downloadXLinkedStudentAnswers() {
   MendelSimExercises.downloadBlob(new Blob([JSON.stringify(answer, null, 2)], { type: 'application/json;charset=utf-8' }), filename);
 }
 
+async function shareXLinkedStudentAnswerURL() {
+  await MendelSimExercises.shareStudentAnswerURL(currentXLinkedActivity, currentXLinkedSolution);
+}
+
 async function copyXLinkedStudentAnswers() {
   await MendelSimExercises.copyText(
     MendelSimExercises.formatAnswersText(currentXLinkedActivity, currentXLinkedSolution),
@@ -1199,7 +1205,9 @@ initLanguageSelector();
 applyLocaleToStaticPage();
 updateTeacherXLinkedNotation();
 MendelSimExercises.showStudentEmpty('Actividad ligada al sexo');
-MendelSimExercises.loadFromHash(loadXLinkedActivityData);
+if (!MendelSimExercises.loadFromHash(loadXLinkedActivityData)) {
+  MendelSimExercises.loadFromAnswerHash(renderXLinkedStudentActivity);
+}
 </script>
 </body>
 </html>

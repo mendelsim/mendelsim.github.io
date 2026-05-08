@@ -371,6 +371,7 @@
         <button class="btn btn-outline student-export-btn" onclick="downloadDihybridStudentAnswers()">💾 Descargar respuestas</button>
         <button class="btn btn-outline student-export-btn" onclick="copyDihybridStudentAnswers()">📋 Copiar respuestas</button>
         <button class="btn btn-outline student-export-btn" id="studentPrintBtn" onclick="MendelSimExercises.printStudentAnswers(currentDihybridActivity, currentDihybridSolution)">🖨 Imprimir PDF</button>
+        <button class="btn btn-outline student-export-btn" id="studentShareUrlBtn" onclick="shareDihybridStudentAnswerURL()">📤 Compartir como URL</button>
         <input type="file" id="dihybridStudentExerciseFile" accept=".json,application/json" style="display:none;" onchange="loadDihybridExerciseFile(event)">
       </div>
       <div id="studentAutoCheckNote" class="exercise-status"></div>
@@ -543,6 +544,7 @@ function applyLocaleToStaticPage() {
   if (sBtns[2]) sBtns[2].textContent = uiText('studentBtnDownload', '💾 Descargar respuestas');
   if (sBtns[3]) sBtns[3].textContent = uiText('studentBtnCopy', '📋 Copiar respuestas');
   if (sBtns[4]) sBtns[4].textContent = uiText('studentBtnPrint', '🖨 Imprimir PDF');
+  if (sBtns[5]) sBtns[5].textContent = uiText('studentBtnShareUrl', '📤 Compartir como URL');
   const footer = document.querySelector('footer div:last-child');
   if (footer) {
     footer.innerHTML = `
@@ -1062,6 +1064,10 @@ function downloadDihybridStudentAnswers() {
   MendelSimExercises.downloadBlob(new Blob([JSON.stringify(answer, null, 2)], { type: 'application/json;charset=utf-8' }), filename);
 }
 
+async function shareDihybridStudentAnswerURL() {
+  await MendelSimExercises.shareStudentAnswerURL(currentDihybridActivity, currentDihybridSolution);
+}
+
 async function copyDihybridStudentAnswers() {
   await MendelSimExercises.copyText(
     MendelSimExercises.formatAnswersText(currentDihybridActivity, currentDihybridSolution),
@@ -1078,7 +1084,9 @@ initLanguageSelector();
 applyLocaleToStaticPage();
 updateTeacherDihybridNotation();
 MendelSimExercises.showStudentEmpty('Actividad dihíbrida');
-MendelSimExercises.loadFromHash(loadDihybridActivityData);
+if (!MendelSimExercises.loadFromHash(loadDihybridActivityData)) {
+  MendelSimExercises.loadFromAnswerHash(renderDihybridStudentActivity);
+}
 </script>
 </body>
 </html>

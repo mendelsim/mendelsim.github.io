@@ -108,6 +108,7 @@ if (window.MendelSimI18n?.getLocale() === 'ca') {
       studentBtnDownload: '💾 Descarregar respostes',
       studentBtnCopy: '📋 Copiar respostes',
       studentBtnPrint: '🖨 Imprimir PDF',
+      studentBtnShareUrl: '📤 Compartir com a URL',
       darkToggle: 'Mode fosc',
       footerCode: 'Codi',
       footerContent: 'Continguts',

@@ -364,6 +364,7 @@
         <button class="btn btn-outline student-export-btn" onclick="downloadMonoStudentAnswers()">💾 Descargar respuestas</button>
         <button class="btn btn-outline student-export-btn" onclick="copyMonoStudentAnswers()">📋 Copiar respuestas</button>
         <button class="btn btn-outline student-export-btn" id="studentPrintBtn" onclick="MendelSimExercises.printStudentAnswers(currentMonoActivity, currentMonoSolution)">🖨 Imprimir PDF</button>
+        <button class="btn btn-outline student-export-btn" id="studentShareUrlBtn" onclick="shareMonoStudentAnswerURL()">📤 Compartir como URL</button>
         <input type="file" id="monoStudentExerciseFile" accept=".json,application/json" style="display:none;" onchange="loadMonoExerciseFile(event)">
       </div>
       <div id="studentAutoCheckNote" class="exercise-status"></div>
@@ -564,6 +565,7 @@ function applyLocaleToStaticPage() {
   if (sBtns[2]) sBtns[2].textContent = uiText('studentBtnDownload', '💾 Descargar respuestas');
   if (sBtns[3]) sBtns[3].textContent = uiText('studentBtnCopy', '📋 Copiar respuestas');
   if (sBtns[4]) sBtns[4].textContent = uiText('studentBtnPrint', '🖨 Imprimir PDF');
+  if (sBtns[5]) sBtns[5].textContent = uiText('studentBtnShareUrl', '📤 Compartir como URL');
   const footer = document.querySelector('footer div:last-child');
   if (footer) {
     footer.innerHTML = `
@@ -1191,6 +1193,10 @@ function downloadMonoStudentAnswers() {
   MendelSimExercises.downloadBlob(new Blob([JSON.stringify(answer, null, 2)], { type: 'application/json;charset=utf-8' }), filename);
 }
 
+async function shareMonoStudentAnswerURL() {
+  await MendelSimExercises.shareStudentAnswerURL(currentMonoActivity, currentMonoSolution);
+}
+
 async function copyMonoStudentAnswers() {
   await MendelSimExercises.copyText(
     MendelSimExercises.formatAnswersText(currentMonoActivity, currentMonoSolution),
@@ -1210,7 +1216,9 @@ onDomChange();
 setDominanceLocked(false);
 updateTeacherMonoNotation();
 MendelSimExercises.showStudentEmpty('Actividad monohíbrida');
-MendelSimExercises.loadFromHash(loadMonoActivityData);
+if (!MendelSimExercises.loadFromHash(loadMonoActivityData)) {
+  MendelSimExercises.loadFromAnswerHash(renderMonoStudentActivity);
+}
 </script>
 </body>
 </html>

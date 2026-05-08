@@ -408,6 +408,55 @@
     }
   }
 
+  function restoreStudentAnswers(answer) {
+    if (!answer) return;
+    const nameEl = document.getElementById('studentName');
+    if (nameEl && answer.studentName) nameEl.value = answer.studentName;
+    const justEl = document.getElementById('studentJustification');
+    if (justEl && answer.justification) justEl.value = answer.justification;
+    if (answer.counts) {
+      document.querySelectorAll('.student-count-input').forEach(input => {
+        const section = input.dataset.section;
+        const key = input.dataset.key;
+        const val = answer.counts[section]?.[key];
+        if (val !== null && val !== undefined) input.value = val;
+      });
+    }
+    updateExportButtons();
+  }
+
+  async function shareStudentAnswerURL(data, solution) {
+    if (!data) {
+      alert(t('exercise.shareAnswerNoActivity', 'No hay actividad cargada.'));
+      return;
+    }
+    const answer = collectStudentAnswers(solution);
+    const encoded = encodeData({ activity: data, answer });
+    const url = `${location.origin}${location.pathname}#respuesta=${encoded}`;
+    await copyText(url, t('exercise.shareAnswerFallback', 'Copia esta URL para enviarla al profesor/a:'), () => {
+      const box = document.getElementById('studentFeedback');
+      if (box) {
+        box.className = 'alert student-feedback visible alert-success';
+        box.textContent = t('exercise.shareAnswerCopied', 'URL copiada al portapapeles. Envíala a tu profesor/a.');
+      }
+    });
+  }
+
+  function loadFromAnswerHash(activityLoader) {
+    const match = location.hash.match(/^#respuesta=(.+)$/);
+    if (!match) return false;
+    try {
+      const payload = decodeData(match[1]);
+      if (payload.activity) activityLoader(payload.activity, 'URL compartida');
+      if (payload.answer) restoreStudentAnswers(payload.answer);
+      return true;
+    } catch (err) {
+      console.error(err);
+      alert(t('exercise.answerUrlError', 'No se pudo leer la respuesta desde la URL.'));
+      return false;
+    }
+  }
+
   window.MendelSimExercises = {
     escapeHTML,
     formatGenotypeHTML,
@@ -429,6 +478,10 @@
     formatAnswersText,
     printStudentAnswers,
     updateExportButtons,
+    formatDateTime,
     loadFromHash,
+    restoreStudentAnswers,
+    shareStudentAnswerURL,
+    loadFromAnswerHash,
   };
 })();

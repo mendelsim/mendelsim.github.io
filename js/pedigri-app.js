@@ -152,7 +152,7 @@ const PEDIGREE_LOCALE = {
     studentJustificationPlaceholder: `Explica quines dades de l’arbre justifiquen la teva resposta...`,
     studentGenotypeSectionTitle: `🧬 Genotips proposats`,
     studentTableHead: `<th>Individu</th><th>Sexe</th><th>Estat observat</th><th>Genotip</th><th>Notes</th>`,
-    studentBtns: [`✅ Comprovar`, `💾 Descarregar respostes`, `📋 Copiar respostes`],
+    studentBtns: [`✅ Comprovar`, `💾 Descarregar respostes`, `📋 Copiar respostes`, `🖨 Imprimir PDF`, `📤 Compartir com a URL`],
   },
   en: {
     lang: `en`,
@@ -254,7 +254,7 @@ const PEDIGREE_LOCALE = {
     studentJustificationPlaceholder: `Explain which data from the tree justify your answer...`,
     studentGenotypeSectionTitle: `🧬 Proposed genotypes`,
     studentTableHead: `<th>Individual</th><th>Sex</th><th>Observed status</th><th>Genotype</th><th>Notes</th>`,
-    studentBtns: [`✅ Check`, `💾 Download answers`, `📋 Copy answers`],
+    studentBtns: [`✅ Check`, `💾 Download answers`, `📋 Copy answers`, `🖨 Print PDF`, `📤 Share as URL`],
   },
 };
 
@@ -1124,6 +1124,17 @@ async function copyBuilderShareURL() {
 function loadBuilderCaseFromURL() {
   const studentMatch = location.hash.match(/^#alumno=(.+)$/);
   const teacherMatch = location.hash.match(/^#caso=(.+)$/);
+  const answerMatch = location.hash.match(/^#respuesta=(.+)$/);
+  if (answerMatch) {
+    try {
+      const answer = decodeCaseFromURL(answerMatch[1]);
+      loadStudentSubmissionData(answer, 'URL compartida');
+    } catch (err) {
+      console.error(err);
+      alert(t('pedigree.error.loadFromUrl', 'No se pudo leer el caso desde la URL.'));
+    }
+    return;
+  }
   const match = studentMatch || teacherMatch;
   if (!match) return;
   try {
@@ -1413,6 +1424,22 @@ async function copyStudentAnswers() {
     showStudentFeedback(t('pedigree.feedback.clipboardCopied', 'Respuestas copiadas al portapapeles.'), 'success');
   } catch (err) {
     prompt(t('pedigree.alert.copyPrompt', 'Copia estas respuestas:'), text);
+  }
+}
+
+async function shareStudentAnswerAsURL() {
+  if (!currentStudentAssignment) {
+    alert(t('exercise.shareAnswerNoActivity', 'No hay actividad cargada.'));
+    return;
+  }
+  const answer = collectStudentAnswers();
+  const encoded = encodeCaseForURL(answer);
+  const url = `${location.origin}${location.pathname}#respuesta=${encoded}`;
+  try {
+    await navigator.clipboard.writeText(url);
+    showStudentFeedback(t('exercise.shareAnswerCopied', 'URL copiada al portapapeles. Envíala a tu profesor/a.'), 'success');
+  } catch (err) {
+    prompt(t('exercise.shareAnswerFallback', 'Copia esta URL para enviarla al profesor/a:'), url);
   }
 }
 
