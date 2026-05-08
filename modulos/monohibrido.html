@@ -363,6 +363,7 @@
         <button class="btn btn-outline" onclick="document.getElementById('monoStudentExerciseFile').click()">📂 Cargar actividad</button>
         <button class="btn btn-outline" onclick="downloadMonoStudentAnswers()">💾 Descargar respuestas</button>
         <button class="btn btn-outline" onclick="copyMonoStudentAnswers()">📋 Copiar respuestas</button>
+        <button class="btn btn-outline" id="studentPrintBtn" onclick="MendelSimExercises.printStudentAnswers(currentMonoActivity, currentMonoSolution)">🖨 Imprimir PDF</button>
         <input type="file" id="monoStudentExerciseFile" accept=".json,application/json" style="display:none;" onchange="loadMonoExerciseFile(event)">
       </div>
       <div id="studentAutoCheckNote" class="exercise-status"></div>
@@ -562,6 +563,7 @@ function applyLocaleToStaticPage() {
   if (sBtns[1]) sBtns[1].textContent = uiText('studentBtnLoad', '📂 Cargar actividad');
   if (sBtns[2]) sBtns[2].textContent = uiText('studentBtnDownload', '💾 Descargar respuestas');
   if (sBtns[3]) sBtns[3].textContent = uiText('studentBtnCopy', '📋 Copiar respuestas');
+  if (sBtns[4]) sBtns[4].textContent = uiText('studentBtnPrint', '🖨 Imprimir PDF');
   const footer = document.querySelector('footer div:last-child');
   if (footer) {
     footer.innerHTML = `

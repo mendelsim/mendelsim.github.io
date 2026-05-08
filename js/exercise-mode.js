@@ -270,6 +270,120 @@
     return lines.join('\n');
   }
 
+  function formatDateTime() {
+    const now = new Date();
+    const locale = window.MendelSimI18n?.getLocale() || 'es';
+    const localeMap = { es: 'es-ES', ca: 'ca-ES', en: 'en-GB' };
+    const lc = localeMap[locale] || locale;
+    const date = now.toLocaleDateString(lc, { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const time = now.toLocaleTimeString(lc, { hour: '2-digit', minute: '2-digit' });
+    return `${date} ${time}`;
+  }
+
+  function printStudentAnswers(data, solution) {
+    const answer = collectStudentAnswers(solution);
+    const studentName = answer.studentName || '';
+    if (!studentName) {
+      alert(t('exercise.printNoName', 'Escribe tu nombre antes de imprimir.'));
+      document.getElementById('studentName')?.focus();
+      return;
+    }
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert(t('exercise.printBlocked', 'No se pudo abrir la ventana de impresión. Comprueba si el navegador bloquea las ventanas emergentes.'));
+      return;
+    }
+
+    const title   = escapeHTML(data?.metadata?.title || t('exercise.defaultTitle', 'Actividad MendelSim'));
+    const prompt  = data?.metadata?.prompt || '';
+    const meta    = data?.metadata || {};
+    const dateStr = escapeHTML(formatDateTime());
+    const locale  = window.MendelSimI18n?.getLocale() || 'es';
+
+    const metaRows = [];
+    if (meta.trait)      metaRows.push(`<p><strong>${t('exercise.trait', 'Rasgo')}:</strong> ${escapeHTML(meta.trait)}</p>`);
+    if (meta.crossLabel) metaRows.push(`<p><strong>${t('exercise.cross', 'Cruce')}:</strong> ${formatGenotypeHTML(meta.crossLabel)}</p>`);
+    if (meta.inheritance)metaRows.push(`<p><strong>${t('exercise.model', 'Modelo')}:</strong> ${escapeHTML(meta.inheritance)}</p>`);
+    if (prompt)          metaRows.push(`<p><strong>${t('exercise.statement', 'Enunciado')}:</strong> ${formatGenotypeHTML(prompt).replace(/\n/g, '<br>')}</p>`);
+
+    const sectionHTML = answer.summary.map(section => {
+      const rows = section.rows.map(row => {
+        const val = row.count !== null && row.count !== undefined ? row.count : '—';
+        const pct = (row.total && row.count !== null && row.count !== undefined)
+          ? ` <span class="pct">(${Math.round(row.count / row.total * 100)}%)</span>` : '';
+        return `<tr><td>${formatGenotypeHTML(row.label)}</td><td class="answer-cell">${val} / ${row.total}${pct}</td></tr>`;
+      }).join('');
+      return `<div class="answer-section">
+        <p class="section-title">${escapeHTML(section.title)}</p>
+        <table class="answer-table"><tbody>${rows}</tbody></table>
+      </div>`;
+    }).join('');
+
+    const justification = escapeHTML(answer.justification || '').replace(/\n/g, '<br>');
+
+    printWindow.document.write(`<!DOCTYPE html>
+<html lang="${escapeHTML(locale)}">
+<head>
+  <meta charset="UTF-8">
+  <title>${title}</title>
+  <style>
+    :root{--green:#1a7431;--green-light:#e8f5e9;--border:#cde0cd;--text:#2c3e50;--font:Inter,Arial,sans-serif;--mono:Consolas,monospace;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:var(--font);color:var(--text);font-size:13px;padding:20px 28px;}
+    .header{border-bottom:2px solid var(--green);padding-bottom:10px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;}
+    .header h1{font-size:18px;color:var(--green);line-height:1.2;}
+    .header .app{font-size:11px;color:#6b7280;text-align:right;white-space:nowrap;}
+    .student-box{background:var(--green-light);border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin-bottom:14px;display:flex;gap:24px;flex-wrap:wrap;align-items:center;}
+    .student-box .field{display:flex;flex-direction:column;gap:2px;}
+    .student-box .label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#4b5563;}
+    .student-box .value{font-size:14px;font-weight:700;color:var(--green);}
+    .meta{font-size:12px;margin-bottom:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:5px;padding:8px 12px;}
+    .meta p{margin:3px 0;}
+    .section-title{font-weight:700;color:var(--green);margin:12px 0 4px;}
+    .answer-table{border-collapse:collapse;width:100%;max-width:420px;font-size:12px;margin-bottom:8px;}
+    .answer-table td{padding:4px 10px;border-bottom:1px solid #e5e7eb;}
+    .answer-table td:first-child{color:#374151;}
+    .answer-cell{font-weight:600;text-align:right;min-width:80px;}
+    .pct{font-weight:400;color:#6b7280;font-size:11px;}
+    .justification-box{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;}
+    .justification-box .label{font-weight:700;color:var(--green);margin-bottom:4px;}
+    .justification-text{font-size:12px;line-height:1.6;min-height:40px;color:#374151;}
+    code{font-family:var(--mono);color:#14532d;font-weight:600;}
+    sup{font-size:0.75em;vertical-align:super;}
+    @media print{
+      body{padding:10mm 14mm;}
+      .header h1{font-size:15px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>${title}</h1>
+    <div class="app">MendelSim</div>
+  </div>
+  <div class="student-box">
+    <div class="field">
+      <span class="label">${t('exercise.studentLabel', 'Alumno/a')}</span>
+      <span class="value">${escapeHTML(studentName)}</span>
+    </div>
+    <div class="field">
+      <span class="label">${t('exercise.dateLabel', 'Fecha y hora')}</span>
+      <span class="value">${dateStr}</span>
+    </div>
+  </div>
+  ${metaRows.length ? `<div class="meta">${metaRows.join('')}</div>` : ''}
+  ${sectionHTML}
+  <div class="justification-box">
+    <div class="label">${t('exercise.justification', 'Justificación')}</div>
+    <div class="justification-text">${justification || '<span style="color:#9ca3af">—</span>'}</div>
+  </div>
+  <script>window.addEventListener('load',()=>{window.focus();window.print();});<\/script>
+</body>
+</html>`);
+    printWindow.document.close();
+  }
+
   function loadFromHash(callback) {
     const match = location.hash.match(/^#actividad=(.+)$/);
     if (!match) return false;
@@ -302,6 +416,7 @@
     collectStudentAnswers,
     checkStudentAnswers,
     formatAnswersText,
+    printStudentAnswers,
     loadFromHash,
   };
 })();

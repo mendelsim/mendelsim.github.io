@@ -642,11 +642,34 @@ function printTree(svgId, title) {
     return;
   }
 
+  const isStudentPrint = svgId === 'studentSvg' && !!currentStudentAssignment;
+  if (isStudentPrint) {
+    const studentName = document.getElementById('studentName')?.value.trim() || '';
+    if (!studentName) {
+      alert(t('pedigree.error.printNoName', 'Escribe tu nombre antes de imprimir.'));
+      document.getElementById('studentName')?.focus();
+      printWindow.close();
+      return;
+    }
+  }
+
   const legend = document.querySelector('.legend-pedigree')?.outerHTML || '';
   const extra = getPrintExtra(svgId);
+  const locale = window.MendelSimI18n?.getLocale() || 'es';
+  const localeMap = { es: 'es-ES', ca: 'ca-ES', en: 'en-GB' };
+  const lc = localeMap[locale] || locale;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString(lc, { day: '2-digit', month: '2-digit', year: 'numeric' })
+    + ' ' + now.toLocaleTimeString(lc, { hour: '2-digit', minute: '2-digit' });
+  const studentName = isStudentPrint ? (document.getElementById('studentName')?.value.trim() || '') : '';
+  const studentBox = isStudentPrint ? `
+  <div style="background:#e8f5e9;border:1px solid #cde0cd;border-radius:6px;padding:8px 12px;margin-bottom:12px;display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
+    <div><span style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#4b5563;display:block;">${t('pedigree.print.studentLabel', 'Alumno/a')}</span><span style="font-size:14px;font-weight:700;color:#1a7431;">${escapeHTML(studentName)}</span></div>
+    <div><span style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#4b5563;display:block;">${t('pedigree.print.dateLabel', 'Fecha y hora')}</span><span style="font-size:14px;font-weight:700;color:#1a7431;">${escapeHTML(dateStr)}</span></div>
+  </div>` : '';
   printWindow.document.write(`
 <!DOCTYPE html>
-<html lang="es">
+<html lang="${escapeHTML(locale)}">
 <head>
   <meta charset="UTF-8">
   <title>${escapeHTML(title)}</title>
@@ -689,6 +712,7 @@ function printTree(svgId, title) {
 </head>
 <body>
   <h1>${escapeHTML(title || t('pedigree.title.familyTree', 'Árbol genealógico'))}</h1>
+  ${studentBox}
   ${legend}
   <div class="print-tree">${clone.outerHTML}</div>
   ${extra}

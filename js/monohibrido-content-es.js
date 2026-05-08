@@ -161,6 +161,7 @@ window.MONOHYBRID_CONTENT = {
     studentBtnLoad: '📂 Cargar actividad',
     studentBtnDownload: '💾 Descargar respuestas',
     studentBtnCopy: '📋 Copiar respuestas',
+    studentBtnPrint: '🖨 Imprimir PDF',
     darkToggle: 'Modo oscuro',
     footerCode: 'Código',
     footerContent: 'Contenidos',
