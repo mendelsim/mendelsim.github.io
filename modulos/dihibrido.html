@@ -357,7 +357,7 @@
       <div class="form-row">
         <div class="form-group" style="min-width:220px;">
           <label for="studentName">Nombre</label>
-          <input type="text" id="studentName" placeholder="Nombre y apellidos">
+          <input type="text" id="studentName" placeholder="Nombre y apellidos" oninput="MendelSimExercises.updateExportButtons()">
         </div>
       </div>
       <div id="studentAnswerSections"></div>
@@ -368,9 +368,9 @@
       <div class="btn-group">
         <button class="btn btn-primary" id="studentCheckBtn" onclick="checkDihybridStudentAnswers()">✅ Comprobar</button>
         <button class="btn btn-outline" onclick="document.getElementById('dihybridStudentExerciseFile').click()">📂 Cargar actividad</button>
-        <button class="btn btn-outline" onclick="downloadDihybridStudentAnswers()">💾 Descargar respuestas</button>
-        <button class="btn btn-outline" onclick="copyDihybridStudentAnswers()">📋 Copiar respuestas</button>
-        <button class="btn btn-outline" id="studentPrintBtn" onclick="MendelSimExercises.printStudentAnswers(currentDihybridActivity, currentDihybridSolution)">🖨 Imprimir PDF</button>
+        <button class="btn btn-outline student-export-btn" onclick="downloadDihybridStudentAnswers()">💾 Descargar respuestas</button>
+        <button class="btn btn-outline student-export-btn" onclick="copyDihybridStudentAnswers()">📋 Copiar respuestas</button>
+        <button class="btn btn-outline student-export-btn" id="studentPrintBtn" onclick="MendelSimExercises.printStudentAnswers(currentDihybridActivity, currentDihybridSolution)">🖨 Imprimir PDF</button>
         <input type="file" id="dihybridStudentExerciseFile" accept=".json,application/json" style="display:none;" onchange="loadDihybridExerciseFile(event)">
       </div>
       <div id="studentAutoCheckNote" class="exercise-status"></div>

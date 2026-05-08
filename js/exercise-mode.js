@@ -93,6 +93,7 @@
     if (checkBtn) checkBtn.disabled = true;
     const note = document.getElementById('studentAutoCheckNote');
     if (note) note.textContent = t('exercise.noActivityLoadedNote', 'Todavía no hay una actividad cargada.');
+    updateExportButtons();
   }
 
   function setStatus(id, message, type = '') {
@@ -203,6 +204,7 @@
     document.getElementById('studentAutoCheckNote').textContent = autoCheck
       ? t('exercise.autoCheckEnabled', 'El profesor ha activado la autocorrección para esta actividad.')
       : t('exercise.autoCheckDisabled', 'El profesor no ha activado la autocorrección. Completa la respuesta y envíala.');
+    updateExportButtons();
   }
 
   function collectStudentAnswers(solution) {
@@ -256,7 +258,8 @@
     const answer = collectStudentAnswers(solution);
     const lines = [
       `${t('exercise.activity', 'Activitat')}: ${data.metadata?.title || t('exercise.defaultTitle', 'Actividad MendelSim')}`,
-      `${t('exercise.student', 'Alumno/a')}: ${answer.studentName || t('exercise.noName', '(sin nombre)')}`,
+      `${t('exercise.studentLabel', 'Alumno/a')}: ${answer.studentName || t('exercise.noName', '(sin nombre)')}`,
+      `${t('exercise.dateLabel', 'Fecha y hora')}: ${formatDateTime()}`,
       '',
       `${t('exercise.answers', 'Respuestas')}:`,
     ];
@@ -268,6 +271,14 @@
     });
     lines.push('', `${t('exercise.justification', 'Justificación')}:`, answer.justification || t('exercise.notAnswered', '(sin responder)'));
     return lines.join('\n');
+  }
+
+  function updateExportButtons() {
+    const name = document.getElementById('studentName')?.value.trim() || '';
+    const disabled = !name;
+    document.querySelectorAll('.student-export-btn').forEach(btn => {
+      btn.disabled = disabled;
+    });
   }
 
   function formatDateTime() {
@@ -417,6 +428,7 @@
     checkStudentAnswers,
     formatAnswersText,
     printStudentAnswers,
+    updateExportButtons,
     loadFromHash,
   };
 })();

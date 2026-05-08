@@ -350,7 +350,7 @@
       <div class="form-row">
         <div class="form-group" style="min-width:220px;">
           <label for="studentName">Nombre</label>
-          <input type="text" id="studentName" placeholder="Nombre y apellidos">
+          <input type="text" id="studentName" placeholder="Nombre y apellidos" oninput="MendelSimExercises.updateExportButtons()">
         </div>
       </div>
       <div id="studentAnswerSections"></div>
@@ -361,9 +361,9 @@
       <div class="btn-group">
         <button class="btn btn-primary" id="studentCheckBtn" onclick="checkMonoStudentAnswers()">✅ Comprobar</button>
         <button class="btn btn-outline" onclick="document.getElementById('monoStudentExerciseFile').click()">📂 Cargar actividad</button>
-        <button class="btn btn-outline" onclick="downloadMonoStudentAnswers()">💾 Descargar respuestas</button>
-        <button class="btn btn-outline" onclick="copyMonoStudentAnswers()">📋 Copiar respuestas</button>
-        <button class="btn btn-outline" id="studentPrintBtn" onclick="MendelSimExercises.printStudentAnswers(currentMonoActivity, currentMonoSolution)">🖨 Imprimir PDF</button>
+        <button class="btn btn-outline student-export-btn" onclick="downloadMonoStudentAnswers()">💾 Descargar respuestas</button>
+        <button class="btn btn-outline student-export-btn" onclick="copyMonoStudentAnswers()">📋 Copiar respuestas</button>
+        <button class="btn btn-outline student-export-btn" id="studentPrintBtn" onclick="MendelSimExercises.printStudentAnswers(currentMonoActivity, currentMonoSolution)">🖨 Imprimir PDF</button>
         <input type="file" id="monoStudentExerciseFile" accept=".json,application/json" style="display:none;" onchange="loadMonoExerciseFile(event)">
       </div>
       <div id="studentAutoCheckNote" class="exercise-status"></div>

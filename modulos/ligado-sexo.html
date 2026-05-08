@@ -389,7 +389,7 @@
       <div class="form-row">
         <div class="form-group" style="min-width:220px;">
           <label for="studentName">Nombre</label>
-          <input type="text" id="studentName" placeholder="Nombre y apellidos">
+          <input type="text" id="studentName" placeholder="Nombre y apellidos" oninput="MendelSimExercises.updateExportButtons()">
         </div>
       </div>
       <div id="studentAnswerSections"></div>
@@ -400,9 +400,9 @@
       <div class="btn-group">
         <button class="btn btn-primary" id="studentCheckBtn" onclick="checkXLinkedStudentAnswers()">✅ Comprobar</button>
         <button class="btn btn-outline" onclick="document.getElementById('xLinkedStudentExerciseFile').click()">📂 Cargar actividad</button>
-        <button class="btn btn-outline" onclick="downloadXLinkedStudentAnswers()">💾 Descargar respuestas</button>
-        <button class="btn btn-outline" onclick="copyXLinkedStudentAnswers()">📋 Copiar respuestas</button>
-        <button class="btn btn-outline" id="studentPrintBtn" onclick="MendelSimExercises.printStudentAnswers(currentXLinkedActivity, currentXLinkedSolution)">🖨 Imprimir PDF</button>
+        <button class="btn btn-outline student-export-btn" onclick="downloadXLinkedStudentAnswers()">💾 Descargar respuestas</button>
+        <button class="btn btn-outline student-export-btn" onclick="copyXLinkedStudentAnswers()">📋 Copiar respuestas</button>
+        <button class="btn btn-outline student-export-btn" id="studentPrintBtn" onclick="MendelSimExercises.printStudentAnswers(currentXLinkedActivity, currentXLinkedSolution)">🖨 Imprimir PDF</button>
         <input type="file" id="xLinkedStudentExerciseFile" accept=".json,application/json" style="display:none;" onchange="loadXLinkedExerciseFile(event)">
       </div>
       <div id="studentAutoCheckNote" class="exercise-status"></div>

@@ -1188,6 +1188,7 @@ function loadStudentAssignmentData(data, sourceLabel = 'actividad') {
   resetTreeZoom('studentSvg');
   renderStudentCase();
   setStudentModeUI(true);
+  updateStudentResponsePreview();
   switchTab('alumno');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1321,7 +1322,10 @@ function updateStudentGenotype(id) {
 }
 
 function updateStudentResponsePreview() {
-  // Reserved hook: keeps response collection live while the graph updates from genotype inputs.
+  const name = document.getElementById('studentName')?.value.trim() || '';
+  document.querySelectorAll('.student-export-btn').forEach(btn => {
+    btn.disabled = !name;
+  });
 }
 
 function collectStudentAnswers() {
@@ -1371,9 +1375,16 @@ function collectStudentAnswers() {
 function formatStudentAnswersText(answer = collectStudentAnswers()) {
   const assignment = currentStudentAssignment;
   const individuals = assignment ? [...assignment.exercise.individuals].sort((a, b) => a.id - b.id) : [];
+  const locale = window.MendelSimI18n?.getLocale() || 'es';
+  const localeMap = { es: 'es-ES', ca: 'ca-ES', en: 'en-GB' };
+  const lc = localeMap[locale] || locale;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString(lc, { day: '2-digit', month: '2-digit', year: 'numeric' })
+    + ' ' + now.toLocaleTimeString(lc, { hour: '2-digit', minute: '2-digit' });
   const lines = [
     `${t('pedigree.print.case', 'Caso')}: ${answer.caseTitle}`,
-    `${t('pedigree.print.student', 'Alumno/a')}: ${answer.studentName || t('pedigree.label.unknownName', '(sin nombre)')}`,
+    `${t('pedigree.print.studentLabel', 'Alumno/a')}: ${answer.studentName || t('pedigree.label.unknownName', '(sin nombre)')}`,
+    `${t('pedigree.print.dateLabel', 'Fecha y hora')}: ${dateStr}`,
     `${t('pedigree.label.proposedPattern', 'Patrón propuesto')}: ${answer.patternLabel || t('pedigree.label.unspecifiedAnswer', '(sin responder)')}`,
     '',
     `${t('pedigree.label.justification', 'Justificación')}:`,
