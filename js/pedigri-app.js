@@ -1867,6 +1867,7 @@ function xGeno(a1, a2) {
 function genderedStatusLabel(label, sex) {
   const isFemale = sex === 'F';
   return String(label || '')
+    // Spanish
     .replace(/Portador\/a/g, isFemale ? 'Portadora' : 'Portador')
     .replace(/portador\/a/g, isFemale ? 'portadora' : 'portador')
     .replace(/Afectado\/a/g, isFemale ? 'Afectada' : 'Afectado')
@@ -1874,7 +1875,14 @@ function genderedStatusLabel(label, sex) {
     .replace(/Heterocigoto\/a/g, isFemale ? 'Heterocigota' : 'Heterocigoto')
     .replace(/heterocigoto\/a/g, isFemale ? 'heterocigota' : 'heterocigoto')
     .replace(/Marcado\/a/g, isFemale ? 'Marcada' : 'Marcado')
-    .replace(/marcado\/a/g, isFemale ? 'marcada' : 'marcado');
+    .replace(/marcado\/a/g, isFemale ? 'marcada' : 'marcado')
+    // Catalan
+    .replace(/Afectat\/ada/g, isFemale ? 'Afectada' : 'Afectat')
+    .replace(/afectat\/ada/g, isFemale ? 'afectada' : 'afectat')
+    .replace(/Heterozigot\/a/g, isFemale ? 'Heterozigota' : 'Heterozigot')
+    .replace(/heterozigot\/a/g, isFemale ? 'heterozigota' : 'heterozigot')
+    .replace(/Marcat\/ada/g, isFemale ? 'Marcada' : 'Marcat')
+    .replace(/marcat\/ada/g, isFemale ? 'marcada' : 'marcat');
 }
 
 function inferBuilderGenotypes(pattern, alleles) {
