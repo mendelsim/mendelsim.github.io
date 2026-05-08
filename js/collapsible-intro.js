@@ -39,9 +39,6 @@
 
     function setCollapsed(collapse, save) {
       box.classList.toggle('law-box--collapsed', collapse);
-      box.style.paddingTop    = collapse ? '0.4rem' : '';
-      box.style.paddingBottom = collapse ? '0.4rem' : '';
-      title.style.marginBottom = collapse ? '0' : '';
       btn.innerHTML = collapse ? '▼' : '▲';
       btn.setAttribute('aria-expanded', String(!collapse));
       if (save) localStorage.setItem(KEY, collapse ? '1' : '0');

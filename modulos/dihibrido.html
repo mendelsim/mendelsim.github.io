@@ -65,7 +65,10 @@
     [data-theme="dark"] .law-box { background: linear-gradient(135deg, #0d2e1a, #0a2216); }
     .law-title { cursor: pointer; user-select: none; }
     .law-box-toggle { background: none; border: none; font-size: 0.75rem; color: var(--primary); cursor: pointer; padding: 0 0 0 0.5rem; line-height: 1; }
+    .law-box { transition: padding 0.3s ease; }
     .law-box-body { overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; max-height: 200px; opacity: 1; }
+    .law-box--collapsed { padding-top: 0.4rem !important; padding-bottom: 0.4rem !important; }
+    .law-box--collapsed .law-title { margin-bottom: 0; }
     .law-box--collapsed .law-box-body { max-height: 0; opacity: 0; }
   </style>
 </head>
