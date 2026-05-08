@@ -338,6 +338,7 @@
         <button class="btn btn-outline" onclick="saveMonoExercise('student')">🎓 Guardar alumno</button>
         <button class="btn btn-outline" onclick="document.getElementById('monoExerciseFile').click()">📂 Cargar actividad</button>
         <input type="file" id="monoExerciseFile" accept=".json,application/json" style="display:none;" onchange="loadMonoExerciseFile(event)">
+        <button class="btn btn-outline" onclick="limpiarCrear()">↺ Limpiar</button>
       </div>
       <div id="teacherExerciseStatus" class="exercise-status" aria-live="polite"></div>
     </div>
@@ -980,6 +981,22 @@ function limpiar() {
   document.getElementById('traitInter').value = uiText('intermediateFallback', 'Intermedio');
   document.getElementById('exampleInfo').style.display = 'none';
   onDomChange();
+}
+
+function limpiarCrear() {
+  document.getElementById('teacherExerciseTitle').value = '';
+  document.getElementById('teacherPrompt').value = '';
+  document.getElementById('teacherAlleleDom').value = 'A';
+  document.getElementById('teacherAlleleRec').value = 'a';
+  document.getElementById('teacherP1Select').value = 'Aa';
+  document.getElementById('teacherP2Select').value = 'Aa';
+  document.querySelector('input[name="teacherDominance"][value="complete"]').checked = true;
+  document.getElementById('teacherTraitDom').value = uiText('dominantFallback', 'Amarillo');
+  document.getElementById('teacherTraitRec').value = uiText('recessiveFallback', 'Verde');
+  document.getElementById('teacherTraitInter').value = uiText('intermediateFallback', 'Intermedio');
+  document.getElementById('teacherAllowAutoCheck').checked = true;
+  document.getElementById('teacherExerciseStatus').textContent = '';
+  onTeacherMonoDominanceChange();
 }
 
 // ── Teacher/student exercise mode ───────────────────────────

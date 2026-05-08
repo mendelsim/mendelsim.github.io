@@ -377,6 +377,7 @@
         <button class="btn btn-outline" onclick="saveXLinkedExercise('student')">🎓 Guardar alumno</button>
         <button class="btn btn-outline" onclick="document.getElementById('xLinkedExerciseFile').click()">📂 Cargar actividad</button>
         <input type="file" id="xLinkedExerciseFile" accept=".json,application/json" style="display:none;" onchange="loadXLinkedExerciseFile(event)">
+        <button class="btn btn-outline" onclick="limpiarCrear()">↺ Limpiar</button>
       </div>
       <div id="teacherExerciseStatus" class="exercise-status" aria-live="polite"></div>
     </div>
@@ -1026,6 +1027,18 @@ function limpiar() {
   document.getElementById('alleleA').value = 'H';
   document.getElementById('alleleA2').value = 'h';
   document.getElementById('exampleInfo').style.display = 'none';
+}
+
+function limpiarCrear() {
+  document.getElementById('teacherExerciseTitle').value = '';
+  document.getElementById('teacherPrompt').value = '';
+  document.getElementById('teacherMother').value = 'X^AX^A';
+  document.getElementById('teacherFather').value = 'X^AY';
+  document.getElementById('teacherTraitName').value = uiText('traitNameDefault', 'Hemofilia A');
+  document.getElementById('teacherAlleleA').value = 'H';
+  document.getElementById('teacherAlleleA2').value = 'h';
+  document.getElementById('teacherAllowAutoCheck').checked = true;
+  document.getElementById('teacherExerciseStatus').textContent = '';
 }
 
 // ── Teacher/student exercise mode ───────────────────────────
