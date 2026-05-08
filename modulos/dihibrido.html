@@ -822,10 +822,22 @@ function toggleQA(el) {
 }
 
 function limpiar() {
+  // Reset result sections
   ['punnettSection','resultsSection','understandSection'].forEach(id => {
     document.getElementById(id).classList.remove('visible');
   });
   document.getElementById('punnettGrid').innerHTML = '';
+
+  // Reset form inputs to default state
+  document.getElementById('p1A').value = 'Aa';
+  document.getElementById('p1B').value = 'Bb';
+  document.getElementById('p2A').value = 'Aa';
+  document.getElementById('p2B').value = 'Bb';
+  document.getElementById('traitAdom').value = uiText('traitADomDefault', 'Amarillo');
+  document.getElementById('traitArec').value = uiText('traitARecDefault', 'Verde');
+  document.getElementById('traitBdom').value = uiText('traitBDomDefault', 'Liso');
+  document.getElementById('traitBrec').value = uiText('traitBRecDefault', 'Rugoso');
+  document.getElementById('exampleInfo').style.display = 'none';
 }
 
 // ── Teacher/student exercise mode ───────────────────────────

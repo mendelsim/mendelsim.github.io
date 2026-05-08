@@ -961,6 +961,7 @@ function toggleQA(el) {
 }
 
 function limpiar() {
+  // Reset result sections
   ['punnettSection','resultsSection','understandSection'].forEach(id => {
     document.getElementById(id).classList.remove('visible');
   });
@@ -969,6 +970,16 @@ function limpiar() {
   document.getElementById('phenoRatioList').innerHTML = '';
   document.getElementById('phenoLegend').innerHTML = '';
   currentPunnett = [];
+
+  // Reset form inputs to default state
+  document.getElementById('p1Select').value = 'Aa';
+  document.getElementById('p2Select').value = 'Aa';
+  document.querySelector('input[name="dominance"][value="complete"]').checked = true;
+  document.getElementById('traitDom').value = uiText('dominantFallback', 'Amarillo');
+  document.getElementById('traitRec').value = uiText('recessiveFallback', 'Verde');
+  document.getElementById('traitInter').value = uiText('intermediateFallback', 'Intermedio');
+  document.getElementById('exampleInfo').style.display = 'none';
+  onDomChange();
 }
 
 // ── Teacher/student exercise mode ───────────────────────────

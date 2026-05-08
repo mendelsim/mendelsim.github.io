@@ -1010,9 +1010,22 @@ function toggleQA(el) {
 }
 
 function limpiar() {
+  // Reset result sections
   ['punnettSection','resultsSection','explainSection'].forEach(id => {
     document.getElementById(id).classList.remove('visible');
   });
+
+  // Reset form inputs to default state
+  const defaultMother = document.querySelector('input[name="mother"][value="X^AX^A"]');
+  defaultMother.checked = true;
+  onMotherChange(defaultMother);
+  const defaultFather = document.querySelector('input[name="father"][value="X^AY"]');
+  defaultFather.checked = true;
+  onFatherChange(defaultFather);
+  document.getElementById('traitName').value = uiText('traitNameDefault', 'Hemofilia A');
+  document.getElementById('alleleA').value = 'H';
+  document.getElementById('alleleA2').value = 'h';
+  document.getElementById('exampleInfo').style.display = 'none';
 }
 
 // ── Teacher/student exercise mode ───────────────────────────
