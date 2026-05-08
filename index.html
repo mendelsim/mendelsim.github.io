@@ -25,25 +25,6 @@
       color: #6b7280;
       margin-bottom: 0.5rem;
     }
-    .feature-list {
-      list-style: none;
-      padding: 0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-      margin: 1.5rem 0;
-    }
-    .feature-list li {
-      background: #f0fdf4;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 0.3rem 0.9rem;
-      font-size: 0.85rem;
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
     .quick-open {
       margin: 1.2rem 0 1.5rem;
       display: flex;
@@ -81,15 +62,6 @@
 </header>
 
 <div class="container">
-
-  <ul class="feature-list">
-    <li>✅ Cuadros de Punnett animados</li>
-    <li>✅ Herencia monohíbrida y dihíbrida</li>
-    <li>✅ Herencia ligada al sexo</li>
-    <li>✅ Pedigríes interactivos</li>
-    <li>✅ Ejercicios con soluciones</li>
-    <li>✅ Sin instalación — funciona en el navegador</li>
-  </ul>
 
   <div class="quick-open">
     <button class="btn btn-primary" id="homeJsonFileButton" type="button" onclick="document.getElementById('homeJsonFile').click()">📂 Abrir archivo de MendelSim</button>
@@ -182,14 +154,6 @@ const INDEX_CA = {
   pageTitle: 'MendelSim — Simulador de genètica',
   heading: 'MendelSim — Simulador de genètica',
   subtitle: 'Aprèn i practica genètica amb simuladors interactius',
-  features: [
-    '✅ Quadres de Punnett animats',
-    '✅ Herència monohíbrida i dihíbrida',
-    '✅ Herència lligada al sexe',
-    '✅ Pedigrís interactius',
-    '✅ Exercicis amb solucions',
-    '✅ Sense instal·lació — funciona al navegador',
-  ],
   modulesTitle: 'Mòduls disponibles',
   modulesIntro: 'Selecciona un mòdul per començar a practicar:',
   quickOpenButton: '📂 Obrir fitxer de MendelSim',
@@ -230,14 +194,6 @@ const INDEX_EN = {
   pageTitle: 'MendelSim — Genetics Simulator',
   heading: 'MendelSim — Genetics Simulator',
   subtitle: 'Learn and practise genetics with interactive simulators',
-  features: [
-    '✅ Animated Punnett squares',
-    '✅ Monohybrid and dihybrid inheritance',
-    '✅ Sex-linked inheritance',
-    '✅ Interactive pedigrees',
-    '✅ Exercises with solutions',
-    '✅ No installation — runs in the browser',
-  ],
   modulesTitle: 'Available modules',
   modulesIntro: 'Select a module to start practising:',
   quickOpenButton: '📂 Open MendelSim file',
@@ -314,9 +270,6 @@ function applyLocale() {
   document.querySelector('.header h1').textContent = L.heading;
   document.querySelector('.hero-subtitle').textContent = L.subtitle;
   document.getElementById('darkToggle')?.setAttribute('title', locale === 'en' ? 'Dark mode' : 'Mode fosc');
-  document.querySelectorAll('.feature-list li').forEach((li, index) => {
-    li.textContent = L.features[index] || li.textContent;
-  });
   document.querySelector('.modules-section h2').textContent = L.modulesTitle;
   document.querySelector('.modules-section > p').textContent = L.modulesIntro;
   const quickOpenBtn = document.querySelector('.quick-open .btn');
