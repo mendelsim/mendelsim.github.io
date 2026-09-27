@@ -92,7 +92,7 @@ window.MONOHYBRID_CONTENT = {
     run: '▶ Realizar cruce',
     clear: '↺ Limpiar',
     punnettTitleText: 'Cuadro de Punnett',
-    punnettHint: 'Cada celda muestra el genotip de un posible descendiente. Las celdas aparecen una por una para que puedas seguir el proceso.',
+    punnettHint: 'Cada celda muestra el genotipo de un posible descendiente. Las celdas aparecen una por una para que puedas seguir el proceso.',
     resultsTitleText: 'Resultados',
     genoRatios: '📊 Proporciones genotípicas',
     phenoRatios: '🎨 Proporciones fenotípicas',
